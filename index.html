@@ -1,21 +1,633 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Project IQ — Seven Hills Constructions</title>
-  <style>
-    body { font-family: Arial, sans-serif; display: flex; 
-           align-items: center; justify-content: center; 
-           height: 100vh; margin: 0; background: #1B3A6B; }
-    .msg { text-align: center; color: white; }
-    h1 { font-size: 2rem; margin-bottom: 8px; }
-    p  { font-size: 1rem; opacity: 0.7; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project IQ — Portfolio Dashboard | Seven Hills Constructions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* ── Page-specific styles ── */
+.layout { padding-left: var(--sidebar-w); }
+
+/* Portfolio cube widget */
+.cube-widget {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.cube-widget-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  text-align: center;
+  width: 100%;
+}
+.cube-widget-sub {
+  font-size: 10px;
+  color: var(--grey-mid);
+  text-align: center;
+  margin-top: -8px;
+}
+
+/* Solar system */
+.solar {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.scene {
+  width: 110px;
+  height: 110px;
+  perspective: 320px;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+}
+.cube3d {
+  width: 110px;
+  height: 110px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: spin 22s infinite linear;
+}
+.cube3d:hover { animation-duration: 60s; }
+.cube3d.paused { animation-play-state: paused; }
+@keyframes spin {
+  0%   { transform: rotateX(-22deg) rotateY(0deg); }
+  100% { transform: rotateX(-22deg) rotateY(360deg); }
+}
+.face {
+  position: absolute;
+  width: 110px; height: 110px;
+  border: 2px solid rgba(255,255,255,0.35);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px; border-radius: 4px; cursor: pointer;
+  transition: filter .2s;
+}
+.face:hover { filter: brightness(1.18); }
+.face-front  { transform: translateZ(55px);               background: linear-gradient(135deg,#0F6E56cc,#1D9E75cc); }
+.face-back   { transform: rotateY(180deg) translateZ(55px); background: linear-gradient(135deg,#534AB7cc,#3C3489cc); }
+.face-right  { transform: rotateY(90deg) translateZ(55px);  background: linear-gradient(135deg,#C0392Bcc,#791F1Fcc); }
+.face-left   { transform: rotateY(-90deg) translateZ(55px); background: linear-gradient(135deg,#D68910cc,#854F0Bcc); }
+.face-top    { transform: rotateX(90deg) translateZ(55px);  background: linear-gradient(135deg,#2471A3cc,#0C447Ccc); }
+.face-bottom { transform: rotateX(-90deg) translateZ(55px); background: linear-gradient(135deg,#6C3483cc,#3C3489cc); }
+.fl { font-size: 8px;  font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.5); text-align: center; line-height: 1.2; }
+.fv { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.3); }
+
+/* Cube lifecycle ring */
+.lc-svg { position: absolute; top: 0; left: 0; width: 280px; height: 280px; }
+/* Cube controls ring */
+.ctrl-svg { position: absolute; top: 32px; left: 32px; width: 216px; height: 216px; }
+
+/* Param chips */
+.param-chips {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 3px;
+  width: 100%;
+}
+.p-chip {
+  background: var(--grey-light);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 4px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .15s;
+}
+.p-chip:hover { border-color: var(--navy); background: var(--navy-light); }
+.p-chip-name { font-size: 8px; color: var(--grey-mid); text-transform: uppercase; letter-spacing: .04em; }
+.p-chip-val  { font-size: 10px; font-weight: 700; margin-top: 1px; }
+
+/* Project cards grid */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+/* IQ feed items */
+.iq-feed { display: flex; flex-direction: column; gap: 6px; }
+.iq-item {
+  display: flex; gap: 8px; padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: white;
+}
+.iq-icon {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.ii-critical { background: var(--red-light);    color: var(--red); }
+.ii-warning  { background: var(--amber-light);  color: var(--amber); }
+.ii-info     { background: var(--navy-light);   color: var(--navy); }
+.ii-positive { background: var(--teal-light);   color: var(--teal); }
+.iq-text { font-size: 11px; color: var(--grey); line-height: 1.4; }
+.iq-text strong { font-weight: 700; color: var(--black); }
+
+/* Tooltip */
+.tip {
+  position: fixed; background: var(--navy); color: white;
+  padding: 5px 10px; border-radius: 5px; font-size: 10px;
+  pointer-events: none; opacity: 0; transition: opacity .15s;
+  z-index: 9999; max-width: 200px; line-height: 1.4;
+  font-family: var(--font);
+}
+
+/* Cube IQ insight */
+.cube-iq {
+  background: var(--navy-light);
+  border: 1px solid #85B7EB;
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 10px;
+  color: #185FA5;
+  line-height: 1.5;
+  width: 100%;
+  min-height: 52px;
+}
+</style>
 </head>
+
 <body>
-  <div class="msg">
-    <h1>Project IQ</h1>
-    <p>The execution intelligence platform for real estate and infrastructure.</p>
-    <p>Coming soon — Seven Hills Constructions</p>
-  </div>
+<div id="tip" class="tip"></div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar-container"></div>
+
+  <!-- MAIN -->
+  <div class="main-area">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Portfolio — Command Centre</div>
+        <div class="page-sub" id="topbar-sub">Loading...</div>
+      </div>
+      <div class="topbar-right" id="topbar-right">
+        <div class="avatar" id="topbar-avatar">KR</div>
+      </div>
+    </div>
+
+    <!-- ALERT BAR -->
+    <div id="alert-bar-container"></div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- KPI STRIP -->
+      <div class="kpi-grid mb-14" id="kpi-grid"></div>
+
+      <!-- ROW 1: Project Cards + Cube -->
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:14px;margin-bottom:14px;">
+
+        <!-- Project Cards -->
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">
+            Projects — click to open project dashboard
+          </div>
+          <div class="projects-grid" id="projects-grid"></div>
+        </div>
+
+        <!-- Cube Widget -->
+        <div class="cube-widget">
+          <div class="cube-widget-title">Execution Cube — Portfolio Health</div>
+          <div class="cube-widget-sub">Outer: Lifecycle · Middle: Controls · Faces: Dimensions</div>
+
+          <div class="solar" id="solar">
+            <!-- Lifecycle outer ring -->
+            <svg class="lc-svg" viewBox="0 0 280 280">
+              <path d="M140,140 L140,2 A138,138 0 0,1 261.6,71 Z"    fill="#D0CFC8" stroke="white" stroke-width="1.5" class="lc-seg" data-tip="Stage 0: Feasibility &amp; Land"/>
+              <path d="M140,140 L261.6,71 A138,138 0 0,1 261.6,209 Z" fill="#B4B2A9" stroke="white" stroke-width="1.5" class="lc-seg" data-tip="Stage 1: Design &amp; Approvals"/>
+              <path d="M140,140 L261.6,209 A138,138 0 0,1 140,278 Z"  fill="#9c9a92" stroke="white" stroke-width="1.5" class="lc-seg" data-tip="Stage 2: Pre-Construction"/>
+              <path d="M140,140 L140,278 A138,138 0 0,1 18.4,209 Z"   fill="#1D9E75" stroke="white" stroke-width="2"   class="lc-seg" data-tip="Stage 3: Construction — ACTIVE (Skyline + Prestige Oaks)"/>
+              <path d="M140,140 L18.4,209 A138,138 0 0,1 18.4,71 Z"   fill="#E8E7DF" stroke="white" stroke-width="1.5" class="lc-seg" data-tip="Stage 4: Commissioning &amp; Handover (TekTower One)"/>
+              <path d="M140,140 L18.4,71 A138,138 0 0,1 140,2 Z"      fill="#E8E7DF" stroke="white" stroke-width="1.5" class="lc-seg" data-tip="Stage 5: Asset &amp; FM Operations"/>
+              <text x="198" y="50"  text-anchor="middle" font-size="7.5" fill="white"  font-weight="700" font-family="DM Sans,sans-serif">S0</text>
+              <text x="258" y="140" text-anchor="middle" font-size="7.5" fill="white"  font-weight="700" font-family="DM Sans,sans-serif">S1</text>
+              <text x="198" y="238" text-anchor="middle" font-size="7.5" fill="white"  font-weight="700" font-family="DM Sans,sans-serif">S2</text>
+              <text x="80"  y="248" text-anchor="middle" font-size="8"   fill="white"  font-weight="700" font-family="DM Sans,sans-serif">S3</text>
+              <text x="22"  y="140" text-anchor="middle" font-size="7.5" fill="#888"   font-weight="700" font-family="DM Sans,sans-serif">S4</text>
+              <text x="80"  y="44"  text-anchor="middle" font-size="7.5" fill="#888"   font-weight="700" font-family="DM Sans,sans-serif">S5</text>
+            </svg>
+            <!-- Controls middle ring -->
+            <svg class="ctrl-svg" viewBox="0 0 216 216">
+              <path d="M108,108 L108,4 A104,104 0 0,1 198,56 Z"   fill="#D85A30dd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="Governance: RACI, Phase Gates"/>
+              <path d="M108,108 L198,56 A104,104 0 0,1 198,160 Z" fill="#C0392Bdd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="Compliance: RERA + 14 authorities — 2 urgent"/>
+              <path d="M108,108 L198,160 A104,104 0 0,1 144,208 Z" fill="#1D9E75dd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="QA: Preventive — ITP, Method Statements"/>
+              <path d="M108,108 L144,208 A104,104 0 0,1 72,208 Z"  fill="#0F6E56dd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="QC: Corrective — 3 NCRs open"/>
+              <path d="M108,108 L72,208 A104,104 0 0,1 18,160 Z"   fill="#F39C12dd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="HSE: Safety, BOCW compliance"/>
+              <path d="M108,108 L18,160 A104,104 0 0,1 18,56 Z"    fill="#7F77DDdd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="Procurement: PO, GRN, 3-way match — Rs.6 Cr pending"/>
+              <path d="M108,108 L18,56 A104,104 0 0,1 108,4 Z"     fill="#885ECDdd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="Variation &amp; Document Control: CCB, ISO 19650"/>
+              <text x="148" y="36"  text-anchor="middle" font-size="7" fill="white" font-weight="700" font-family="DM Sans,sans-serif">Gov</text>
+              <text x="190" y="108" text-anchor="middle" font-size="7" fill="white" font-weight="700" font-family="DM Sans,sans-serif">Reg</text>
+              <text x="166" y="190" text-anchor="middle" font-size="7" fill="white" font-weight="700" font-family="DM Sans,sans-serif">QA</text>
+              <text x="108" y="210" text-anchor="middle" font-size="7" fill="white" font-weight="700" font-family="DM Sans,sans-serif">QC</text>
+              <text x="46"  y="190" text-anchor="middle" font-size="7" fill="white" font-weight="700" font-family="DM Sans,sans-serif">HSE</text>
+              <text x="24"  y="108" text-anchor="middle" font-size="7" fill="white" font-weight="700" font-family="DM Sans,sans-serif">Proc</text>
+              <text x="46"  y="36"  text-anchor="middle" font-size="6" fill="white" font-weight="700" font-family="DM Sans,sans-serif">Var</text>
+            </svg>
+            <!-- 3D cube -->
+            <div class="scene" id="cube-scene">
+              <div class="cube3d" id="cube3d">
+                <div class="face face-front" data-dim="construction" data-tip="Construction: Portfolio avg 58%. Skyline 54% — delayed."><div class="fv">58%</div><div class="fl">Construction</div></div>
+                <div class="face face-back"  data-dim="asset"        data-tip="Asset &amp; Ops: Portfolio at early stage. TekTower FM planning active."><div class="fv">12%</div><div class="fl">Asset &amp; Ops</div></div>
+                <div class="face face-right" data-dim="sales"        data-tip="Leasing &amp; Sales: Portfolio 74%. 412/643 units booked. Rs.142 Cr revenue."><div class="fv">74%</div><div class="fl">Sales</div></div>
+                <div class="face face-left"  data-dim="finance"      data-tip="Finance: Portfolio 71%. Rs.6 Cr overdue. Q3 gap projected for Skyline."><div class="fv">71%</div><div class="fl">Finance</div></div>
+                <div class="face face-top"   data-dim="cx"           data-tip="Stakeholder &amp; CX: 52% portfolio. 19 CX issues open. NPS +34."><div class="fv">52%</div><div class="fl">CX</div></div>
+                <div class="face face-bottom" data-dim="design"      data-tip="Design &amp; Engineering: 85% portfolio. All IFC drawings issued for active projects."><div class="fv">85%</div><div class="fl">Design</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Param chips -->
+          <div class="param-chips">
+            <div class="p-chip" data-tip="Cost: Portfolio CPI avg 0.97. Skyline 0.91 (overrun), others within budget."><div class="p-chip-name">Cost</div><div class="p-chip-val" style="color:#633806;">CPI 0.97</div></div>
+            <div class="p-chip" data-tip="Revenue: Rs.142 Cr booked of Rs.280 Cr target. Collection efficiency 84-96%."><div class="p-chip-name">Revenue</div><div class="p-chip-val" style="color:#085041;">51% tgt</div></div>
+            <div class="p-chip" data-tip="Schedule: Portfolio SPI avg 0.93. Skyline 0.89, others ahead of plan."><div class="p-chip-name">Schedule</div><div class="p-chip-val" style="color:#633806;">SPI 0.93</div></div>
+            <div class="p-chip" data-tip="Scope: All projects BOQ-aligned. 3 variations approved across portfolio."><div class="p-chip-name">Scope</div><div class="p-chip-val" style="color:#085041;">On track</div></div>
+            <div class="p-chip" data-tip="QA: Portfolio ITP compliance avg 89%. Skyline 87%, others 92%+."><div class="p-chip-name">QA</div><div class="p-chip-val" style="color:#633806;">89% ITP</div></div>
+            <div class="p-chip" data-tip="QC: 3 open NCRs across portfolio. 1 critical (Skyline Floor 7)."><div class="p-chip-name">QC</div><div class="p-chip-val" style="color:#791F1F;">3 NCRs</div></div>
+            <div class="p-chip" data-tip="Risk: 11 high-severity risks active across portfolio."><div class="p-chip-name">Risk</div><div class="p-chip-val" style="color:#791F1F;">11 High</div></div>
+            <div class="p-chip" data-tip="ESG: Portfolio avg 68% IGBC compliance. Skyline on Gold track."><div class="p-chip-name">ESG</div><div class="p-chip-val" style="color:#085041;">68%</div></div>
+            <div class="p-chip" data-tip="Resources: Labour 8% below plan on Skyline. Others at plan."><div class="p-chip-name">Resources</div><div class="p-chip-val" style="color:#633806;">-4%</div></div>
+          </div>
+
+          <!-- Cube IQ insight -->
+          <div class="cube-iq" id="cube-iq">
+            Click any cube face to see cross-dimensional Decision Intelligence insights for that dimension.
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 2: Cash Flow + Regulatory + IQ Feed -->
+      <div class="grid-3" style="margin-bottom:14px;">
+
+        <!-- Cash Flow -->
+        <div class="card">
+          <div class="card-title">Portfolio cash flow <span class="card-sub">Rs. Cr — last 6 months</span></div>
+          <canvas id="cashflow-chart" height="160"></canvas>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.04em;">Net this month</div>
+              <div style="font-size:15px;font-weight:700;color:var(--teal-mid);margin-top:2px;">+Rs.6.4 Cr</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.04em;">Payables due</div>
+              <div style="font-size:15px;font-weight:700;color:var(--red-mid);margin-top:2px;">Rs.18.4 Cr</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.04em;">Portfolio NPS</div>
+              <div style="font-size:15px;font-weight:700;color:var(--amber-mid);margin-top:2px;">+34</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regulatory Calendar -->
+        <div class="card">
+          <div class="card-title">Regulatory calendar <span class="card-sub">Next 30 days — all projects</span></div>
+          <div id="reg-calendar"></div>
+          <div style="margin-top:8px;">
+            <button onclick="alert('Full regulatory calendar — coming in Phase 2')"
+              style="width:100%;font-size:10px;padding:6px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--grey-light);color:var(--grey);cursor:pointer;font-family:var(--font);font-weight:600;">
+              View full regulatory calendar →
+            </button>
+          </div>
+        </div>
+
+        <!-- Project IQ Feed -->
+        <div class="card">
+          <div class="card-title">
+            ✦ Project IQ — Portfolio intelligence
+          </div>
+          <div class="iq-feed" id="iq-feed"></div>
+          <div style="margin-top:8px;">
+            <button onclick="openIQ()"
+              style="width:100%;font-size:10px;padding:6px;border-radius:var(--radius-sm);border:1px solid #85B7EB;background:var(--navy-light);color:var(--navy);cursor:pointer;font-family:var(--font);font-weight:700;">
+              ✦ Ask Project IQ for weekly priority actions →
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ROW 3: Cube Scorecard + Add Project -->
+      <div class="grid-2">
+        <!-- Portfolio cube scorecard text -->
+        <div class="card">
+          <div class="card-title">Portfolio cube scorecard <span class="card-sub">Aggregate across all projects</span></div>
+          <div id="cube-scorecard"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+            <div style="background:var(--grey-light);border-radius:var(--radius-sm);padding:8px;text-align:center;">
+              <div style="font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.04em;">Portfolio NPS</div>
+              <div style="font-size:18px;font-weight:700;color:var(--amber-mid);margin-top:3px;">+34</div>
+            </div>
+            <div style="background:var(--grey-light);border-radius:var(--radius-sm);padding:8px;text-align:center;">
+              <div style="font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.04em;">Avg buyer score</div>
+              <div style="font-size:18px;font-weight:700;color:var(--amber-mid);margin-top:3px;">3.7 / 5</div>
+            </div>
+            <div style="background:var(--grey-light);border-radius:var(--radius-sm);padding:8px;text-align:center;">
+              <div style="font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.04em;">Active risks</div>
+              <div style="font-size:18px;font-weight:700;color:var(--red-mid);margin-top:3px;">11</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Unit inventory summary -->
+        <div class="card">
+          <div class="card-title">Portfolio unit inventory <span class="card-sub">643 total units across 4 projects</span></div>
+          <canvas id="units-chart" height="180"></canvas>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:10px;">
+            <div style="text-align:center;padding:5px;background:#E1F5EE;border-radius:5px;">
+              <div style="font-size:16px;font-weight:700;color:#085041;">412</div>
+              <div style="font-size:9px;color:#085041;font-weight:600;">Booked</div>
+            </div>
+            <div style="text-align:center;padding:5px;background:#E6EDF7;border-radius:5px;">
+              <div style="font-size:16px;font-weight:700;color:#0C447C;">231</div>
+              <div style="font-size:9px;color:#0C447C;font-weight:600;">Available</div>
+            </div>
+            <div style="text-align:center;padding:5px;background:#FAEEDA;border-radius:5px;">
+              <div style="font-size:16px;font-weight:700;color:#633806;">18</div>
+              <div style="font-size:9px;color:#633806;font-weight:600;">Reserved</div>
+            </div>
+            <div style="text-align:center;padding:5px;background:#FCEBEB;border-radius:5px;">
+              <div style="font-size:16px;font-weight:700;color:#791F1F;">38</div>
+              <div style="font-size:9px;color:#791F1F;font-weight:600;">Hot leads</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end content -->
+  </div><!-- end main-area -->
+</div><!-- end layout -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="data/portfolio.js"></script>
+<script src="js/common.js"></script>
+<script>
+// ── Tooltip setup ────────────────────────────────────────────
+const tip = document.getElementById('tip');
+function setupTooltips() {
+  document.querySelectorAll('[data-tip]').forEach(el => {
+    el.addEventListener('mousemove', e => {
+      tip.style.opacity = '1';
+      tip.style.left = (e.clientX + 14) + 'px';
+      tip.style.top  = (e.clientY - 10) + 'px';
+      tip.textContent = el.getAttribute('data-tip');
+    });
+    el.addEventListener('mouseleave', () => { tip.style.opacity = '0'; });
+  });
+}
+
+// ── Render sidebar ───────────────────────────────────────────
+document.getElementById('sidebar-container').innerHTML = renderPortfolioSidebar('portfolio');
+
+// ── Populate topbar ──────────────────────────────────────────
+const b = window.PIQ.builder;
+const k = window.PIQ.portfolio_kpis;
+document.getElementById('topbar-sub').textContent =
+  `${b.name} · ${k.total_projects} active projects · Hyderabad · Last updated today`;
+document.getElementById('topbar-avatar').textContent = b.md_initials;
+
+// Topbar pills
+const tr = document.getElementById('topbar-right');
+tr.innerHTML = `
+  <span class="status-pill pill-green">${k.active_projects} on track</span>
+  <span class="status-pill pill-red">1 delayed</span>
+  <span class="status-pill pill-amber">5 approvals due</span>
+  <span class="status-pill pill-blue">2 critical alerts</span>
+  <div class="avatar">${b.md_initials}</div>`;
+
+// ── Alert bar ────────────────────────────────────────────────
+document.getElementById('alert-bar-container').innerHTML = `
+  <div class="alert-bar">
+    <div class="alert-row">
+      <span class="alert-tag at-critical">Critical</span>
+      <span><strong>Skyline Heights</strong> — Plastering delay 44 days · 23 units at RERA possession risk · Rs.1.2 Cr penalty exposure · Q3 cash gap Rs.3.8 Cr</span>
+    </div>
+    <div class="alert-row">
+      <span class="alert-tag at-warning">Regulatory</span>
+      <span>Fire NOC renewal due in 18 days (Skyline) · Water board connection blocking OC · RERA quarterly due tomorrow (Prestige Oaks)</span>
+    </div>
+  </div>`;
+
+// ── KPI strip ────────────────────────────────────────────────
+const kpis = [
+  { label: 'Total projects',    value: k.total_projects,                 sub: `${k.active_projects} active · ${k.pre_launch} pre-launch` },
+  { label: 'Total units',       value: k.total_units,                    sub: `${k.units_booked} booked · ${k.units_available} open`, delta: null },
+  { label: 'Revenue booked',    value: `Rs.${k.revenue_booked_cr} Cr`,   sub: `of Rs.${k.revenue_target_cr} Cr target`, delta: '+18% vs last qtr', dclass: 'delta-green' },
+  { label: 'Portfolio progress',value: `${k.portfolio_progress_pct}%`,   sub: `plan ${k.portfolio_plan_pct}%`, delta: '▼ 4.1% vs plan', dclass: 'delta-amber' },
+  { label: 'Open issues',       value: k.open_issues,                    sub: `${k.cx_issues} CX · ${k.construction_issues} construction`, delta: null },
+  { label: 'Pending payables',  value: `Rs.${k.pending_payables_cr} Cr`, sub: `Rs.${k.overdue_payables_cr} Cr overdue`, delta: '▲ overdue', dclass: 'delta-red' },
+];
+document.getElementById('kpi-grid').innerHTML = kpis.map(k => `
+  <div class="kpi">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value" style="font-size:${String(k.value).length>6?'16px':'22px'}">${k.value}</div>
+    <div class="kpi-sub">
+      ${k.delta ? `<span class="kpi-delta ${k.dclass}">${k.delta}</span>` : ''}
+      ${k.sub}
+    </div>
+  </div>`).join('');
+
+// ── Project cards ────────────────────────────────────────────
+const projs = Object.values(window.PIQ.projects);
+const statusColors = { delayed: '#E24B4A', 'on-track': '#1D9E75', 'pre-launch': '#EF9F27' };
+const dimChipColors = {
+  construction: ['#E1F5EE','#085041'],
+  sales: ['#FAECE7','#791F1F'],
+  cx: ['#EEEDFE','#3C3489'],
+  finance: ['#FAEEDA','#633806'],
+};
+
+document.getElementById('projects-grid').innerHTML = projs.map(p => {
+  const sc = p.cube;
+  const chips = [
+    `<span class="dim-chip" style="background:#E1F5EE;color:#085041;">Const ${sc.construction.score}%</span>`,
+    `<span class="dim-chip" style="background:#FAEEDA;color:#633806;">Finance ${sc.finance.score}%</span>`,
+    `<span class="dim-chip" style="background:#EEEDFE;color:#3C3489;">CX ${sc.cx.score}%</span>`,
+  ].join('');
+
+  const alertColor = p.status === 'delayed' ? 'var(--red)' : p.status === 'pre-launch' ? 'var(--amber)' : 'var(--teal)';
+
+  return `
+  <div class="proj-card ${p.status}" onclick="goTo('project','${p.id}')">
+    <div class="proj-card-header">
+      <div>
+        <div class="proj-card-name">${p.name}</div>
+        <div class="proj-card-type">${p.type} · ${p.location}</div>
+      </div>
+      <span class="status-tag tag-${p.status==='on-track'?'ontrack':p.status}">${p.status_label}</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar ${p.overall_progress>=70?'bar-green':p.overall_progress>=50?'bar-amber':'bar-red'}" style="width:${p.overall_progress}%;"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--grey-mid);margin-bottom:8px;">
+      <span>${p.overall_progress}% complete</span><span>${p.end_date}</span>
+    </div>
+    <div class="proj-stats-grid">
+      <div class="proj-stat">
+        <div class="proj-stat-label">Units booked</div>
+        <div class="proj-stat-value">${p.units_booked}${p.total_units>0?' / '+p.total_units:''}</div>
+      </div>
+      <div class="proj-stat">
+        <div class="proj-stat-label">Revenue</div>
+        <div class="proj-stat-value">Rs.${p.revenue_booked_cr} Cr</div>
+      </div>
+      <div class="proj-stat">
+        <div class="proj-stat-label">Issues</div>
+        <div class="proj-stat-value" style="color:${p.open_issues>10?'var(--red-mid)':p.open_issues>5?'var(--amber-mid)':'var(--teal-mid)'}">${p.open_issues} open</div>
+      </div>
+    </div>
+    <div class="proj-dim-chips">${chips}</div>
+    <div style="margin-top:8px;font-size:10px;color:${alertColor};background:${p.status==='delayed'?'var(--red-light)':p.status==='pre-launch'?'var(--amber-light)':'var(--teal-light)'};padding:5px 7px;border-radius:4px;line-height:1.4;">
+      ${p.alert}
+    </div>
+  </div>`;
+}).join('') + `
+  <div class="proj-card" style="border:2px dashed var(--border);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:180px;box-shadow:none;" onclick="alert('Add new project — available in Phase 2')">
+    <div style="font-size:28px;color:var(--border-dark);">+</div>
+    <div style="font-size:12px;font-weight:600;color:var(--grey-mid);">Add new project</div>
+    <div style="font-size:10px;color:var(--border-dark);text-align:center;">Residential · Commercial · Villa · Plotted · Infra</div>
+  </div>`;
+
+// ── Cash flow chart ──────────────────────────────────────────
+const months = ['Nov','Dec','Jan','Feb','Mar','Apr'];
+// Aggregate inflow/outflow across all projects
+const inflow  = months.map((_,i) => Object.values(window.PIQ.projects).reduce((s,p) => s + (p.cashflow[i]?.inflow||0), 0));
+const outflow = months.map((_,i) => Object.values(window.PIQ.projects).reduce((s,p) => s + (p.cashflow[i]?.outflow||0), 0));
+
+new Chart(document.getElementById('cashflow-chart'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [
+      { label: 'Inflow', data: inflow,  backgroundColor: '#1D9E7580', borderColor: '#1D9E75', borderWidth: 1.5, borderRadius: 3 },
+      { label: 'Outflow', data: outflow, backgroundColor: '#E24B4A80', borderColor: '#E24B4A', borderWidth: 1.5, borderRadius: 3 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { font: { family: 'DM Sans', size: 10 }, boxWidth: 10, padding: 8 }}},
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }}},
+      y: { grid: { color: '#f0efe8' }, ticks: { font: { family: 'DM Sans', size: 10 }, callback: v => 'Rs.'+v }},
+    }
+  }
+});
+
+// ── Unit inventory doughnut ──────────────────────────────────
+new Chart(document.getElementById('units-chart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Booked', 'Available', 'Reserved', 'Hot leads'],
+    datasets: [{
+      data: [412, 231, 18, 38],
+      backgroundColor: ['#1D9E75','#378ADD','#EF9F27','#E24B4A'],
+      borderWidth: 2, borderColor: '#fff',
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'right', labels: { font: { family: 'DM Sans', size: 10 }, boxWidth: 10, padding: 8 }},
+    }
+  }
+});
+
+// ── Regulatory calendar ──────────────────────────────────────
+document.getElementById('reg-calendar').innerHTML =
+  window.PIQ.regulatory_calendar.map(r => `
+  <div class="reg-item">
+    <span class="sev-dot sev-${r.severity}"></span>
+    <div style="flex:1;">
+      <div class="reg-name">${r.authority}</div>
+      <div class="reg-proj" style="font-size:9px;">${r.project}</div>
+    </div>
+    <span class="reg-status rs-${r.severity}">${r.label}</span>
+  </div>`).join('');
+
+// ── Project IQ feed ──────────────────────────────────────────
+const iconMap = { critical:'!', warning:'!', info:'↑', positive:'✓' };
+const classMap = { critical:'ii-critical', warning:'ii-warning', info:'ii-info', positive:'ii-positive' };
+document.getElementById('iq-feed').innerHTML =
+  window.PIQ.iq_morning_brief.map(item => `
+  <div class="iq-item">
+    <div class="iq-icon ${classMap[item.type]}">${iconMap[item.type]}</div>
+    <div class="iq-text">${item.text}</div>
+  </div>`).join('');
+
+// ── Portfolio cube scorecard ─────────────────────────────────
+const scorecard = window.PIQ.cube_scores;
+const dimLabels = {
+  construction: 'Construction',
+  sales: 'Leasing & Sales',
+  cx: 'Stakeholder & CX',
+  finance: 'Finance',
+  design: 'Design & Engineering',
+  asset: 'Asset & Ops',
+};
+const buyerRatings = { construction: '3.6', sales: '—', cx: '3.4', finance: '—', design: '—', asset: '—' };
+document.getElementById('cube-scorecard').innerHTML =
+  Object.entries(dimLabels).map(([key, label]) => {
+    const score = scorecard[key] || 0;
+    const color = scoreColor(score);
+    return `
+    <div class="cube-dim-row">
+      <div class="cube-dim-label">${label}</div>
+      <div class="cube-dim-bar-wrap">
+        <div class="progress-bar" style="width:${score}%;background:${color};height:6px;border-radius:3px;"></div>
+      </div>
+      <div class="cube-dim-score" style="color:${color};">${score}%</div>
+      <div class="cube-dim-rating">${buyerRatings[key]!=='—'?'('+buyerRatings[key]+')':'—'}</div>
+    </div>`;
+  }).join('');
+
+// ── Cube face interactivity ──────────────────────────────────
+const cubeInsights = {
+  construction: 'Construction (portfolio avg 58%): Skyline Heights Tower B 44 days behind — plastering blocking tiling sequence. Prestige Oaks ahead by 6 days. TekTower One 78% — OC pre-inspection advised. Decision needed: Night shift on Skyline saves 30 days at Rs.4.2L.',
+  sales: 'Leasing & Sales (74%): 412/643 units booked. Rs.142 Cr revenue of Rs.280 Cr target. Skyline 3BHK slow — competitor at Rs.7,200/sqft. Green Valley 134 pre-registrations. Pricing review advised for Skyline Tower A.',
+  cx: 'Stakeholder & CX (52%): 19 CX escalations open across portfolio. 23 Skyline buyers at possession risk. NPS +34 portfolio. 3 negative reviews on MagicBricks — response needed within 24 hours. Proactive communication batch recommended.',
+  finance: 'Finance (71%): Rs.18.4 Cr payables pending — Rs.6 Cr overdue. Q3 cash gap Rs.3.8 Cr projected for Skyline. Portfolio CPI avg 0.97 — Skyline at 0.91 (9% overrun). RERA quarterly report due tomorrow — auto-assembled.',
+  design: 'Design & Engineering (85%): All IFC drawings issued for Skyline and TekTower. Prestige Oaks villa layouts approved. Green Valley master plan in HMDA review. 2 RFIs pending architect response on Skyline — Floor 14 conduit conflict 21 days unanswered.',
+  asset: 'Asset & Ops (12%): Portfolio at pre-FM stage. TekTower One FM planning active — closest to handover (Sep 2026). DLP trackers will activate at practical completion. RWA registration to be initiated for Skyline and Prestige Oaks at Stage 4.',
+};
+
+document.querySelectorAll('.face').forEach(face => {
+  face.addEventListener('click', () => {
+    const dim = face.getAttribute('data-dim');
+    if (dim && cubeInsights[dim]) {
+      document.getElementById('cube-iq').textContent = '✦ ' + cubeInsights[dim];
+      document.getElementById('cube3d').classList.add('paused');
+      setTimeout(() => document.getElementById('cube3d').classList.remove('paused'), 3000);
+    }
+  });
+});
+
+// Pause cube on click of scene
+document.getElementById('cube-scene').addEventListener('click', () => {
+  document.getElementById('cube3d').classList.toggle('paused');
+});
+
+// Setup tooltips
+setupTooltips();
+</script>
 </body>
 </html>
+
