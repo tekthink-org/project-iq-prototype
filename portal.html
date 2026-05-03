@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project IQ — My Home Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#1B3A6B; --navy-dark:#122848; --navy-light:#E6EDF7;
+  --teal:#0F6E56; --teal-mid:#1D9E75; --teal-light:#E1F5EE;
+  --amber:#854F0B; --amber-mid:#EF9F27; --amber-light:#FAEEDA;
+  --red:#791F1F; --red-mid:#E24B4A; --red-light:#FCEBEB;
+  --purple:#3C3489; --purple-mid:#7F77DD; --purple-light:#EEEDFE;
+  --grey:#444441; --grey-mid:#888780; --grey-light:#F4F4F2;
+  --white:#FFFFFF; --black:#1A1A1A; --border:#E0DFD8;
+  --font:'DM Sans',sans-serif;
+}
+html{font-size:14px;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font);background:#F0EFE8;color:var(--black);min-height:100vh;}
+
+/* ── TOP NAV ── */
+.portal-nav{
+  background:var(--navy);
+  padding:0 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:56px;position:sticky;top:0;z-index:100;
+}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-logo{font-size:15px;font-weight:700;color:white;letter-spacing:-.3px;}
+.nav-logo span{color:#93C5FD;}
+.nav-tagline{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.04em;text-transform:uppercase;}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-user{display:flex;align-items:center;gap:8px;color:white;}
+.nav-avatar{width:32px;height:32px;border-radius:50%;background:#FAEEDA;color:var(--amber);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.nav-username{font-size:12px;font-weight:600;color:white;}
+.nav-unit{font-size:10px;color:rgba(255,255,255,.6);}
+
+/* ── HERO SECTION ── */
+.hero{
+  background:linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 60%, #2563EB 100%);
+  padding:28px 24px 24px;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:300px;height:300px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.hero-grid{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;max-width:900px;}
+.hero-greeting{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:4px;}
+.hero-name{font-size:22px;font-weight:700;color:white;letter-spacing:-.4px;margin-bottom:3px;}
+.hero-unit{font-size:13px;color:rgba(255,255,255,.7);margin-bottom:14px;}
+.hero-stats{display:flex;gap:20px;flex-wrap:wrap;}
+.hs{text-align:left;}
+.hs-val{font-size:20px;font-weight:700;color:white;line-height:1;}
+.hs-lbl{font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.05em;margin-top:3px;}
+
+/* Progress ring */
+.ring-container{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.ring{position:relative;width:110px;height:110px;flex-shrink:0;}
+.ring svg{transform:rotate(-90deg);}
+.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-pct{font-size:24px;font-weight:700;color:white;line-height:1;}
+.ring-lbl{font-size:9px;color:rgba(255,255,255,.6);text-align:center;margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+.ring-sub{font-size:11px;color:rgba(255,255,255,.7);text-align:center;}
+
+/* Alert banner */
+.alert-banner{
+  background:var(--amber-light);border-left:4px solid var(--amber-mid);
+  padding:10px 16px;display:flex;align-items:center;gap:10px;
+  font-size:11px;color:var(--amber);
+}
+
+/* ── MAIN CONTENT ── */
+.content{padding:16px;max-width:900px;margin:0 auto;}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:14px;}
+.card-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.card-sub{font-size:10px;color:var(--grey-mid);font-weight:400;}
+
+/* ── JOURNEY MILESTONES ── */
+.milestone-list{display:flex;flex-direction:column;gap:0;}
+.milestone{display:flex;gap:14px;position:relative;}
+.ms-spine{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.ms-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;z-index:1;}
+.ms-line{width:2px;flex:1;min-height:24px;}
+.ms-done .ms-dot{background:var(--teal-light);color:var(--teal);}
+.ms-done .ms-line{background:#A7F3D0;}
+.ms-active .ms-dot{background:var(--navy);color:white;box-shadow:0 0 0 4px rgba(27,58,107,.15);}
+.ms-active .ms-line{background:#E0DFD8;}
+.ms-delayed .ms-dot{background:var(--red-light);color:var(--red);}
+.ms-delayed .ms-line{background:#E0DFD8;}
+.ms-upcoming .ms-dot{background:var(--grey-light);color:var(--grey-mid);}
+.ms-upcoming .ms-line{background:#E0DFD8;}
+.ms-body{padding-bottom:18px;flex:1;}
+.ms-title{font-size:12px;font-weight:700;margin-bottom:2px;}
+.ms-done .ms-title{color:var(--teal);}
+.ms-active .ms-title{color:var(--navy);}
+.ms-delayed .ms-title{color:var(--red);}
+.ms-upcoming .ms-title{color:var(--grey-mid);}
+.ms-desc{font-size:11px;color:var(--grey);line-height:1.5;margin-bottom:3px;}
+.ms-date{font-size:10px;font-weight:600;}
+.ms-done .ms-date{color:var(--teal);}
+.ms-active .ms-date{color:var(--navy);}
+.ms-delayed .ms-date{color:var(--red);}
+.ms-upcoming .ms-date{color:var(--grey-mid);}
+.ms-photo{display:flex;gap:6px;margin-top:6px;}
+.ms-thumb{width:52px;height:40px;border-radius:6px;background:var(--grey-light);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;border:1px solid var(--border);transition:all .15s;}
+.ms-thumb:hover{border-color:var(--navy);transform:scale(1.05);}
+
+/* ── PAYMENT TRACKER ── */
+.payment-list{display:flex;flex-direction:column;gap:6px;}
+.payment-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);}
+.payment-row.paid{background:var(--teal-light);border-color:#A7F3D0;}
+.payment-row.overdue{background:var(--red-light);border-color:#FCA5A5;}
+.payment-row.upcoming{background:var(--grey-light);border-color:var(--border);}
+.pay-num{width:24px;height:24px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pay-num.paid{background:var(--teal-mid);color:white;}
+.pay-num.overdue{background:var(--red-mid);color:white;}
+.pay-num.upcoming{background:var(--grey-mid);color:white;}
+.pay-info{flex:1;}
+.pay-desc{font-size:11px;font-weight:600;color:var(--black);}
+.pay-dates{font-size:10px;color:var(--grey-mid);margin-top:1px;}
+.pay-amount{font-size:13px;font-weight:700;}
+.pay-amount.paid{color:var(--teal);}
+.pay-amount.overdue{color:var(--red);}
+.pay-amount.upcoming{color:var(--grey-mid);}
+.pay-status{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;flex-shrink:0;}
+.ps-paid{background:var(--teal-light);color:var(--teal);}
+.ps-overdue{background:var(--red-light);color:var(--red);}
+.ps-upcoming{background:var(--grey-light);color:var(--grey-mid);}
+.pay-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.pay-sum-card{background:var(--grey-light);border-radius:8px;padding:10px;text-align:center;}
+.psc-val{font-size:18px;font-weight:700;line-height:1;}
+.psc-lbl{font-size:9px;color:var(--grey-mid);margin-top:3px;text-transform:uppercase;letter-spacing:.04em;}
+
+/* ── CONSTRUCTION PROGRESS ── */
+.task-list{display:flex;flex-direction:column;gap:5px;}
+.task-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--grey-light);border:1px solid var(--border);}
+.task-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.task-name{font-size:11px;font-weight:600;flex:1;}
+.task-buyer-lbl{font-size:10px;color:var(--grey-mid);margin-top:1px;}
+.task-bar-wrap{width:80px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.task-bar-fill{height:100%;border-radius:3px;}
+.task-pct{font-size:11px;font-weight:700;width:36px;text-align:right;}
+.task-status-tag{font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;flex-shrink:0;}
+
+/* ── COMMON AREAS ── */
+.amenity-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.amenity{background:var(--grey-light);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border);}
+.amenity-icon{font-size:20px;margin-bottom:5px;}
+.amenity-name{font-size:10px;font-weight:600;color:var(--black);margin-bottom:4px;}
+.amenity-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:3px;}
+.amenity-fill{height:100%;border-radius:3px;}
+.amenity-pct{font-size:11px;font-weight:700;}
+
+/* ── NPS RATING ── */
+.cube-ratings{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cr-item{background:var(--grey-light);border-radius:8px;padding:10px 12px;}
+.cr-dim{font-size:10px;font-weight:600;color:var(--grey);margin-bottom:6px;}
+.cr-stars{display:flex;gap:3px;margin-bottom:4px;}
+.star{font-size:16px;cursor:pointer;transition:transform .1s;}
+.star:hover{transform:scale(1.2);}
+.cr-comment{font-size:10px;color:var(--grey-mid);font-style:italic;line-height:1.4;}
+.rate-prompt{background:var(--navy-light);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--navy);margin-top:8px;}
+
+/* ── DOCUMENTS ── */
+.doc-list{display:flex;flex-direction:column;gap:5px;}
+.doc-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:var(--grey-light);border:1px solid var(--border);cursor:pointer;transition:all .15s;}
+.doc-item:hover{border-color:var(--navy);background:var(--navy-light);}
+.doc-icon-wrap{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.doc-info{flex:1;}
+.doc-name{font-size:11px;font-weight:600;color:var(--black);}
+.doc-meta{font-size:10px;color:var(--grey-mid);margin-top:1px;}
+.doc-dl{font-size:10px;color:var(--navy);font-weight:600;}
+
+/* ── HELP ── */
+.help-btn{
+  width:100%;background:var(--navy);color:white;border:none;border-radius:10px;
+  padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);
+  display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;
+  transition:background .2s;
+}
+.help-btn:hover{background:var(--navy-dark);}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.contact-card{background:var(--grey-light);border-radius:8px;padding:10px 12px;display:flex;gap:10px;align-items:center;cursor:pointer;border:1px solid var(--border);transition:all .15s;}
+.contact-card:hover{border-color:var(--navy);}
+.contact-icon{font-size:20px;}
+.contact-name{font-size:11px;font-weight:600;}
+.contact-role{font-size:10px;color:var(--grey-mid);}
+.contact-reach{font-size:10px;color:var(--navy);font-weight:600;margin-top:2px;}
+
+/* ── COMPLIANCE ── */
+.compliance-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--grey-light);border-radius:8px;margin-bottom:5px;border:1px solid var(--border);}
+.comp-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.comp-ok{background:var(--teal-light);color:var(--teal);}
+.comp-warn{background:var(--amber-light);color:var(--amber);}
+.comp-name{font-size:11px;font-weight:600;flex:1;}
+.comp-detail{font-size:10px;color:var(--grey-mid);}
+.comp-tag{font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;flex-shrink:0;}
+
+/* ── TABS ── */
+.portal-tabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);padding:0 16px;gap:0;position:sticky;top:56px;z-index:90;}
+.ptab{padding:12px 16px;font-size:12px;font-weight:600;color:var(--grey-mid);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.ptab:hover{color:var(--navy);}
+.ptab.active{color:var(--navy);border-bottom-color:var(--navy);}
+
+/* ── GRID HELPERS ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* ── SECTION VIEWS ── */
+.section-view{display:none;}
+.section-view.active{display:block;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .hero-grid{grid-template-columns:1fr;}
+  .ring-container{display:none;}
+  .amenity-grid{grid-template-columns:repeat(2,1fr);}
+  .cube-ratings{grid-template-columns:1fr;}
+  .contact-grid{grid-template-columns:1fr;}
+  .grid2{grid-template-columns:1fr;}
+  .hero-stats{gap:14px;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="portal-nav">
+  <div class="nav-brand">
+    <div>
+      <div class="nav-logo">Project <span>IQ</span></div>
+      <div class="nav-tagline">My Home Portal</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-user">
+      <div class="nav-avatar">LR</div>
+      <div>
+        <div class="nav-username">Mrs. Lakshmi Rao</div>
+        <div class="nav-unit">Flat 9B · Tower B · Skyline Heights</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-greeting">Good morning,</div>
+      <div class="hero-name">Mrs. Lakshmi Rao</div>
+      <div class="hero-unit">Flat 9B · Tower B · Floor 9 · 3BHK · 1,420 sqft</div>
+      <div class="hero-stats">
+        <div class="hs">
+          <div class="hs-val">Rs.68 L</div>
+          <div class="hs-lbl">Agreement value</div>
+        </div>
+        <div class="hs">
+          <div class="hs-val" style="color:#FCD34D;">Dec 2026</div>
+          <div class="hs-lbl">Possession target</div>
+        </div>
+        <div class="hs">
+          <div class="hs-val">Rs.51 L</div>
+          <div class="hs-lbl">Paid so far</div>
+        </div>
+        <div class="hs">
+          <div class="hs-val" style="color:#FCA5A5;">At risk</div>
+          <div class="hs-lbl">Possession status</div>
+        </div>
+      </div>
+    </div>
+    <div class="ring-container">
+      <div class="ring">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="44" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="10"/>
+          <circle cx="55" cy="55" r="44" fill="none" stroke="#34D399" stroke-width="10"
+            stroke-dasharray="276.5" stroke-dashoffset="115" stroke-linecap="round"/>
+        </svg>
+        <div class="ring-inner">
+          <div class="ring-pct">58%</div>
+          <div class="ring-lbl">Your flat</div>
+        </div>
+      </div>
+      <div class="ring-sub">Construction complete</div>
+    </div>
+  </div>
+</div>
+
+<!-- DELAY ALERT -->
+<div class="alert-banner">
+  <span style="font-size:16px;">⚠️</span>
+  <div>
+    <strong>Possession may be delayed.</strong> Plastering on your floor is running behind schedule. Seven Hills is working on a recovery plan. Your CX Manager will call you by May 7. We apologise for the inconvenience.
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="portal-tabs">
+  <div class="ptab active" onclick="showTab('home',this)">🏠 My Home</div>
+  <div class="ptab" onclick="showTab('payments',this)">💰 Payments</div>
+  <div class="ptab" onclick="showTab('progress',this)">🏗 Construction</div>
+  <div class="ptab" onclick="showTab('amenities',this)">🏊 Amenities</div>
+  <div class="ptab" onclick="showTab('documents',this)">📄 Documents</div>
+  <div class="ptab" onclick="showTab('compliance',this)">✅ Compliance</div>
+  <div class="ptab" onclick="showTab('help',this)">💬 Help</div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- ═══ HOME TAB ═══ -->
+  <div id="tab-home" class="section-view active">
+
+    <!-- Journey milestones -->
+    <div class="card">
+      <div class="card-title">Your journey — Flat 9B, Tower B <span class="card-sub">8 milestones</span></div>
+      <div class="milestone-list" id="milestone-list"></div>
+    </div>
+
+    <!-- Quick stats grid -->
+    <div class="grid2">
+      <!-- Payment snapshot -->
+      <div class="card">
+        <div class="card-title">Payment snapshot <span class="card-sub" style="cursor:pointer;color:var(--navy);" onclick="switchTab('payments')">View all →</span></div>
+        <div class="pay-summary">
+          <div class="pay-sum-card">
+            <div class="psc-val" style="color:var(--teal-mid);">Rs.51 L</div>
+            <div class="psc-lbl">Paid</div>
+          </div>
+          <div class="pay-sum-card">
+            <div class="psc-val" style="color:var(--red-mid);">Rs.10.2 L</div>
+            <div class="psc-lbl">Overdue</div>
+          </div>
+          <div class="pay-sum-card">
+            <div class="psc-val" style="color:var(--grey-mid);">Rs.17 L</div>
+            <div class="psc-lbl">Remaining</div>
+          </div>
+        </div>
+        <div style="background:var(--red-light);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--red);">
+          <strong>Demand 5 overdue</strong> — Plastering instalment Rs.10.2 L was due Feb 28, 2026. Please clear at your earliest convenience.
+        </div>
+      </div>
+
+      <!-- Construction snapshot -->
+      <div class="card">
+        <div class="card-title">Construction snapshot <span class="card-sub" style="cursor:pointer;color:var(--navy);" onclick="switchTab('progress')">View all →</span></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <div style="flex:1;">
+            <div style="font-size:10px;color:var(--grey-mid);margin-bottom:4px;">Your flat — overall</div>
+            <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;">
+              <div style="height:100%;width:58%;background:var(--teal-mid);border-radius:4px;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--grey-mid);margin-top:3px;">58% complete · Plan was 75%</div>
+          </div>
+          <div style="font-size:24px;font-weight:700;color:var(--amber-mid);">58%</div>
+        </div>
+        <div style="font-size:10px;color:var(--grey-mid);margin-bottom:4px;">Status by task</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">
+          <span style="background:var(--teal-light);color:var(--teal);font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;">Foundation ✓</span>
+          <span style="background:var(--teal-light);color:var(--teal);font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;">Structure ✓</span>
+          <span style="background:var(--teal-light);color:var(--teal);font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;">MEP ✓</span>
+          <span style="background:var(--amber-light);color:var(--amber);font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;">Plastering 35%</span>
+          <span style="background:var(--red-light);color:var(--red);font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;">Tiling Blocked</span>
+          <span style="background:var(--grey-light);color:var(--grey-mid);font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;">Painting —</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rate your experience -->
+    <div class="card">
+      <div class="card-title">Rate your experience <span class="card-sub">Your feedback helps us improve</span></div>
+      <div class="cube-ratings" id="cube-ratings"></div>
+      <div class="rate-prompt">Thank you for your feedback, Mrs. Rao. Your ratings are reviewed by the Seven Hills team every week. We take every score seriously.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══ PAYMENTS TAB ═══ -->
+  <div id="tab-payments" class="section-view">
+    <div class="card">
+      <div class="card-title">Payment plan — Flat 9B <span class="card-sub">7 instalments · Rs.68 Lakh total</span></div>
+      <div class="pay-summary" style="margin-bottom:14px;">
+        <div class="pay-sum-card"><div class="psc-val" style="color:var(--teal-mid);">Rs.51 L</div><div class="psc-lbl">Total paid</div></div>
+        <div class="pay-sum-card"><div class="psc-val" style="color:var(--red-mid);">Rs.10.2 L</div><div class="psc-lbl">Overdue now</div></div>
+        <div class="pay-sum-card"><div class="psc-val" style="color:var(--grey-mid);">Rs.17 L</div><div class="psc-lbl">Still to pay</div></div>
+      </div>
+      <div class="payment-list" id="payment-list"></div>
+      <div style="margin-top:12px;padding:10px 12px;background:var(--navy-light);border-radius:8px;font-size:11px;color:var(--navy);">
+        <strong>Payment note:</strong> Demand 5 (Plastering milestone) is overdue. Construction milestone for plastering is currently in progress and is behind schedule. Your CX Manager has been notified. Please contact us if you have any questions.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CONSTRUCTION TAB ═══ -->
+  <div id="tab-progress" class="section-view">
+    <div class="card">
+      <div class="card-title">Your flat construction — task by task <span class="card-sub">Flat 9B · Tower B · Floor 9</span></div>
+      <div style="background:var(--amber-light);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:var(--amber);">
+        <strong>Note:</strong> Plastering is currently in progress. Once plastering reaches 80% completion, tiling will begin. Finishing and painting will follow. Your possession remains targeted for December 2026.
+      </div>
+      <div class="task-list" id="task-list"></div>
+    </div>
+
+    <!-- Site photos -->
+    <div class="card">
+      <div class="card-title">Recent site photos — Flat 9B <span class="card-sub">Uploaded by site team</span></div>
+      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;">
+        <div onclick="showPhoto('Structural slab — Sep 2024')" style="flex-shrink:0;width:100px;height:75px;border-radius:8px;background:linear-gradient(135deg,#374151,#1F2937);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border);">
+          <span style="font-size:20px;">🧱</span>
+          <span style="font-size:8px;color:rgba(255,255,255,.7);margin-top:3px;">Sep 2024</span>
+        </div>
+        <div onclick="showPhoto('MEP rough-in — Dec 2024')" style="flex-shrink:0;width:100px;height:75px;border-radius:8px;background:linear-gradient(135deg,#1E3A5F,#1B3A6B);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border);">
+          <span style="font-size:20px;">🔧</span>
+          <span style="font-size:8px;color:rgba(255,255,255,.7);margin-top:3px;">Dec 2024</span>
+        </div>
+        <div onclick="showPhoto('Waterproofing complete — Jan 2025')" style="flex-shrink:0;width:100px;height:75px;border-radius:8px;background:linear-gradient(135deg,#0C4A6E,#0E7490);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border);">
+          <span style="font-size:20px;">🌊</span>
+          <span style="font-size:8px;color:rgba(255,255,255,.7);margin-top:3px;">Jan 2025</span>
+        </div>
+        <div onclick="showPhoto('Plastering started — Mar 2026')" style="flex-shrink:0;width:100px;height:75px;border-radius:8px;background:linear-gradient(135deg,#713F12,#92400E);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--border);">
+          <span style="font-size:20px;">🪣</span>
+          <span style="font-size:8px;color:rgba(255,255,255,.7);margin-top:3px;">Mar 2026</span>
+        </div>
+        <div style="flex-shrink:0;width:100px;height:75px;border-radius:8px;background:var(--grey-light);display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed var(--border);">
+          <span style="font-size:16px;color:var(--grey-mid);">📷</span>
+          <span style="font-size:8px;color:var(--grey-mid);margin-top:3px;">More coming</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AMENITIES TAB ═══ -->
+  <div id="tab-amenities" class="section-view">
+    <div class="card">
+      <div class="card-title">Common areas & amenities <span class="card-sub">Construction progress</span></div>
+      <div style="font-size:11px;color:var(--grey-mid);margin-bottom:12px;">These facilities are being built alongside your flat. All amenities will be ready before possession.</div>
+      <div class="amenity-grid" id="amenity-grid"></div>
+    </div>
+  </div>
+
+  <!-- ═══ DOCUMENTS TAB ═══ -->
+  <div id="tab-documents" class="section-view">
+    <div class="card">
+      <div class="card-title">Your documents <span class="card-sub">Tap to download</span></div>
+      <div class="doc-list" id="doc-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══ COMPLIANCE TAB ═══ -->
+  <div id="tab-compliance" class="section-view">
+    <div class="card">
+      <div class="card-title">RERA & regulatory compliance <span class="card-sub">Your rights as a buyer</span></div>
+      <div style="background:var(--teal-light);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:var(--teal);line-height:1.6;">
+        <strong>RERA Registration:</strong> P02400004521 (Telangana RERA). Skyline Heights is registered and compliant. You can verify this on the Telangana RERA portal at any time.
+      </div>
+      <div id="compliance-list"></div>
+      <div style="margin-top:12px;padding:10px 12px;background:var(--navy-light);border-radius:8px;font-size:11px;color:var(--navy);line-height:1.5;">
+        <strong>Your RERA rights:</strong> Under RERA, you are entitled to a refund with interest if possession is delayed by more than the committed date. Seven Hills Constructions is committed to honouring all RERA obligations. If you have questions about your rights, please contact your CX Manager.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ HELP TAB ═══ -->
+  <div id="tab-help" class="section-view">
+    <div class="card">
+      <div class="card-title">Talk to us <span class="card-sub">We are here to help</span></div>
+      <div class="contact-grid" id="contact-grid"></div>
+      <button class="help-btn" onclick="alert('WhatsApp chat opened — in the live app, this opens your WhatsApp with the Seven Hills team number pre-filled.')">
+        💬 Chat with us on WhatsApp
+      </button>
+    </div>
+    <div class="card">
+      <div class="card-title">Frequently asked questions</div>
+      <div id="faq-list"></div>
+    </div>
+  </div>
+
+</div><!-- end content -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ============================================================
+// PROJECT IQ -- Portfolio Data
+// Seven Hills Constructions
+// Baseline v1.0 -- May 2026
+// ============================================================
+
+window.PIQ = {
+
+  builder: {
+    name: 'Seven Hills Constructions',
+    tagline: 'Building Tomorrow\'s Skylines Today',
+    gstin: '36AABCS1234F1Z5',
+    rera_agent_id: 'A02400001234',
+    city: 'Hyderabad',
+    state: 'Telangana',
+    md_name: 'Kishore Reddy',
+    md_initials: 'KR',
+    portfolio_nps: 34,
+    avg_buyer_score: 3.7,
+  },
+
+  portfolio_kpis: {
+    total_projects: 4,
+    active_projects: 3,
+    pre_launch: 1,
+    total_units: 643,
+    units_booked: 412,
+    units_available: 231,
+    revenue_booked_cr: 142,
+    revenue_target_cr: 280,
+    portfolio_progress_pct: 57,
+    portfolio_plan_pct: 61.1,
+    open_issues: 43,
+    cx_issues: 19,
+    construction_issues: 24,
+    pending_payables_cr: 18.4,
+    overdue_payables_cr: 6,
+    active_risks: 11,
+  },
+
+  regulatory_calendar: [
+    { project: 'Skyline Heights', authority: 'Fire NOC Renewal', due_date: '17 May 2026', days_left: 18, severity: 'critical', status: 'Due Soon' },
+    { project: 'Skyline Heights', authority: 'Water Board Connection', due_date: 'Pending', days_left: 0, severity: 'critical', status: 'Blocks OC' },
+    { project: 'Prestige Oaks', authority: 'RERA Quarterly Update', due_date: '30 Apr 2026', days_left: 1, severity: 'warning', status: '1 Day' },
+    { project: 'Skyline Heights', authority: 'PCB Dust Compliance', due_date: '10 May 2026', days_left: 11, severity: 'warning', status: '11 Days' },
+    { project: 'Green Valley', authority: 'HMDA Layout Approval', due_date: 'In Review', days_left: 0, severity: 'warning', status: 'Pending' },
+    { project: 'TekTower One', authority: 'AAI Height NOC', due_date: 'Jun 2026', days_left: 45, severity: 'ok', status: 'Active' },
+    { project: 'Skyline Heights', authority: 'HMDA Building Plan', due_date: 'Dec 2026', days_left: 240, severity: 'ok', status: 'Active' },
+    { project: 'Prestige Oaks', authority: 'Env Clearance SEIAA', due_date: 'Dec 2026', days_left: 240, severity: 'ok', status: 'Active' },
+  ],
+
+  portfolio_alerts: [
+    { severity: 'critical', dimension: 'Construction -> CX -> Finance', message: 'Skyline Heights -- Tower B plastering 44 days behind. 23 buyer possession dates at risk. Rs.1.2 Cr RERA penalty exposure. Q3 cash gap Rs.3.8 Cr.' },
+    { severity: 'warning', dimension: 'Regulatory', message: 'Fire NOC renewal due in 18 days (Skyline Heights). Water board connection blocking OC application.' },
+    { severity: 'warning', dimension: 'Finance', message: 'Rs.6 Cr payables overdue across portfolio. 3 vendor bills pending PM certification before release.' },
+    { severity: 'info', dimension: 'Market Intelligence', message: 'Kokapet demand up 18% this month. Competitor Prestige Elm launched at Rs.7,200/sqft -- 8% above Skyline Heights 3BHK rate.' },
+    { severity: 'positive', dimension: 'Sales', message: 'Green Valley Enclave pre-registrations reached 134 leads. HMDA approval expected this week -- RERA filing can be triggered immediately.' },
+  ],
+
+  iq_morning_brief: [
+    { type: 'critical', text: 'Skyline Heights: Night shift on Tower B saves 30 days vs Rs.4.2L cost -- recommend MD approval today.' },
+    { type: 'warning', text: '3 negative reviews on 99acres this week -- "no updates" theme. Auto-drafted CX escalation. Respond within 24 hours.' },
+    { type: 'info', text: 'Green Valley HMDA approval expected this week. RERA filing ready to trigger immediately after.' },
+    { type: 'positive', text: 'TekTower One: 78% complete, 68% leased. On track Sep 2026 handover. Initiate OC pre-inspection checklist now.' },
+    { type: 'warning', text: 'Collections Rs.2.4 Cr overdue from 18 buyers across portfolio. Auto-reminder batch recommended.' },
+  ],
+
+  cube_scores: {
+    construction: 58,
+    sales: 74,
+    cx: 52,
+    finance: 71,
+    design: 85,
+    asset: 12,
+    controls: 63,
+  },
+
+  projects: {
+
+    skyline: {
+      id: 'skyline',
+      name: 'Skyline Heights',
+      type: 'Residential High-Rise',
+      location: 'Kokapet, Hyderabad',
+      status: 'delayed',
+      status_label: 'Delayed',
+      rera_no: 'P02400004521',
+      rera_status: 'Active',
+      total_units: 300,
+      total_floors: 18,
+      units_per_floor: 6,
+      start_date: 'Jun 2023',
+      end_date: 'Dec 2026',
+      overall_progress: 54.5,
+      plan_progress: 61.0,
+      revenue_booked_cr: 25.76,
+      revenue_target_cr: 48,
+      units_booked: 190,
+      units_available: 62,
+      units_reserved: 18,
+      units_hot: 12,
+      units_construction: 18,
+      open_issues: 17,
+      cx_issues: 7,
+      construction_issues: 10,
+      nps_score: 3.1,
+      cpi: 0.91,
+      spi: 0.89,
+      eac_cr: 142,
+      budget_cr: 130,
+      pending_payables_cr: 6,
+      collection_efficiency: 84,
+
+      alert: 'Tower B plastering delayed 44 days -- floors 8-12. Blocking tiling sequence. 23 possession dates at risk.',
+
+      cube: {
+        construction: { score: 54, rating: 3.8, trend: 'down' },
+        sales:        { score: 68, rating: 0,   trend: 'stable' },
+        cx:           { score: 41, rating: 3.1, trend: 'down' },
+        finance:      { score: 72, rating: 4.1, trend: 'stable' },
+        design:       { score: 90, rating: 0,   trend: 'up' },
+        asset:        { score: 12, rating: 0,   trend: 'stable' },
+      },
+
+      parameters: {
+        cost:        { value: 'CPI 0.91', status: 'warning', detail: '9% over budget. RMC Rs.38L + Labour Rs.22L overrun.' },
+        revenue:     { value: '84% coll.', status: 'ok',      detail: 'Rs.25.76 Cr collected. 18 buyers overdue Rs.2.4 Cr.' },
+        schedule:    { value: 'SPI 0.89', status: 'critical', detail: 'Tower B 44 days behind. Critical path impacted.' },
+        scope:       { value: 'On track', status: 'ok',       detail: 'BOQ aligned. 2 variations approved. 1 CCB pending.' },
+        qa:          { value: '87% ITP',  status: 'warning',  detail: '3 method statements pending sign-off.' },
+        qc:          { value: '3 NCRs',   status: 'critical', detail: 'Floor 7 plastering on uncertified surface.' },
+        risk:        { value: '5 High',   status: 'critical', detail: 'Top risk: RERA penalty Rs.1.2 Cr.' },
+        resources:   { value: '-8% plan', status: 'warning',  detail: '12 workers absent. 40 cement bags variance.' },
+        esg:         { value: '74%',      status: 'ok',       detail: 'IGBC Gold track. Carbon within target.' },
+      },
+
+      regulatory: [
+        { authority: 'Fire NOC',         status: 'critical', detail: 'Due 17 May 2026 -- 18 days',   label: '18d' },
+        { authority: 'Water Board OC',   status: 'critical', detail: 'Pending -- blocks OC filing',   label: 'Urgent' },
+        { authority: 'RERA Quarterly',   status: 'warning',  detail: 'Due 30 Apr 2026 -- tomorrow',   label: '1d' },
+        { authority: 'PCB Compliance',   status: 'warning',  detail: 'Audit 10 May 2026',             label: '11d' },
+        { authority: 'HMDA Building Plan', status: 'ok',     detail: 'Valid to Dec 2026',             label: 'Active' },
+        { authority: 'AAI Height NOC',   status: 'ok',       detail: 'Valid to Jun 2026',             label: 'Active' },
+        { authority: 'Electricity Board', status: 'ok',      detail: 'Temp connected',                label: 'Active' },
+        { authority: 'Env Clearance',    status: 'ok',       detail: 'Valid to Mar 2027',             label: 'Active' },
+      ],
+
+      work_packages: [
+        { name: 'Tower A -- Structure',    discipline: 'Civil',      floors: '1-18', plan: 100, actual: 100, status: 'complete' },
+        { name: 'Tower B -- Structure',    discipline: 'Civil',      floors: '1-18', plan: 100, actual: 95,  status: 'warning'  },
+        { name: 'Tower A -- MEP Rough-in', discipline: 'MEP',        floors: '1-12', plan: 80,  actual: 78,  status: 'ok'       },
+        { name: 'Tower B -- MEP Rough-in', discipline: 'MEP',        floors: '1-8',  plan: 60,  actual: 52,  status: 'warning'  },
+        { name: 'Tower A -- Plastering',   discipline: 'Finishing',  floors: '1-18', plan: 75,  actual: 72,  status: 'ok'       },
+        { name: 'Tower B -- Plastering',   discipline: 'Finishing',  floors: '1-7',  plan: 80,  actual: 44,  status: 'critical' },
+        { name: 'Tower A -- Tiling',       discipline: 'Finishing',  floors: '1-7',  plan: 50,  actual: 48,  status: 'ok'       },
+        { name: 'Tower B -- Tiling',       discipline: 'Finishing',  floors: '1-4',  plan: 40,  actual: 0,   status: 'critical' },
+        { name: 'Electrical Wiring',      discipline: 'Electrical', floors: '1-10', plan: 65,  actual: 61,  status: 'ok'       },
+        { name: 'Plumbing',               discipline: 'Plumbing',   floors: '1-8',  plan: 55,  actual: 50,  status: 'ok'       },
+        { name: 'Landscaping',            discipline: 'Landscape',  floors: 'Ground', plan: 15, actual: 8,  status: 'warning'  },
+        { name: 'Clubhouse',              discipline: 'Civil',      floors: 'G+1',  plan: 40,  actual: 35,  status: 'ok'       },
+      ],
+
+      ncrs: [
+        { id: 'NCR-047', severity: 'critical', description: 'Floor 7 plastering started without QC certification. Tiling blocked.', raised: '26 Apr 2026', due: '30 Apr 2026', owner: 'Ravi Kumar', status: 'open' },
+        { id: 'NCR-046', severity: 'major',    description: 'Tower B concrete cube test result borderline -- re-test ordered.',       raised: '24 Apr 2026', due: '28 Apr 2026', owner: 'Suresh PM',  status: 'open' },
+        { id: 'NCR-045', severity: 'minor',    description: 'MEP conduit misaligned Floor 12 -- rectification required.',            raised: '22 Apr 2026', due: '05 May 2026', owner: 'Arun MEP',   status: 'open' },
+        { id: 'NCR-044', severity: 'major',    description: 'Waterproofing membrane not applied before screed -- Floor 6 terrace.',  raised: '18 Apr 2026', due: '25 Apr 2026', owner: 'Ravi Kumar', status: 'closed' },
+        { id: 'NCR-043', severity: 'minor',    description: 'Electrical conduit spacing non-compliant Floor 9.',                    raised: '15 Apr 2026', due: '22 Apr 2026', owner: 'Arun MEP',   status: 'closed' },
+      ],
+
+      pipeline: [
+        { stage: 'Leads',        count: 284, conversion: 100 },
+        { stage: 'Site Visit',   count: 196, conversion: 69 },
+        { stage: 'Negotiation',  count: 142, conversion: 72 },
+        { stage: 'Booking',      count: 190, conversion: 67 },
+        { stage: 'Agreement',    count: 178, conversion: 94 },
+      ],
+
+      cashflow: [
+        { month: 'Nov', inflow: 3.2, outflow: 2.1 },
+        { month: 'Dec', inflow: 2.8, outflow: 3.4 },
+        { month: 'Jan', inflow: 4.1, outflow: 2.9 },
+        { month: 'Feb', inflow: 3.6, outflow: 3.1 },
+        { month: 'Mar', inflow: 5.2, outflow: 3.8 },
+        { month: 'Apr', inflow: 4.8, outflow: 2.4 },
+      ],
+
+      escalations: [
+        { id: 'ESC-031', buyer: 'Mrs. Lakshmi Rao',   unit: '9B', category: 'Possession Delay', severity: 'high',   sla_hrs: 48, raised: '28 Apr 2026', status: 'open' },
+        { id: 'ESC-030', buyer: 'Mr. Venkat Reddy',   unit: '12A', category: 'No Progress Update', severity: 'medium', sla_hrs: 24, raised: '27 Apr 2026', status: 'open' },
+        { id: 'ESC-029', buyer: 'Mrs. Priya Sharma',  unit: '7C', category: 'Modification Pending', severity: 'medium', sla_hrs: 72, raised: '25 Apr 2026', status: 'open' },
+        { id: 'ESC-028', buyer: 'Mr. Anil Kumar',     unit: '14B', category: 'Payment Dispute', severity: 'high',   sla_hrs: 24, raised: '24 Apr 2026', status: 'open' },
+        { id: 'ESC-027', buyer: 'Mrs. Sunita Rao',    unit: '3A', category: 'Social Review', severity: 'medium', sla_hrs: 24, raised: '23 Apr 2026', status: 'open' },
+      ],
+
+      buyers: [
+        { name: 'Mrs. Lakshmi Rao',   unit: 'Flat 9B Tower B', paid: 3, total: 4, amount_paid_l: 51, amount_due_l: 17, nps: 2, milestone: 'Construction', portal_active: true },
+        { name: 'Mr. Venkat Reddy',   unit: 'Flat 12A Tower A', paid: 4, total: 5, amount_paid_l: 60, amount_due_l: 12, nps: 4, milestone: 'Agreement',    portal_active: true },
+        { name: 'Mrs. Priya Sharma',  unit: 'Flat 7C Tower B',  paid: 2, total: 4, amount_paid_l: 34, amount_due_l: 34, nps: 3, milestone: 'Construction', portal_active: false },
+        { name: 'Mr. Ravi Teja',      unit: 'Flat 15A Tower A', paid: 3, total: 5, amount_paid_l: 48, amount_due_l: 32, nps: 5, milestone: 'Construction', portal_active: true },
+        { name: 'Mrs. Kavitha Nair',  unit: 'Flat 2B Tower B',  paid: 1, total: 4, amount_paid_l: 17, amount_due_l: 51, nps: 3, milestone: 'Agreement',    portal_active: false },
+      ],
+
+
+      towers: [
+        {
+          id: 'tower-a',
+          name: 'Tower A',
+          floors: 18,
+          units_per_floor: 6,
+          total_units: 108,
+          status: 'on-track',
+          progress: 72,
+          floors_data: [
+            // floor: [B=booked, A=available, R=reserved, H=hot, C=construction]
+            // Floor 18 (top) to Floor 1 (bottom)
+            [5,1,0,0,0],[6,0,0,0,0],[6,0,0,0,0],[5,0,1,0,0],[6,0,0,0,0],
+            [5,1,0,0,0],[4,0,2,0,0],[6,0,0,0,0],[5,0,0,1,0],[6,0,0,0,0],
+            [4,2,0,0,0],[5,0,1,0,0],[6,0,0,0,0],[5,1,0,0,0],[4,0,0,2,0],
+            [6,0,0,0,0],[5,1,0,0,0],[6,0,0,0,0]
+          ]
+        },
+        {
+          id: 'tower-b',
+          name: 'Tower B',
+          floors: 18,
+          units_per_floor: 6,
+          total_units: 108,
+          status: 'delayed',
+          progress: 37,
+          delayed_floors: [8,9,10,11,12],
+          floors_data: [
+            // Floor 18 to Floor 1
+            [2,2,1,1,0],[1,3,0,2,0],[2,2,0,2,0],[1,3,1,1,0],[2,2,0,2,0],
+            [1,0,0,0,5],[2,0,0,0,4],[2,0,0,0,4],[3,0,0,0,3],[4,0,0,2,0],
+            [4,1,0,1,0],[4,2,0,0,0],[5,1,0,0,0],[4,0,1,1,0],[5,0,1,0,0],
+            [5,1,0,0,0],[6,0,0,0,0],[6,0,0,0,0]
+          ]
+        }
+      ],
+      portal_buyer: {
+        name: 'Mrs. Lakshmi Rao',
+        unit: 'Flat 9B',
+        tower: 'Tower B',
+        floor: 9,
+        type: '3BHK',
+        carpet_sqft: 1420,
+        booking_date: '15 Mar 2024',
+        agreement_date: '02 Apr 2024',
+        agreed_price_l: 68,
+        possession_committed: 'Dec 2026',
+        possession_current: 'Feb 2027',
+        floor_progress: 61,
+        unit_progress: 58,
+        milestones: [
+          { stage: 'Booking',        date: '15 Mar 2024', status: 'completed' },
+          { stage: 'Agreement',      date: '02 Apr 2024', status: 'completed' },
+          { stage: 'Foundation',     date: '30 Jun 2024', status: 'completed' },
+          { stage: 'Slab -- Floor 9', date: '15 Jan 2025', status: 'completed' },
+          { stage: 'Structure done', date: '30 Mar 2025', status: 'completed' },
+          { stage: 'MEP rough-in',   date: '30 Jun 2025', status: 'completed' },
+          { stage: 'Plastering',     date: '28 Feb 2026', status: 'delayed'   },
+          { stage: 'Finishing',      date: '31 Aug 2026', status: 'upcoming'  },
+          { stage: 'Possession',     date: 'Dec 2026',    status: 'upcoming'  },
+        ],
+        payments: [
+          { demand: 1, description: 'Booking amount',    amount_l: 6.8,  due: '15 Mar 2024', paid: '15 Mar 2024', status: 'paid' },
+          { demand: 2, description: 'On agreement',      amount_l: 13.6, due: '02 Apr 2024', paid: '05 Apr 2024', status: 'paid' },
+          { demand: 3, description: 'On foundation',     amount_l: 10.2, due: '30 Jun 2024', paid: '02 Jul 2024', status: 'paid' },
+          { demand: 4, description: 'On slab Floor 9',   amount_l: 10.2, due: '15 Jan 2025', paid: '18 Jan 2025', status: 'paid' },
+          { demand: 5, description: 'On plastering',     amount_l: 10.2, due: '28 Feb 2026', paid: null,          status: 'overdue' },
+          { demand: 6, description: 'On finishing',      amount_l: 10.2, due: '31 Aug 2026', paid: null,          status: 'upcoming' },
+          { demand: 7, description: 'On possession',     amount_l: 6.8,  due: 'Dec 2026',    paid: null,          status: 'upcoming' },
+        ],
+        cube_ratings: [
+          { dimension: 'Construction quality', score: 2, comment: 'Work seems slow. No updates on my floor.' },
+          { dimension: 'CX responsiveness',   score: 3, comment: 'Takes time to get responses.' },
+          { dimension: 'Communication',        score: 2, comment: 'I have to call. No proactive updates.' },
+          { dimension: 'Compliance',           score: 4, comment: 'RERA status seems ok.' },
+        ],
+        documents: [
+          { name: 'Sale Agreement',       date: '02 Apr 2024', type: 'Legal' },
+          { name: 'Booking Receipt',      date: '15 Mar 2024', type: 'Payment' },
+          { name: 'Demand Note 1-4',      date: 'Various',     type: 'Payment' },
+          { name: 'RERA Registration',    date: '01 Jun 2023', type: 'Regulatory' },
+          { name: 'Allotment Letter',     date: '02 Apr 2024', type: 'Legal' },
+        ],
+      },
+    },
+
+    oaks: {
+      id: 'oaks',
+      name: 'Prestige Oaks',
+      type: 'Villa Community',
+      location: 'Shamshabad, Hyderabad',
+      status: 'on-track',
+      status_label: 'On Track',
+      rera_no: 'P02400003847',
+      rera_status: 'Active',
+      total_units: 80,
+      total_floors: 2,
+      units_per_floor: 0,
+      start_date: 'Jan 2024',
+      end_date: 'Jun 2027',
+      overall_progress: 31,
+      plan_progress: 29,
+      revenue_booked_cr: 68.2,
+      revenue_target_cr: 92,
+      units_booked: 54,
+      units_available: 26,
+      units_reserved: 0,
+      units_hot: 8,
+      open_issues: 9,
+      cx_issues: 2,
+      construction_issues: 7,
+      nps_score: 4.2,
+      cpi: 1.02,
+      spi: 1.07,
+      eac_cr: 88,
+      budget_cr: 90,
+      pending_payables_cr: 4.2,
+      collection_efficiency: 91,
+      alert: 'RERA quarterly update due tomorrow. Ahead of schedule by 6 days.',
+      cube: {
+        construction: { score: 72, rating: 4.1, trend: 'up' },
+        sales:        { score: 82, rating: 0,   trend: 'up' },
+        cx:           { score: 78, rating: 4.2, trend: 'stable' },
+        finance:      { score: 75, rating: 0,   trend: 'stable' },
+        design:       { score: 95, rating: 0,   trend: 'stable' },
+        asset:        { score: 5,  rating: 0,   trend: 'stable' },
+      },
+      cashflow: [
+        { month: 'Nov', inflow: 5.2, outflow: 3.1 },
+        { month: 'Dec', inflow: 6.8, outflow: 4.2 },
+        { month: 'Jan', inflow: 7.2, outflow: 3.8 },
+        { month: 'Feb', inflow: 5.9, outflow: 4.1 },
+        { month: 'Mar', inflow: 8.4, outflow: 5.2 },
+        { month: 'Apr', inflow: 7.1, outflow: 4.4 },
+      ],
+
+      towers: [
+        {
+          id: 'block-a', name: 'Block A -- Villas 1-20', floors: 1,
+          units_per_floor: 20, total_units: 20, status: 'on-track', progress: 45,
+          delayed_floors: [],
+          floors_data: [[14,4,2,0,0]]
+        },
+        {
+          id: 'block-b', name: 'Block B -- Villas 21-40', floors: 1,
+          units_per_floor: 20, total_units: 20, status: 'on-track', progress: 38,
+          delayed_floors: [],
+          floors_data: [[12,5,2,1,0]]
+        },
+        {
+          id: 'block-c', name: 'Block C -- Villas 41-60', floors: 1,
+          units_per_floor: 20, total_units: 20, status: 'on-track', progress: 22,
+          delayed_floors: [],
+          floors_data: [[10,7,2,1,0]]
+        },
+        {
+          id: 'block-d', name: 'Block D -- Villas 61-80', floors: 1,
+          units_per_floor: 20, total_units: 20, status: 'on-track', progress: 18,
+          delayed_floors: [],
+          floors_data: [[8,8,2,2,0]]
+        },
+      ],
+      work_packages: [
+        { name:'Block A -- Foundation',    discipline:'Civil',     floors:'Villas 1-20',  plan:100, actual:100, status:'complete' },
+        { name:'Block A -- Structure',     discipline:'Civil',     floors:'Villas 1-20',  plan:100, actual:95,  status:'ok' },
+        { name:'Block A -- Brick & Plaster',discipline:'Finishing',floors:'Villas 1-20',  plan:80,  actual:72,  status:'ok' },
+        { name:'Block B -- Foundation',    discipline:'Civil',     floors:'Villas 21-40', plan:100, actual:100, status:'complete' },
+        { name:'Block B -- Structure',     discipline:'Civil',     floors:'Villas 21-40', plan:85,  actual:80,  status:'ok' },
+        { name:'Block B -- Brick & Plaster',discipline:'Finishing',floors:'Villas 21-40', plan:50,  actual:44,  status:'warning' },
+        { name:'Block C -- Foundation',    discipline:'Civil',     floors:'Villas 41-60', plan:80,  actual:78,  status:'ok' },
+        { name:'Block C -- Structure',     discipline:'Civil',     floors:'Villas 41-60', plan:40,  actual:35,  status:'warning' },
+        { name:'Block D -- Foundation',    discipline:'Civil',     floors:'Villas 61-80', plan:50,  actual:48,  status:'ok' },
+        { name:'MEP -- All blocks',        discipline:'MEP',       floors:'All villas',   plan:30,  actual:28,  status:'ok' },
+        { name:'Landscaping -- Phase 1',   discipline:'Landscape', floors:'Common areas', plan:20,  actual:15,  status:'warning' },
+        { name:'Clubhouse',               discipline:'Civil',     floors:'Common area',  plan:35,  actual:30,  status:'ok' },
+      ],
+      ncrs: [
+        { id:'NCR-012', severity:'major',  description:'Block B brickwork -- mortar mix inconsistent on villas 28-32. Re-work ordered.', raised:'20 Apr 2026', due:'28 Apr 2026', owner:'Ravi PM', status:'open' },
+        { id:'NCR-011', severity:'minor',  description:'Landscaping gradient non-compliant near Block A driveway.', raised:'15 Apr 2026', due:'25 Apr 2026', owner:'Site Engg', status:'open' },
+        { id:'NCR-010', severity:'major',  description:'Block C column spacing deviation -- structural engineer review required.', raised:'10 Apr 2026', due:'18 Apr 2026', owner:'Structural', status:'closed' },
+      ],
+      regulatory: [
+        { authority:'RERA Quarterly',       status:'critical', detail:'Due 30 Apr 2026 -- tomorrow',     label:'1d' },
+        { authority:'HMDA Layout Approval', status:'ok',       detail:'Approved -- valid to Jun 2027',   label:'Active' },
+        { authority:'Env Clearance SEIAA',  status:'ok',       detail:'Valid to Dec 2026',              label:'Active' },
+        { authority:'Electricity Board',    status:'ok',       detail:'Temporary connection active',    label:'Active' },
+        { authority:'Water Board',          status:'warning',  detail:'Permanent connection -- Q3 2026', label:'Q3' },
+        { authority:'BOCW Registration',    status:'ok',       detail:'320 workers registered',         label:'Active' },
+      ],
+      pipeline: [
+        { stage:'Leads',       count:186, conversion:100 },
+        { stage:'Site Visit',  count:142, conversion:76 },
+        { stage:'Negotiation', count:98,  conversion:69 },
+        { stage:'Booking',     count:54,  conversion:55 },
+        { stage:'Agreement',   count:48,  conversion:89 },
+      ],
+      buyers: [
+        { name:'Mr. Suresh Babu',   unit:'Villa 12 Block A', paid:3, total:4, amount_paid_l:180, amount_due_l:60,  nps:5, milestone:'Construction', portal_active:true },
+        { name:'Mrs. Anitha Reddy', unit:'Villa 28 Block B', paid:2, total:4, amount_paid_l:120, amount_due_l:120, nps:4, milestone:'Construction', portal_active:true },
+        { name:'Mr. Kiran Kumar',   unit:'Villa 45 Block C', paid:1, total:4, amount_paid_l:65,  amount_due_l:195, nps:4, milestone:'Agreement',    portal_active:false },
+      ],
+
+    },
+
+    tektower: {
+      id: 'tektower',
+      name: 'TekTower One',
+      type: 'Commercial Office',
+      location: 'HITEC City, Hyderabad',
+      status: 'on-track',
+      status_label: 'On Track',
+      rera_no: 'N/A -- Commercial',
+      rera_status: 'N/A',
+      total_units: 12,
+      total_floors: 12,
+      units_per_floor: 1,
+      start_date: 'Mar 2023',
+      end_date: 'Sep 2026',
+      overall_progress: 78,
+      plan_progress: 75,
+      revenue_booked_cr: 48,
+      revenue_target_cr: 68,
+      units_booked: 8,
+      units_available: 4,
+      units_reserved: 0,
+      units_hot: 2,
+      open_issues: 6,
+      cx_issues: 1,
+      construction_issues: 5,
+      nps_score: 4.5,
+      cpi: 1.04,
+      spi: 1.04,
+      eac_cr: 62,
+      budget_cr: 65,
+      pending_payables_cr: 3.8,
+      collection_efficiency: 96,
+      alert: 'OC pre-inspection checklist recommended. On track for Sep 2026 handover.',
+      cube: {
+        construction: { score: 78, rating: 4.4, trend: 'up' },
+        sales:        { score: 85, rating: 0,   trend: 'up' },
+        cx:           { score: 88, rating: 4.5, trend: 'stable' },
+        finance:      { score: 82, rating: 0,   trend: 'up' },
+        design:       { score: 100,rating: 0,   trend: 'stable' },
+        asset:        { score: 20, rating: 0,   trend: 'up' },
+      },
+      cashflow: [
+        { month: 'Nov', inflow: 6.1, outflow: 3.4 },
+        { month: 'Dec', inflow: 7.2, outflow: 4.1 },
+        { month: 'Jan', inflow: 8.4, outflow: 3.8 },
+        { month: 'Feb', inflow: 7.8, outflow: 4.2 },
+        { month: 'Mar', inflow: 9.2, outflow: 4.8 },
+        { month: 'Apr', inflow: 8.6, outflow: 3.9 },
+      ],
+
+      towers: [
+        {
+          id: 'tower-main', name: 'TekTower One', floors: 12,
+          units_per_floor: 1, total_units: 12, status: 'on-track', progress: 78,
+          delayed_floors: [],
+          floors_data: [
+            [1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],
+            [1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],
+            [0,1,0,0,0],[0,0,1,0,0],[0,1,0,0,0],[0,0,0,1,0],
+          ]
+        },
+      ],
+      work_packages: [
+        { name:'Structure -- All floors',  discipline:'Civil',     floors:'1-12',  plan:100, actual:100, status:'complete' },
+        { name:'MEP rough-in',            discipline:'MEP',       floors:'1-10',  plan:100, actual:96,  status:'ok' },
+        { name:'False ceiling & Drywalls',discipline:'Finishing', floors:'1-8',   plan:90,  actual:88,  status:'ok' },
+        { name:'Flooring -- Granite',      discipline:'Finishing', floors:'1-6',   plan:80,  actual:78,  status:'ok' },
+        { name:'Electrical fit-out',      discipline:'Electrical',floors:'1-8',   plan:75,  actual:72,  status:'ok' },
+        { name:'HVAC installation',       discipline:'MEP',       floors:'1-10',  plan:70,  actual:68,  status:'ok' },
+        { name:'Facade glazing',          discipline:'Civil',     floors:'All',   plan:85,  actual:82,  status:'ok' },
+        { name:'Lobby & common areas',    discipline:'Finishing', floors:'G+1',   plan:60,  actual:55,  status:'warning' },
+        { name:'Terrace & rooftop',       discipline:'Civil',     floors:'Terrace',plan:40, actual:38,  status:'ok' },
+        { name:'Lift installation',       discipline:'MEP',       floors:'All',   plan:80,  actual:75,  status:'warning' },
+        { name:'Fire suppression system', discipline:'Safety',    floors:'1-12',  plan:70,  actual:68,  status:'ok' },
+        { name:'OC readiness checklist',  discipline:'Compliance',floors:'All',   plan:30,  actual:20,  status:'warning' },
+      ],
+      ncrs: [
+        { id:'NCR-008', severity:'minor',  description:'HVAC ducting misalignment on Floor 9 -- correction in progress.', raised:'22 Apr 2026', due:'30 Apr 2026', owner:'MEP Engg', status:'open' },
+        { id:'NCR-007', severity:'minor',  description:'Lobby false ceiling joint visible -- rework required.', raised:'18 Apr 2026', due:'26 Apr 2026', owner:'Finishing', status:'open' },
+        { id:'NCR-006', severity:'major',  description:'Facade glazing unit 3B defective -- replacement ordered.', raised:'10 Apr 2026', due:'20 Apr 2026', owner:'Facade', status:'closed' },
+      ],
+      regulatory: [
+        { authority:'AAI Height NOC',     status:'ok',      detail:'Valid to Jun 2026',               label:'Active' },
+        { authority:'Fire NOC',           status:'ok',      detail:'Valid to Dec 2026',               label:'Active' },
+        { authority:'HMDA Building Plan', status:'ok',      detail:'Valid to Dec 2026',               label:'Active' },
+        { authority:'OC Application',     status:'warning', detail:'Pre-inspection checklist pending', label:'Prep' },
+        { authority:'Electricity Board',  status:'ok',      detail:'Permanent connection applied',    label:'Applied' },
+        { authority:'PCB Compliance',     status:'ok',      detail:'Audit passed Mar 2026',           label:'Active' },
+      ],
+      pipeline: [
+        { stage:'Enquiries',    count:42,  conversion:100 },
+        { stage:'Discussions',  count:28,  conversion:67 },
+        { stage:'LOI signed',   count:14,  conversion:50 },
+        { stage:'Lease agreed', count:10,  conversion:71 },
+        { stage:'Registered',   count:8,   conversion:80 },
+      ],
+      buyers: [
+        { name:'TechSolutions Pvt Ltd', unit:'Floors 1-3',  paid:3, total:4, amount_paid_l:1200, amount_due_l:400, nps:5, milestone:'Fit-out', portal_active:true },
+        { name:'FinServ India Ltd',     unit:'Floors 4-6',  paid:2, total:4, amount_paid_l:800,  amount_due_l:800, nps:4, milestone:'Agreement',portal_active:true },
+        { name:'GlobalCorp APAC',       unit:'Floors 7-8',  paid:1, total:3, amount_paid_l:600,  amount_due_l:1200,nps:4, milestone:'LOI',     portal_active:false },
+      ],
+
+    },
+
+    greenvalley: {
+      id: 'greenvalley',
+      name: 'Green Valley Enclave',
+      type: 'Plotted Development',
+      location: 'Tukkuguda, Hyderabad',
+      status: 'pre-launch',
+      status_label: 'Pre-Launch',
+      rera_no: 'Not yet filed',
+      rera_status: 'Pending',
+      total_units: 263,
+      total_floors: 0,
+      units_per_floor: 0,
+      start_date: 'Q3 2026 (planned)',
+      end_date: 'Dec 2028',
+      overall_progress: 8,
+      plan_progress: 10,
+      revenue_booked_cr: 0,
+      revenue_target_cr: 92,
+      units_booked: 0,
+      units_available: 263,
+      units_reserved: 0,
+      units_hot: 28,
+      open_issues: 4,
+      cx_issues: 0,
+      construction_issues: 0,
+      nps_score: 0,
+      cpi: 0,
+      spi: 0,
+      eac_cr: 0,
+      budget_cr: 72,
+      pending_payables_cr: 0.4,
+      collection_efficiency: 0,
+      alert: '134 pre-registrations captured. HMDA layout approval expected this week.',
+      cube: {
+        construction: { score: 0,  rating: 0, trend: 'stable' },
+        sales:        { score: 18, rating: 0, trend: 'up' },
+        cx:           { score: 0,  rating: 0, trend: 'stable' },
+        finance:      { score: 42, rating: 0, trend: 'stable' },
+        design:       { score: 35, rating: 0, trend: 'up' },
+        asset:        { score: 0,  rating: 0, trend: 'stable' },
+      },
+      cashflow: [
+        { month: 'Nov', inflow: 0, outflow: 0.2 },
+        { month: 'Dec', inflow: 0, outflow: 0.3 },
+        { month: 'Jan', inflow: 0, outflow: 0.4 },
+        { month: 'Feb', inflow: 0, outflow: 0.5 },
+        { month: 'Mar', inflow: 0, outflow: 0.6 },
+        { month: 'Apr', inflow: 0, outflow: 0.4 },
+      ],
+
+      towers: [
+        {
+          id: 'sector-a', name: 'Sector A -- Plots 1-66', floors: 1,
+          units_per_floor: 22, total_units: 66, status: 'pre-launch', progress: 0,
+          delayed_floors: [],
+          floors_data: [[0,46,0,14,6]]
+        },
+        {
+          id: 'sector-b', name: 'Sector B -- Plots 67-132', floors: 1,
+          units_per_floor: 22, total_units: 66, status: 'pre-launch', progress: 0,
+          delayed_floors: [],
+          floors_data: [[0,52,0,8,6]]
+        },
+        {
+          id: 'sector-c', name: 'Sector C -- Plots 133-197', floors: 1,
+          units_per_floor: 22, total_units: 65, status: 'pre-launch', progress: 0,
+          delayed_floors: [],
+          floors_data: [[0,55,0,6,4]]
+        },
+        {
+          id: 'sector-d', name: 'Sector D -- Plots 198-263', floors: 1,
+          units_per_floor: 22, total_units: 66, status: 'pre-launch', progress: 0,
+          delayed_floors: [],
+          floors_data: [[0,60,0,2,4]]
+        },
+      ],
+      work_packages: [
+        { name:'HMDA Layout Approval',    discipline:'Compliance', floors:'Full layout',  plan:100, actual:85,  status:'warning' },
+        { name:'RERA Registration',       discipline:'Compliance', floors:'All sectors',  plan:100, actual:0,   status:'critical' },
+        { name:'Internal road formation', discipline:'Civil',      floors:'Sectors A-D',  plan:20,  actual:12,  status:'warning' },
+        { name:'Drainage network',        discipline:'Civil',      floors:'Sectors A-D',  plan:15,  actual:8,   status:'warning' },
+        { name:'Electricity ducting',     discipline:'Electrical', floors:'Sectors A-B',  plan:10,  actual:5,   status:'ok' },
+        { name:'Compound wall',           discipline:'Civil',      floors:'Boundary',     plan:40,  actual:35,  status:'ok' },
+        { name:'Entrance gate & guard',   discipline:'Civil',      floors:'Main entry',   plan:30,  actual:25,  status:'ok' },
+        { name:'Water supply network',    discipline:'Plumbing',   floors:'Sectors A-D',  plan:10,  actual:0,   status:'critical' },
+        { name:'Landscaping -- entrance',  discipline:'Landscape',  floors:'Entry zone',   plan:20,  actual:15,  status:'ok' },
+      ],
+      ncrs: [
+        { id:'NCR-GV-002', severity:'major',  description:'HMDA layout submission has boundary discrepancy -- survey correction required.', raised:'18 Apr 2026', due:'05 May 2026', owner:'Legal team', status:'open' },
+        { id:'NCR-GV-001', severity:'minor',  description:'Compound wall alignment deviation at Sector C boundary.', raised:'10 Apr 2026', due:'20 Apr 2026', owner:'Civil', status:'closed' },
+      ],
+      regulatory: [
+        { authority:'HMDA Layout Approval', status:'warning',  detail:'In review -- boundary issue raised', label:'Review' },
+        { authority:'RERA Registration',    status:'critical', detail:'Cannot file until HMDA approved',  label:'Blocked' },
+        { authority:'Env Clearance SEIAA',  status:'ok',       detail:'Approved -- valid to 2028',        label:'Active' },
+        { authority:'Water Board NOC',      status:'warning',  detail:'Applied -- pending inspection',    label:'Pending' },
+        { authority:'Electricity Board',    status:'warning',  detail:'Application submitted',           label:'Pending' },
+        { authority:'BOCW Registration',    status:'ok',       detail:'Registered for site workers',     label:'Active' },
+      ],
+      pipeline: [
+        { stage:'Enquiries',        count:284, conversion:100 },
+        { stage:'Pre-registration', count:134, conversion:47 },
+        { stage:'Site visit',       count:62,  conversion:46 },
+        { stage:'Hot leads',        count:28,  conversion:45 },
+        { stage:'Booking ready',    count:0,   conversion:0 },
+      ],
+      buyers: [],
+
+    },
+
+  }, // end projects
+
+}; // end window.PIQ
+
+</script>
+<script>
+/* ============================================================
+   PROJECT IQ — Common JS
+   Shared sidebar, navigation, alerts, chart helpers
+   Seven Hills Constructions — Baseline v1.0
+   ============================================================ */
+
+// ── Current project (read from URL) ─────────────────────────
+function getCurrentProject() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('project') || 'skyline';
+}
+
+function getProject() {
+  const id = getCurrentProject();
+  return window.PIQ.projects[id] || window.PIQ.projects.skyline;
+}
+
+// ── Navigate to project page ─────────────────────────────────
+function goTo(page, projectId) {
+  const id = projectId || getCurrentProject();
+  if (page === 'portfolio') {
+    window.location.href = 'index.html';
+  } else if (page === 'project') {
+    window.location.href = `project.html?project=${id}`;
+  } else {
+    window.location.href = `${page}.html?project=${id}`;
+  }
+}
+
+// ── Sidebar renderer — Portfolio level ───────────────────────
+function renderPortfolioSidebar(activePage) {
+  const b = window.PIQ.builder;
+  return `
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-brand-name">${b.name}</div>
+      <div class="sb-brand-sub">Project IQ Platform</div>
+    </div>
+    <div class="sb-project">
+      <div class="sb-project-pill" onclick="goTo('portfolio')">
+        <span>All Projects</span><span style="color:#888;">⌄</span>
+      </div>
+    </div>
+
+    <div class="sb-section">Portfolio</div>
+    <div class="sb-item ${activePage==='portfolio'?'active':''}" onclick="goTo('portfolio')">
+      <span class="sb-dot" style="background:#1B3A6B;"></span>Portfolio dashboard
+    </div>
+    <div class="sb-item" onclick="goTo('portfolio')">
+      <span class="sb-dot" style="background:#888;"></span>All projects
+    </div>
+
+    <div class="sb-section">Intelligence</div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#E24B4A;"></span>Regulatory calendar
+      <span class="sb-badge">5</span>
+    </div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#1D9E75;"></span>Social intel feed
+    </div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#7F77DD;"></span>Market heatmap
+    </div>
+
+    <div class="sb-section">Portfolio finance</div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#EF9F27;"></span>Consolidated cash flow
+    </div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#EF9F27;"></span>Portfolio P&L
+    </div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#EF9F27;"></span>Receivables tracker
+    </div>
+
+    <div class="sb-section">Controls</div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#D85A30;"></span>Governance
+    </div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#D85A30;"></span>Risk register
+    </div>
+
+    <div class="sb-section">Settings</div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#888;"></span>Team & roles
+    </div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#888;"></span>Integrations
+    </div>
+
+    <div class="sb-iq">
+      <button class="iq-btn" onclick="openIQ()">
+        <span class="star">✦</span> Ask Project IQ
+      </button>
+    </div>
+  </div>`;
+}
+
+// ── Sidebar renderer — Project level ─────────────────────────
+function renderProjectSidebar(activePage, projectId) {
+  const id = projectId || getCurrentProject();
+  const p = window.PIQ.projects[id];
+  const b = window.PIQ.builder;
+  const name = p ? p.name : 'Project';
+
+  return `
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-brand-name">${b.name}</div>
+      <div class="sb-brand-sub">Project IQ Platform</div>
+    </div>
+    <div class="sb-project">
+      <div class="sb-project-pill" onclick="showProjectSwitcher()">
+        <span style="font-size:11px;font-weight:600;color:#1B3A6B;">${name}</span>
+        <span style="color:#888;">⌄</span>
+      </div>
+    </div>
+
+    <div class="sb-section">Overview</div>
+    <div class="sb-item ${activePage==='project'?'active':''}" onclick="goTo('project','${id}')">
+      <span class="sb-dot" style="background:#1B3A6B;"></span>Dashboard
+    </div>
+    <div class="sb-item" onclick="goTo('portfolio')">
+      <span class="sb-dot" style="background:#888;"></span>All projects
+    </div>
+
+    <div class="sb-section">Construction</div>
+    <div class="sb-item ${activePage==='construction'?'active':''}" onclick="goTo('construction','${id}')">
+      <span class="sb-dot" style="background:#1D9E75;"></span>Site progress
+    </div>
+    <div class="sb-item ${activePage==='construction'?'active':''}" onclick="goTo('construction','${id}')">
+      <span class="sb-dot" style="background:#1D9E75;"></span>Work packages
+    </div>
+    <div class="sb-item" onclick="goTo('construction','${id}')">
+      <span class="sb-dot" style="background:#1D9E75;"></span>Issue log
+      ${p&&p.open_issues>0?`<span class="sb-badge">${p.open_issues}</span>`:''}
+    </div>
+    <div class="sb-item" onclick="goTo('construction','${id}')">
+      <span class="sb-dot" style="background:#1D9E75;"></span>QA / QC
+    </div>
+
+    <div class="sb-section">Finance</div>
+    <div class="sb-item ${activePage==='finance'?'active':''}" onclick="goTo('finance','${id}')">
+      <span class="sb-dot" style="background:#EF9F27;"></span>Cash flow
+    </div>
+    <div class="sb-item ${activePage==='finance'?'active':''}" onclick="goTo('finance','${id}')">
+      <span class="sb-dot" style="background:#EF9F27;"></span>Accounts payable
+    </div>
+    <div class="sb-item ${activePage==='finance'?'active':''}" onclick="goTo('finance','${id}')">
+      <span class="sb-dot" style="background:#EF9F27;"></span>P&L summary
+    </div>
+
+    <div class="sb-section">Leasing & Sales</div>
+    <div class="sb-item ${activePage==='sales'?'active':''}" onclick="goTo('sales','${id}')">
+      <span class="sb-dot" style="background:#E24B4A;"></span>Sales pipeline
+    </div>
+    <div class="sb-item ${activePage==='sales'?'active':''}" onclick="goTo('sales','${id}')">
+      <span class="sb-dot" style="background:#E24B4A;"></span>Unit inventory
+    </div>
+    <div class="sb-item ${activePage==='sales'?'active':''}" onclick="goTo('sales','${id}')">
+      <span class="sb-dot" style="background:#E24B4A;"></span>Revenue forecast
+    </div>
+
+    <div class="sb-section">Stakeholder & CX</div>
+    <div class="sb-item ${activePage==='cx'?'active':''}" onclick="goTo('cx','${id}')">
+      <span class="sb-dot" style="background:#7F77DD;"></span>CX dashboard
+    </div>
+    <div class="sb-item ${activePage==='cx'?'active':''}" onclick="goTo('cx','${id}')">
+      <span class="sb-dot" style="background:#7F77DD;"></span>Escalations
+      ${p&&p.cx_issues>0?`<span class="sb-badge">${p.cx_issues}</span>`:''}
+    </div>
+    <div class="sb-item ${activePage==='cx'?'active':''}" onclick="goTo('cx','${id}')">
+      <span class="sb-dot" style="background:#7F77DD;"></span>Payment tracker
+    </div>
+
+    <div class="sb-section">Controls</div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#D85A30;"></span>Regulatory
+      <span class="sb-badge">3</span>
+    </div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#D85A30;"></span>Procurement
+    </div>
+    <div class="sb-item">
+      <span class="sb-dot" style="background:#D85A30;"></span>Risk register
+    </div>
+
+    <div class="sb-iq">
+      <button class="iq-btn" onclick="openIQ()">
+        <span class="star">✦</span> Ask Project IQ
+      </button>
+    </div>
+  </div>`;
+}
+
+// ── Project switcher dropdown ────────────────────────────────
+function showProjectSwitcher() {
+  const projects = window.PIQ.projects;
+  const existing = document.getElementById('proj-switcher');
+  if (existing) { existing.remove(); return; }
+
+  const el = document.createElement('div');
+  el.id = 'proj-switcher';
+  el.style.cssText = `position:fixed;top:80px;left:14px;background:white;border:1px solid #e0dfd8;
+    border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:999;width:192px;overflow:hidden;`;
+
+  let html = '<div style="padding:8px 0;">';
+  Object.values(projects).forEach(p => {
+    const color = p.status==='delayed'?'#E24B4A':p.status==='on-track'?'#1D9E75':'#EF9F27';
+    html += `<div onclick="goTo('project','${p.id}')" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:12px;transition:background 0.15s;" onmouseover="this.style.background='#f4f4f2'" onmouseout="this.style.background='white'">
+      <span style="width:6px;height:6px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+      <span style="font-weight:600;color:#1B3A6B;">${p.name}</span>
+    </div>`;
+  });
+  html += '<div onclick="goTo(\'portfolio\')" style="padding:8px 14px;cursor:pointer;font-size:11px;color:#888;border-top:1px solid #e0dfd8;margin-top:4px;padding-top:8px;" onmouseover="this.style.background=\'#f4f4f2\'" onmouseout="this.style.background=\'white\'">← Back to portfolio</div>';
+  html += '</div>';
+  el.innerHTML = html;
+  document.body.appendChild(el);
+  setTimeout(() => document.addEventListener('click', () => el.remove(), { once: true }), 100);
+}
+
+// ── Project IQ chat panel ────────────────────────────────────
+function openIQ() {
+  const existing = document.getElementById('iq-panel-overlay');
+  if (existing) { existing.remove(); return; }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'iq-panel-overlay';
+  overlay.style.cssText = `position:fixed;bottom:20px;right:20px;width:340px;
+    background:white;border:1px solid #e0dfd8;border-radius:14px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:999;overflow:hidden;`;
+
+  const suggestions = [
+    'What are the top 3 risks I should act on today?',
+    'Show me all projects at risk of delay in next 90 days',
+    'What is the RERA penalty exposure across portfolio?',
+    'Which buyers are at possession risk?',
+    'Summarise cash flow for this week',
+  ];
+
+  overlay.innerHTML = `
+    <div style="background:#1B3A6B;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:white;">✦ Project IQ</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.6);">Decision Intelligence Engine</div>
+      </div>
+      <button onclick="document.getElementById('iq-panel-overlay').remove()" 
+        style="color:rgba(255,255,255,0.6);font-size:18px;background:none;border:none;cursor:pointer;line-height:1;">×</button>
+    </div>
+    <div style="padding:12px 14px;max-height:300px;overflow-y:auto;" id="iq-messages">
+      <div style="background:#E6EDF7;border-radius:8px;padding:10px 12px;font-size:11px;color:#185FA5;line-height:1.5;margin-bottom:10px;">
+        Hello! I am Project IQ — your Decision Intelligence engine. I can see across all your projects, dimensions, and data. What would you like to know?
+      </div>
+      <div style="font-size:10px;color:#888;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Suggested questions</div>
+      ${suggestions.map(s => `
+        <div onclick="askIQ('${s}')" style="padding:7px 10px;background:#f4f4f2;border-radius:6px;font-size:11px;color:#1B3A6B;cursor:pointer;margin-bottom:4px;transition:background 0.15s;" onmouseover="this.style.background='#E6EDF7'" onmouseout="this.style.background='#f4f4f2'">
+          ${s}
+        </div>`).join('')}
+    </div>
+    <div style="padding:10px 14px;border-top:1px solid #e0dfd8;display:flex;gap:8px;">
+      <input id="iq-input" type="text" placeholder="Ask anything about your projects..." 
+        style="flex:1;border:1px solid #e0dfd8;border-radius:6px;padding:7px 10px;font-size:11px;font-family:'DM Sans',sans-serif;outline:none;"
+        onkeydown="if(event.key==='Enter')askIQ(this.value)">
+      <button onclick="askIQ(document.getElementById('iq-input').value)"
+        style="background:#1B3A6B;color:white;border-radius:6px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;">Ask</button>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  document.getElementById('iq-input').focus();
+}
+
+// ── IQ Response simulator ────────────────────────────────────
+const iqResponses = {
+  'risk': 'Top 3 risks today:\n1. Skyline Heights — Tower B delay creates Rs.1.2 Cr RERA penalty + Q3 cash gap. Needs MD decision on night shift (Rs.4.2L saves 30 days).\n2. Water board connection blocking OC — assign liaison today or OC delays 45+ days.\n3. Green Valley pre-registrations going cold — 134 leads, no RERA filed yet. Window closing.',
+  'delay': 'Projects at delay risk in next 90 days:\n• Skyline Heights — Tower B 44 days behind. Possession risk: 23 buyers. RERA penalty: Rs.1.2 Cr.\n• Green Valley — Pre-launch delayed if HMDA approval does not come this week.\nPrestige Oaks and TekTower One are on track.',
+  'rera': 'RERA penalty exposure:\n• Skyline Heights: Rs.1.2 Cr if Tower B delay continues and 23 possession dates breach.\n• Prestige Oaks: Quarterly update due tomorrow — file today.\n• Green Valley: RERA not yet filed — cannot sell until filed.\nTotal exposure: Rs.1.2 Cr immediate + regulatory risk.',
+  'buyer': '23 buyers at possession risk in Skyline Heights — all Tower B floors 8-12. Recommended action: proactive WhatsApp communication with revised possession date and recovery plan. I have drafted the message — want to see it?',
+  'cash': 'This week cash position:\n• Opening balance: Rs.8.4 Cr\n• Expected inflows: Rs.3.2 Cr (4 buyer collections due)\n• Payables due: Rs.6 Cr (3 bills pending PM cert)\n• Net position: Rs.5.6 Cr\n• Warning: Q3 gap of Rs.3.8 Cr projected if Tower B delay continues.',
+  'default': 'I am analysing your project data across all dimensions. Based on what I see, the most important thing requiring your attention today is the Tower B recovery plan at Skyline Heights — it has a cascading impact on 23 buyers, RERA compliance, and Q3 cash flow. Would you like me to detail the recovery options?'
+};
+
+function askIQ(question) {
+  if (!question || !question.trim()) return;
+  const messages = document.getElementById('iq-messages');
+  if (!messages) return;
+
+  // User message
+  messages.innerHTML += `<div style="background:#1B3A6B;border-radius:8px;padding:8px 12px;font-size:11px;color:white;margin-bottom:8px;margin-left:20px;">${question}</div>`;
+
+  // Find response
+  const q = question.toLowerCase();
+  let response = iqResponses.default;
+  if (q.includes('risk')) response = iqResponses.risk;
+  else if (q.includes('delay') || q.includes('90 days')) response = iqResponses.delay;
+  else if (q.includes('rera') || q.includes('penalty')) response = iqResponses.rera;
+  else if (q.includes('buyer') || q.includes('possession')) response = iqResponses.buyer;
+  else if (q.includes('cash') || q.includes('flow')) response = iqResponses.cash;
+
+  // IQ response with typing delay
+  setTimeout(() => {
+    messages.innerHTML += `<div style="background:#E6EDF7;border-radius:8px;padding:10px 12px;font-size:11px;color:#185FA5;line-height:1.6;margin-bottom:8px;white-space:pre-line;">✦ ${response}</div>`;
+    messages.scrollTop = messages.scrollHeight;
+  }, 600);
+
+  const input = document.getElementById('iq-input');
+  if (input) input.value = '';
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// ── Bar colour helper ────────────────────────────────────────
+function scoreColor(score) {
+  if (score >= 70) return '#1D9E75';
+  if (score >= 50) return '#EF9F27';
+  return '#E24B4A';
+}
+
+function scoreBarClass(score) {
+  if (score >= 70) return 'bar-green';
+  if (score >= 50) return 'bar-amber';
+  return 'bar-red';
+}
+
+function statusTagClass(status) {
+  if (status === 'delayed')    return 'tag-delayed';
+  if (status === 'on-track')   return 'tag-ontrack';
+  if (status === 'pre-launch') return 'tag-prelaunch';
+  return 'tag-info';
+}
+
+// ── Render alert bar ─────────────────────────────────────────
+function renderAlertBar(alerts) {
+  if (!alerts || !alerts.length) return '';
+  const rows = alerts.slice(0, 3).map(a => `
+    <div class="alert-row">
+      <span class="alert-tag at-${a.severity}">${a.severity.toUpperCase()}</span>
+      <span>${a.message}</span>
+    </div>`).join('');
+  return `<div class="alert-bar">${rows}</div>`;
+}
+
+// ── Format currency ──────────────────────────────────────────
+function fmtCr(val) {
+  if (!val) return 'Rs.0';
+  return `Rs.${val} Cr`;
+}
+
+// ── Progress bar html ────────────────────────────────────────
+function progressBar(actual, plan, height) {
+  const h = height || 6;
+  const cls = scoreBarClass(actual);
+  return `
+    <div class="progress-wrap" style="height:${h}px;">
+      <div class="progress-bar ${cls}" style="width:${actual}%;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:#888;margin-top:2px;">
+      <span>${actual}% actual</span><span>${plan}% plan</span>
+    </div>`;
+}
+
+</script>
+<script>
+window.addEventListener('load', function() {
+
+const pb = window.PIQ.projects.skyline.portal_buyer;
+
+// ── MILESTONE JOURNEY ─────────────────────────────────────
+const milestones = pb.milestones;
+const icons = { completed:'✓', delayed:'!', upcoming:'○' };
+const statusClass = { completed:'ms-done', delayed:'ms-delayed', upcoming:'ms-upcoming' };
+const activeIdx = milestones.findIndex(m => m.status === 'delayed' || m.status === 'upcoming');
+
+const photos = {
+  'Foundation':    ['🧱','Sep 2024'],
+  'Slab — Floor 9':['🏗','Sep 2024'],
+  'Structure done':['🏗','Mar 2025'],
+  'MEP rough-in':  ['🔧','Dec 2024'],
+  'Plastering':    ['🪣','Mar 2026'],
+};
+
+document.getElementById('milestone-list').innerHTML = milestones.map((m,i) => {
+  const isLast = i === milestones.length - 1;
+  const cls = i === activeIdx ? 'ms-active' : statusClass[m.status] || 'ms-upcoming';
+  const icon = i === activeIdx ? '→' : (m.status === 'completed' ? '✓' : m.status === 'delayed' ? '!' : '○');
+  const hasPhoto = photos[m.stage];
+  const photoHtml = hasPhoto && m.status === 'completed'
+    ? `<div class="ms-photo"><div class="ms-thumb" onclick="showPhoto('${m.stage} — ${hasPhoto[1]}')">${hasPhoto[0]}</div></div>`
+    : '';
+  const extraNote = m.stage === 'Plastering' ? '<div style="font-size:10px;background:#FAEEDA;color:#633806;padding:4px 8px;border-radius:4px;margin-top:4px;display:inline-block;">Currently in progress — 35% done. Behind plan.</div>' : '';
+  const extraNote2 = m.stage === 'Possession' ? '<div style="font-size:10px;background:#FCEBEB;color:#791F1F;padding:4px 8px;border-radius:4px;margin-top:4px;display:inline-block;">Target Dec 2026 — at risk due to plastering delay</div>' : '';
+
+  return `<div class="milestone ${cls}">
+    <div class="ms-spine">
+      <div class="ms-dot">${icon}</div>
+      ${!isLast ? '<div class="ms-line"></div>' : ''}
+    </div>
+    <div class="ms-body">
+      <div class="ms-title">${m.stage}</div>
+      <div class="ms-desc">${getMsDesc(m.stage)}</div>
+      <div class="ms-date">${m.date}</div>
+      ${photoHtml}${extraNote}${extraNote2}
+    </div>
+  </div>`;
+}).join('');
+
+function getMsDesc(stage) {
+  const desc = {
+    'Booking': 'Your booking is confirmed. Welcome to Skyline Heights.',
+    'Agreement': 'Sale agreement signed. All legal formalities completed.',
+    'Foundation': 'Tower B foundation complete. All structural checks passed.',
+    'Slab — Floor 9': 'Concrete slab for Floor 9 cast and cured. Cube test: passed.',
+    'Structure done': 'Full structure of Tower B completed. QC certified.',
+    'MEP rough-in': 'Electrical conduits, plumbing pipes, and AC ducting installed inside walls.',
+    'Plastering': 'Wall plastering in progress. Currently 35% complete. Target: May 2026.',
+    'Finishing': 'Tiling, painting, fixtures, and final fit-out. Will begin after plastering.',
+    'Possession': 'Key handover. OC received. All documents ready.',
+  };
+  return desc[stage] || 'Milestone in progress.';
+}
+
+// ── PAYMENT LIST ──────────────────────────────────────────
+const payments = pb.payments;
+document.getElementById('payment-list').innerHTML = payments.map(p => {
+  const cls = p.status;
+  const icon = p.status === 'paid' ? '✓' : p.status === 'overdue' ? '!' : p.demand;
+  const paidLine = p.paid ? `Paid: ${p.paid}` : '';
+  const dueLine = `Due: ${p.due}`;
+  return `<div class="payment-row ${cls}">
+    <div class="pay-num ${cls}">${p.status==='paid'?'✓':p.status==='overdue'?'!':p.demand}</div>
+    <div class="pay-info">
+      <div class="pay-desc">Demand ${p.demand} — ${p.description}</div>
+      <div class="pay-dates">${dueLine}${paidLine?' · '+paidLine:''}</div>
+    </div>
+    <div class="pay-amount ${cls}">Rs.${p.amount_l} L</div>
+    <div class="pay-status ps-${cls}">${p.status==='paid'?'Paid':p.status==='overdue'?'Overdue':'Upcoming'}</div>
+  </div>`;
+}).join('');
+
+// ── CONSTRUCTION TASKS ────────────────────────────────────
+const tasks = [
+  { icon:'🧱', name:'Foundation & Structure', label:'The base and frame of your flat — concrete, columns, beams', pct:100, status:'done', bg:'#E1F5EE', col:'#065F46' },
+  { icon:'🔧', name:'MEP rough-in', label:'Electrical wiring, plumbing pipes, and AC ducts inside walls', pct:100, status:'done', bg:'#E1F5EE', col:'#065F46' },
+  { icon:'🌊', name:'Waterproofing', label:'Waterproofing applied to bathrooms, terraces, and wet areas', pct:100, status:'done', bg:'#E1F5EE', col:'#065F46' },
+  { icon:'🪣', name:'Plastering', label:'Smooth plaster applied to all walls and ceiling', pct:35, status:'active', bg:'#BFDBFE', col:'#1E40AF' },
+  { icon:'⚡', name:'Electrical fit-out', label:'Switches, sockets, lighting points, and distribution board', pct:20, status:'active', bg:'#BFDBFE', col:'#1E40AF' },
+  { icon:'🔲', name:'Tiling & flooring', label:'Vitrified tiles for living, bedrooms, and kitchen. Anti-skid for bathrooms', pct:0, status:'blocked', bg:'#FEE2E2', col:'#991B1B' },
+  { icon:'🎨', name:'Painting', label:'Two coats interior emulsion paint in your chosen shade', pct:0, status:'pending', bg:'#F3F4F6', col:'#6B7280' },
+  { icon:'🚿', name:'Final fixtures', label:'Door handles, taps, sanitary ware, grilles, and final MEP connections', pct:0, status:'pending', bg:'#F3F4F6', col:'#6B7280' },
+];
+
+const statusLabels = { done:'Complete', active:'In progress', blocked:'Awaiting plastering', pending:'Not started yet' };
+const barColors = { done:'#22C55E', active:'#60A5FA', blocked:'#FCA5A5', pending:'#E5E7EB' };
+
+document.getElementById('task-list').innerHTML = tasks.map(t => `
+  <div class="task-item">
+    <div class="task-icon" style="background:${t.bg};">${t.icon}</div>
+    <div style="flex:1;min-width:0;">
+      <div class="task-name">${t.name}</div>
+      <div class="task-buyer-lbl">${t.label}</div>
+    </div>
+    <div class="task-bar-wrap">
+      <div class="task-bar-fill" style="width:${t.pct}%;background:${barColors[t.status]};"></div>
+    </div>
+    <div class="task-pct" style="color:${t.col};">${t.pct}%</div>
+    <div class="task-status-tag" style="background:${t.bg};color:${t.col};">${statusLabels[t.status]}</div>
+  </div>`).join('');
+
+// ── AMENITIES ─────────────────────────────────────────────
+const amenities = [
+  { icon:'🏊', name:'Swimming Pool', pct:65 },
+  { icon:'🏋️', name:'Gymnasium', pct:80 },
+  { icon:'🏛️', name:'Club House', pct:45 },
+  { icon:'🎠', name:'Kids Play Area', pct:90 },
+  { icon:'🛏️', name:'Guest Rooms', pct:30 },
+  { icon:'☕', name:'Coffee Shop', pct:20 },
+  { icon:'🎲', name:'Games Room', pct:55 },
+  { icon:'🏃', name:'Jogging Track', pct:70 },
+];
+document.getElementById('amenity-grid').innerHTML = amenities.map(a => {
+  const col = a.pct >= 80 ? '#16A34A' : a.pct >= 50 ? '#D97706' : '#DC2626';
+  const barCol = a.pct >= 80 ? '#22C55E' : a.pct >= 50 ? '#F59E0B' : '#EF4444';
+  return `<div class="amenity">
+    <div class="amenity-icon">${a.icon}</div>
+    <div class="amenity-name">${a.name}</div>
+    <div class="amenity-bar"><div class="amenity-fill" style="width:${a.pct}%;background:${barCol};"></div></div>
+    <div class="amenity-pct" style="color:${col};">${a.pct}%</div>
+  </div>`;
+}).join('');
+
+// ── DOCUMENTS ─────────────────────────────────────────────
+const docs = pb.documents || [];
+const docIcons = { Legal:'📋', Payment:'🧾', Regulatory:'🏛️' };
+document.getElementById('doc-list').innerHTML = docs.map(d => `
+  <div class="doc-item" onclick="alert('Downloading: ${d.name}')">
+    <div class="doc-icon-wrap" style="background:${d.type==='Legal'?'#E6F1FB':d.type==='Payment'?'#E1F5EE':'#FAEEDA'};">${docIcons[d.type]||'📄'}</div>
+    <div class="doc-info">
+      <div class="doc-name">${d.name}</div>
+      <div class="doc-meta">${d.type} · ${d.date}</div>
+    </div>
+    <div class="doc-dl">⬇ Download</div>
+  </div>`).join('');
+
+// ── COMPLIANCE ────────────────────────────────────────────
+const compliance = [
+  { icon:'✓', cls:'comp-ok', name:'RERA Registration', detail:'P02400004521 · Valid · Telangana RERA portal verified', tag:'Active', tagStyle:'background:#E1F5EE;color:#065F46;' },
+  { icon:'✓', cls:'comp-ok', name:'Sale Agreement registered', detail:'Registered at Sub-Registrar office · Apr 2024', tag:'Done', tagStyle:'background:#E1F5EE;color:#065F46;' },
+  { icon:'✓', cls:'comp-ok', name:'RERA quarterly filing', detail:'Q1 2026 filed on time · Progress: 54.5%', tag:'Filed', tagStyle:'background:#E1F5EE;color:#065F46;' },
+  { icon:'!', cls:'comp-warn', name:'Possession date commitment', detail:'Dec 2026 committed. Currently at risk due to Tower B delay.', tag:'At risk', tagStyle:'background:#FAEEDA;color:#633806;' },
+  { icon:'✓', cls:'comp-ok', name:'Escrow account (RERA 70% rule)', detail:'70% of collections held in designated escrow. Audited quarterly.', tag:'Compliant', tagStyle:'background:#E1F5EE;color:#065F46;' },
+  { icon:'✓', cls:'comp-ok', name:'Builder RERA licence', detail:'Telangana RERA builder registration active. Renewed Jan 2026.', tag:'Active', tagStyle:'background:#E1F5EE;color:#065F46;' },
+];
+document.getElementById('compliance-list').innerHTML = compliance.map(c => `
+  <div class="compliance-row">
+    <div class="comp-icon ${c.cls}">${c.icon}</div>
+    <div style="flex:1;">
+      <div class="comp-name">${c.name}</div>
+      <div class="comp-detail">${c.detail}</div>
+    </div>
+    <div class="comp-tag" style="${c.tagStyle}">${c.tag}</div>
+  </div>`).join('');
+
+// ── CONTACTS ─────────────────────────────────────────────
+const contacts = [
+  { icon:'👤', name:'Priya Sharma', role:'Your CX Manager', reach:'📞 +91 98765 43210' },
+  { icon:'📊', name:'Sales Team', role:'Bookings & queries', reach:'📧 sales@sevenhills.in' },
+  { icon:'🏗', name:'Site Office', role:'Construction queries', reach:'📞 +91 98765 43211' },
+  { icon:'⚖️', name:'RERA Helpdesk', role:'Regulatory complaints', reach:'🌐 rera.telangana.gov.in' },
+];
+document.getElementById('contact-grid').innerHTML = contacts.map(c => `
+  <div class="contact-card" onclick="alert('Contacting: ${c.name}')">
+    <div class="contact-icon">${c.icon}</div>
+    <div>
+      <div class="contact-name">${c.name}</div>
+      <div class="contact-role">${c.role}</div>
+      <div class="contact-reach">${c.reach}</div>
+    </div>
+  </div>`).join('');
+
+// ── CUBE RATINGS ─────────────────────────────────────────
+const ratings = pb.cube_ratings || [];
+document.getElementById('cube-ratings').innerHTML = ratings.map(r => {
+  const stars = [1,2,3,4,5].map(s =>
+    `<span class="star" onclick="rateItem(this,${s})">${s<=r.score?'⭐':'☆'}</span>`
+  ).join('');
+  return `<div class="cr-item">
+    <div class="cr-dim">${r.dimension}</div>
+    <div class="cr-stars">${stars}</div>
+    <div class="cr-comment">"${r.comment}"</div>
+  </div>`;
+}).join('');
+
+function rateItem(el, score) {
+  const stars = el.parentElement.querySelectorAll('.star');
+  stars.forEach((s,i) => s.textContent = i < score ? '⭐' : '☆');
+  setTimeout(() => alert('Thank you for rating ' + score + '/5. Your feedback has been saved.'), 100);
+}
+
+// ── FAQ ───────────────────────────────────────────────────
+const faqs = [
+  { q:'What happens if possession is delayed beyond December 2026?', a:'Under RERA, you are entitled to interest at SBI MCLR + 2% on all amounts paid for every month of delay. Seven Hills will communicate formally if a delay is confirmed.' },
+  { q:'When will I receive the next demand note?', a:'Demand 6 (Finishing milestone) will be raised when tiling and painting are 80% complete — estimated July-August 2026.' },
+  { q:'Can I do interior work before possession?', a:'No. Access for personal interior work is permitted only after possession and full payment.' },
+  { q:'How do I report a quality concern?', a:'You can raise a complaint through this portal (Help tab) or WhatsApp your CX Manager directly. All complaints are tracked and resolved within 30 days.' },
+  { q:'What documents will I receive at possession?', a:'OC (Occupancy Certificate), possession letter, NOC from bank (if applicable), society share certificate, and original title documents.' },
+];
+document.getElementById('faq-list').innerHTML = faqs.map((f,i) => `
+  <div style="border-bottom:1px solid var(--border);padding:10px 0;${i===faqs.length-1?'border:none':''}">
+    <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'"
+      style="font-size:12px;font-weight:600;color:var(--navy);cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+      ${f.q}<span style="font-size:16px;color:var(--grey-mid);">+</span>
+    </div>
+    <div style="display:none;font-size:11px;color:var(--grey);line-height:1.6;margin-top:6px;padding:8px 10px;background:var(--grey-light);border-radius:6px;">
+      ${f.a}
+    </div>
+  </div>`).join('');
+
+// ── TABS ─────────────────────────────────────────────────
+}); // end window.load
+
+function switchTab(tab) {
+  document.querySelectorAll('.section-view').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const tabs = {'home':0,'payments':1,'progress':2,'amenities':3,'documents':4,'compliance':5,'help':6};
+  const idx = tabs[tab];
+  if(idx !== undefined) {
+    const tabEls = document.querySelectorAll('.ptab');
+    if(tabEls[idx]) tabEls[idx].classList.add('active');
+  }
+}
+
+function showTab(tab, el) {
+  document.querySelectorAll('.section-view').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+function showPhoto(label) {
+  alert('Photo: ' + label + '\n\n[In the live app, this opens the full-size geo-tagged photo with timestamp and engineer name — legally admissible evidence of construction progress.]');
+}
+</script>
+</body>
+</html>
