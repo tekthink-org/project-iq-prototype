@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project IQ — Project Dashboard | Seven Hills Constructions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.layout { padding-left: var(--sidebar-w); }
+
+/* Unit heatmap */
+.unit-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 3px;
+}
+.unit-cell {
+  height: 18px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.unit-cell:hover { opacity: .75; }
+.uc-booked      { background: #1D9E75; }
+.uc-available   { background: #E1F5EE; border: 1px solid #5DCAA5; }
+.uc-reserved    { background: #EF9F27; }
+.uc-hot         { background: #E24B4A; }
+.uc-construction{ background: #D0CFC8; border: 1px solid #B4B2A9; }
+.floor-label {
+  font-size: 9px;
+  color: var(--grey-mid);
+  text-align: right;
+  padding-right: 5px;
+  line-height: 18px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+/* Cube scorecard */
+.health-cube {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Work package rows */
+.wp-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 80px 70px 70px;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.wp-row:last-child { border-bottom: none; }
+.wp-header {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--grey-mid);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* NCR rows */
+.ncr-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--grey-light);
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.ncr-row:hover { background: #e8e7df; }
+
+/* Dimension tabs */
+.dim-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.dim-tab {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--grey);
+  cursor: pointer;
+  transition: all .15s;
+}
+.dim-tab:hover { border-color: var(--navy); color: var(--navy); }
+.dim-tab.active { background: var(--navy); color: white; border-color: var(--navy); }
+
+/* Solar system (smaller for project dashboard) */
+.solar-sm {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.scene-sm { width: 88px; height: 88px; perspective: 260px; cursor: pointer; position: relative; z-index: 10; }
+.cube3d-sm {
+  width: 88px; height: 88px;
+  position: relative; transform-style: preserve-3d;
+  animation: spin 20s infinite linear;
+}
+.cube3d-sm:hover { animation-duration: 55s; }
+.cube3d-sm.paused { animation-play-state: paused; }
+.face-sm {
+  position: absolute; width: 88px; height: 88px;
+  border: 2px solid rgba(255,255,255,.35);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1px; border-radius: 3px; cursor: pointer;
+}
+.face-sm:hover { filter: brightness(1.15); }
+.fsm-front  { transform: translateZ(44px);                background: linear-gradient(135deg,#0F6E56cc,#1D9E75cc); }
+.fsm-back   { transform: rotateY(180deg) translateZ(44px); background: linear-gradient(135deg,#534AB7cc,#3C3489cc); }
+.fsm-right  { transform: rotateY(90deg) translateZ(44px);  background: linear-gradient(135deg,#C0392Bcc,#791F1Fcc); }
+.fsm-left   { transform: rotateY(-90deg) translateZ(44px); background: linear-gradient(135deg,#D68910cc,#854F0Bcc); }
+.fsm-top    { transform: rotateX(90deg) translateZ(44px);  background: linear-gradient(135deg,#2471A3cc,#0C447Ccc); }
+.fsm-bottom { transform: rotateX(-90deg) translateZ(44px); background: linear-gradient(135deg,#6C3483cc,#3C3489cc); }
+.flsm { font-size: 7px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.5); text-align: center; line-height: 1.2; }
+.fvsm { font-size: 13px; font-weight: 700; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.3); }
+
+/* Tip */
+.tip {
+  position: fixed; background: var(--navy); color: white;
+  padding: 5px 10px; border-radius: 5px; font-size: 10px;
+  pointer-events: none; opacity: 0; transition: opacity .15s;
+  z-index: 9999; max-width: 200px; line-height: 1.4;
+  font-family: var(--font);
+}
+</style>
+</head>
+
+<body>
+<div id="tip" class="tip"></div>
+<div class="layout">
+  <div id="sidebar-container"></div>
+
+  <div class="main-area">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title" id="page-title">Project Dashboard</div>
+        <div class="page-sub" id="page-sub">Loading...</div>
+      </div>
+      <div class="topbar-right" id="topbar-right"></div>
+    </div>
+
+    <div id="alert-bar-container"></div>
+
+    <div class="content">
+
+      <!-- DIMENSION TABS -->
+      <div class="dim-tabs">
+        <div class="dim-tab active" onclick="setTab('overview',this)">Overview</div>
+        <div class="dim-tab" onclick="goTo('construction')">🏗 Construction</div>
+        <div class="dim-tab" onclick="goTo('sales')">📈 Leasing & Sales</div>
+        <div class="dim-tab" onclick="goTo('cx')">🤝 Stakeholder & CX</div>
+        <div class="dim-tab" onclick="goTo('finance')">💰 Finance</div>
+        <div class="dim-tab" onclick="alert('Controls module — Phase 2')">⚙️ Controls</div>
+      </div>
+
+      <!-- KPI STRIP -->
+      <div class="kpi-grid mb-14" id="kpi-grid"></div>
+
+      <!-- ROW 1: Cube + Reg + Unit Map -->
+      <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:14px;margin-bottom:14px;">
+
+        <!-- Health Cube -->
+        <div class="health-cube" style="width:260px;">
+          <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:6px;text-align:center;">Project Health Cube</div>
+
+          <div style="display:flex;justify-content:center;margin-bottom:8px;">
+            <div class="solar-sm" id="solar-sm">
+              <svg style="position:absolute;top:0;left:0;width:220px;height:220px;" viewBox="0 0 220 220">
+                <path d="M110,110 L110,2 A108,108 0 0,1 205.5,56 Z"    fill="#D0CFC8" stroke="white" stroke-width="1.5" class="lc-seg" data-tip="Stage 0: Feasibility & Land"/>
+                <path d="M110,110 L205.5,56 A108,108 0 0,1 205.5,164 Z" fill="#B4B2A9" stroke="white" stroke-width="1.5" class="lc-seg" data-tip="Stage 1: Design & Approvals"/>
+                <path d="M110,110 L205.5,164 A108,108 0 0,1 110,218 Z"  fill="#9c9a92" stroke="white" stroke-width="1.5" class="lc-seg" data-tip="Stage 2: Pre-Construction"/>
+                <path d="M110,110 L110,218 A108,108 0 0,1 14.5,164 Z"   fill="#1D9E75" stroke="white" stroke-width="2.5" class="lc-seg active-lc" data-tip="Stage 3: Construction — CURRENT"/>
+                <path d="M110,110 L14.5,164 A108,108 0 0,1 14.5,56 Z"   fill="#E8E7DF" stroke="white" stroke-width="1.5" class="lc-seg" data-tip="Stage 4: Commissioning & Handover"/>
+                <path d="M110,110 L14.5,56 A108,108 0 0,1 110,2 Z"      fill="#E8E7DF" stroke="white" stroke-width="1.5" class="lc-seg" data-tip="Stage 5: Asset & FM Ops"/>
+                <text x="156" y="38"  text-anchor="middle" font-size="7" fill="white" font-weight="700" font-family="DM Sans,sans-serif">S0</text>
+                <text x="202" y="110" text-anchor="middle" font-size="7" fill="white" font-weight="700" font-family="DM Sans,sans-serif">S1</text>
+                <text x="156" y="188" text-anchor="middle" font-size="7" fill="white" font-weight="700" font-family="DM Sans,sans-serif">S2</text>
+                <text x="62"  y="196" text-anchor="middle" font-size="7.5" fill="white" font-weight="700" font-family="DM Sans,sans-serif">S3</text>
+                <text x="18"  y="110" text-anchor="middle" font-size="7" fill="#888" font-weight="700" font-family="DM Sans,sans-serif">S4</text>
+                <text x="62"  y="34"  text-anchor="middle" font-size="7" fill="#888" font-weight="700" font-family="DM Sans,sans-serif">S5</text>
+              </svg>
+              <svg style="position:absolute;top:31px;left:31px;width:158px;height:158px;" viewBox="0 0 158 158">
+                <path d="M79,79 L79,4 A75,75 0 0,1 144,41.5 Z"   fill="#D85A30dd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="Governance: RACI, Phase Gates"/>
+                <path d="M79,79 L144,41.5 A75,75 0 0,1 144,116.5 Z" fill="#C0392Bdd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="Compliance: RERA + 14 authorities — 2 urgent"/>
+                <path d="M79,79 L144,116.5 A75,75 0 0,1 104,150 Z" fill="#1D9E75dd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="QA: Preventive — ITP 87%"/>
+                <path d="M79,79 L104,150 A75,75 0 0,1 54,150 Z"   fill="#0F6E56dd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="QC: Corrective — 3 NCRs open"/>
+                <path d="M79,79 L54,150 A75,75 0 0,1 14,116.5 Z"  fill="#F39C12dd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="HSE: Safety, BOCW"/>
+                <path d="M79,79 L14,116.5 A75,75 0 0,1 14,41.5 Z" fill="#7F77DDdd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="Procurement: Rs.6 Cr pending"/>
+                <path d="M79,79 L14,41.5 A75,75 0 0,1 79,4 Z"     fill="#885ECDdd" stroke="white" stroke-width="1.5" class="ctrl-seg" data-tip="Variation & Document Control"/>
+                <text x="107" y="26"  text-anchor="middle" font-size="6" fill="white" font-weight="700" font-family="DM Sans,sans-serif">Gov</text>
+                <text x="140" y="79"  text-anchor="middle" font-size="6" fill="white" font-weight="700" font-family="DM Sans,sans-serif">Comp</text>
+                <text x="124" y="138" text-anchor="middle" font-size="6" fill="white" font-weight="700" font-family="DM Sans,sans-serif">QA</text>
+                <text x="79"  y="153" text-anchor="middle" font-size="6" fill="white" font-weight="700" font-family="DM Sans,sans-serif">QC</text>
+                <text x="34"  y="138" text-anchor="middle" font-size="6" fill="white" font-weight="700" font-family="DM Sans,sans-serif">HSE</text>
+                <text x="17"  y="79"  text-anchor="middle" font-size="6" fill="white" font-weight="700" font-family="DM Sans,sans-serif">Proc</text>
+                <text x="34"  y="26"  text-anchor="middle" font-size="5.5" fill="white" font-weight="700" font-family="DM Sans,sans-serif">Var</text>
+              </svg>
+              <div class="scene-sm" id="scene-sm">
+                <div class="cube3d-sm" id="cube3d-sm">
+                  <div class="face-sm fsm-front"  data-dim="construction" data-tip="Construction: 54.5% — Tower B delayed 44 days"><div class="fvsm" id="f-construction">54%</div><div class="flsm">Construction</div></div>
+                  <div class="face-sm fsm-back"   data-dim="asset"        data-tip="Asset & Ops: FM planning stage"><div class="fvsm" id="f-asset">12%</div><div class="flsm">Asset & Ops</div></div>
+                  <div class="face-sm fsm-right"  data-dim="sales"        data-tip="Sales: 68% — 190/300 units booked"><div class="fvsm" id="f-sales">68%</div><div class="flsm">Sales</div></div>
+                  <div class="face-sm fsm-left"   data-dim="finance"      data-tip="Finance: 72% — CPI 0.91, Rs.6 Cr overdue"><div class="fvsm" id="f-finance">72%</div><div class="flsm">Finance</div></div>
+                  <div class="face-sm fsm-top"    data-dim="cx"           data-tip="CX: 41% — 8 escalations, 23 buyers at risk"><div class="fvsm" id="f-cx">41%</div><div class="flsm">CX</div></div>
+                  <div class="face-sm fsm-bottom" data-dim="design"       data-tip="Design & Engineering: 90% — all IFC issued"><div class="fvsm" id="f-design">90%</div><div class="flsm">Design</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dimension bars -->
+          <div id="dim-bars"></div>
+
+          <!-- Parameter mini grid -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:10px;padding-top:8px;border-top:1px solid var(--border);" id="param-mini"></div>
+        </div>
+
+        <!-- Regulatory Approvals -->
+        <div class="card">
+          <div class="card-title">Regulatory intelligence <span class="card-sub">Live approval tracker</span></div>
+          <div id="reg-list"></div>
+          <div style="margin-top:8px;padding:8px 10px;background:var(--navy-light);border-radius:var(--radius-sm);">
+            <div style="font-size:10px;font-weight:700;color:var(--navy);margin-bottom:3px;">✦ Project IQ — Regulatory alert</div>
+            <div style="font-size:10px;color:#185FA5;line-height:1.5;">Water board connection pending — if not resolved by May 15, OC application delays by 45+ days. Assign liaison today and escalate through HMDA if needed.</div>
+          </div>
+        </div>
+
+        <!-- Unit heatmap -->
+        <div class="card">
+          <div class="card-title">Tower & unit map <span class="card-sub">18 floors × 6 units</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+            <span style="font-size:9px;display:flex;align-items:center;gap:3px;color:var(--grey-mid);"><span style="width:10px;height:10px;border-radius:2px;background:#1D9E75;display:inline-block;"></span>Booked 190</span>
+            <span style="font-size:9px;display:flex;align-items:center;gap:3px;color:var(--grey-mid);"><span style="width:10px;height:10px;border-radius:2px;background:#E1F5EE;border:1px solid #5DCAA5;display:inline-block;"></span>Available 62</span>
+            <span style="font-size:9px;display:flex;align-items:center;gap:3px;color:var(--grey-mid);"><span style="width:10px;height:10px;border-radius:2px;background:#EF9F27;display:inline-block;"></span>Reserved 18</span>
+            <span style="font-size:9px;display:flex;align-items:center;gap:3px;color:var(--grey-mid);"><span style="width:10px;height:10px;border-radius:2px;background:#E24B4A;display:inline-block;"></span>Hot 12</span>
+          </div>
+          <div style="display:grid;grid-template-columns:28px 1fr;gap:3px;align-items:center;" id="unit-heatmap"></div>
+          <div style="font-size:9px;color:var(--grey-mid);margin-top:6px;">Click any unit to see buyer details · Delayed floors 8-12 highlighted</div>
+        </div>
+      </div>
+
+      <!-- ROW 2: Work packages + NCRs + IQ feed -->
+      <div class="grid-3 mb-14">
+
+        <!-- Work packages -->
+        <div class="card">
+          <div class="card-title">Work package tracker <span class="card-sub">Plan vs actual</span></div>
+          <div class="wp-row wp-header">
+            <span>Activity</span><span>Floors</span><span>Plan</span><span>Actual</span><span>Status</span>
+          </div>
+          <div id="wp-table"></div>
+          <div style="margin-top:8px;">
+            <button onclick="goTo('construction')"
+              style="width:100%;font-size:10px;padding:6px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--grey-light);color:var(--grey);cursor:pointer;font-family:var(--font);font-weight:600;">
+              View full construction dashboard →
+            </button>
+          </div>
+        </div>
+
+        <!-- NCR log -->
+        <div class="card">
+          <div class="card-title">Open NCRs & issues <span class="card-sub" id="ncr-count"></span></div>
+          <div id="ncr-list"></div>
+          <div style="margin-top:8px;padding:7px 9px;background:var(--red-light);border-radius:var(--radius-sm);">
+            <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:2px;">✦ Critical — NCR-047</div>
+            <div style="font-size:10px;color:var(--red);line-height:1.5;">Floor 7 plastering started without QC certification. Tiling blocked until re-inspection certified. Rework risk Rs.8-12L if not resolved.</div>
+          </div>
+        </div>
+
+        <!-- Project IQ feed -->
+        <div class="card">
+          <div class="card-title">✦ Project IQ — Decision Intelligence</div>
+          <div id="proj-iq-feed" style="display:flex;flex-direction:column;gap:6px;"></div>
+          <div style="margin-top:8px;">
+            <button onclick="openIQ()"
+              style="width:100%;font-size:10px;padding:6px;border-radius:var(--radius-sm);border:1px solid #85B7EB;background:var(--navy-light);color:var(--navy);cursor:pointer;font-family:var(--font);font-weight:700;">
+              ✦ Ask Project IQ for full risk analysis →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 3: Cash flow + Sales funnel -->
+      <div class="grid-2 mb-14">
+        <!-- Cash flow chart -->
+        <div class="card">
+          <div class="card-title">Cash flow <span class="card-sub">Inflow vs outflow — Rs. Cr</span></div>
+          <canvas id="cashflow-chart" height="160"></canvas>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.04em;">Net this month</div>
+              <div style="font-size:15px;font-weight:700;color:var(--teal-mid);margin-top:2px;">+Rs.2.4 Cr</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.04em;">Payables due</div>
+              <div style="font-size:15px;font-weight:700;color:var(--red-mid);margin-top:2px;">Rs.6 Cr</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.04em;">Collection rate</div>
+              <div style="font-size:15px;font-weight:700;color:var(--amber-mid);margin-top:2px;">84%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales pipeline funnel -->
+        <div class="card">
+          <div class="card-title">Sales pipeline <span class="card-sub">Lead to agreement conversion</span></div>
+          <canvas id="pipeline-chart" height="160"></canvas>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.04em;">Revenue booked</div>
+              <div style="font-size:15px;font-weight:700;color:var(--teal-mid);margin-top:2px;">Rs.25.76 Cr</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.04em;">Units available</div>
+              <div style="font-size:15px;font-weight:700;color:var(--navy);margin-top:2px;">62 units</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end content -->
+  </div><!-- end main-area -->
+</div><!-- end layout -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="data/portfolio.js"></script>
+<script src="js/common.js"></script>
+<script>
+// ── Setup ────────────────────────────────────────────────────
+const tip = document.getElementById('tip');
+function setupTooltips() {
+  document.querySelectorAll('[data-tip]').forEach(el => {
+    el.addEventListener('mousemove', e => {
+      tip.style.opacity = '1';
+      tip.style.left = (e.clientX + 14) + 'px';
+      tip.style.top  = (e.clientY - 10) + 'px';
+      tip.textContent = el.getAttribute('data-tip');
+    });
+    el.addEventListener('mouseleave', () => { tip.style.opacity = '0'; });
+  });
+}
+
+const pid = getCurrentProject();
+const p   = window.PIQ.projects[pid] || window.PIQ.projects.skyline;
+
+// ── Sidebar ──────────────────────────────────────────────────
+document.getElementById('sidebar-container').innerHTML = renderProjectSidebar('project', pid);
+
+// ── Topbar ───────────────────────────────────────────────────
+document.getElementById('page-title').textContent = p.name + ' — Dashboard';
+document.getElementById('page-sub').textContent =
+  `${p.type} · ${p.location} · RERA ${p.rera_no} · ${p.start_date} → ${p.end_date}`;
+
+document.getElementById('topbar-right').innerHTML = `
+  <span class="status-pill pill-${p.status==='delayed'?'red':p.status==='on-track'?'green':'amber'}">${p.status_label}</span>
+  <span class="status-pill pill-amber">${p.open_issues} issues</span>
+  <span class="status-pill pill-blue">RERA ${p.rera_status}</span>
+  <div class="avatar">${window.PIQ.builder.md_initials}</div>`;
+
+// ── Alert bar ────────────────────────────────────────────────
+document.getElementById('alert-bar-container').innerHTML = `
+  <div class="alert-bar">
+    <div class="alert-row">
+      <span class="alert-tag at-critical">Critical</span>
+      <span>${p.alert}</span>
+    </div>
+    ${p.id==='skyline'?`
+    <div class="alert-row">
+      <span class="alert-tag at-warning">Finance</span>
+      <span>Rs.4.2 Cr payable to RCC Civil (Bill #12) overdue Apr 22 · Rs.1.8 Cr MEP due Apr 25 · Combined exposure Rs.6 Cr</span>
+    </div>`:''}
+  </div>`;
+
+// ── KPI strip ────────────────────────────────────────────────
+const kpis = [
+  { label: 'Overall progress', value: p.overall_progress + '%',        sub: `Plan: ${p.plan_progress}%`,          delta: p.overall_progress < p.plan_progress ? '▼ Behind plan' : '▲ Ahead', dclass: p.overall_progress < p.plan_progress ? 'delta-amber' : 'delta-green' },
+  { label: 'Revenue booked',   value: `Rs.${p.revenue_booked_cr} Cr`,  sub: `of Rs.${p.revenue_target_cr} Cr`,    delta: null },
+  { label: 'Units status',     value: `${p.units_booked}`,             sub: `Available: ${p.units_available} · Reserved: ${p.units_reserved}`, delta: `of ${p.total_units || p.units_booked+p.units_available} total`, dclass: 'delta-green' },
+  { label: 'Open issues',      value: p.open_issues,                   sub: `${p.cx_issues} CX · ${p.construction_issues} construction`, delta: null },
+  { label: 'Project end date', value: p.end_date,                      sub: `Started: ${p.start_date}`,           delta: p.status==='delayed'?'⚠ Slip risk':null, dclass:'delta-amber' },
+  { label: 'NPS score',        value: p.nps_score > 0 ? p.nps_score+'/5' : 'N/A', sub: `Buyer satisfaction`, delta: null },
+];
+document.getElementById('kpi-grid').innerHTML = kpis.map(k => `
+  <div class="kpi">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value" style="font-size:${String(k.value).length>6?'16px':'22px'}">${k.value}</div>
+    <div class="kpi-sub">
+      ${k.delta?`<span class="kpi-delta ${k.dclass||''}">${k.delta}</span> `:''}${k.sub}
+    </div>
+  </div>`).join('');
+
+// ── Cube faces update ────────────────────────────────────────
+if (p.cube) {
+  const faceMap = { construction:'f-construction', sales:'f-sales', cx:'f-cx', finance:'f-finance', design:'f-design', asset:'f-asset' };
+  Object.entries(faceMap).forEach(([dim, id]) => {
+    const el = document.getElementById(id);
+    if (el && p.cube[dim]) el.textContent = p.cube[dim].score + '%';
+  });
+}
+
+// ── Cube interactivity ───────────────────────────────────────
+document.querySelectorAll('.face-sm').forEach(face => {
+  face.addEventListener('click', () => {
+    const dim = face.getAttribute('data-dim');
+    if (dim) {
+      document.getElementById('cube3d-sm').classList.add('paused');
+      setTimeout(() => document.getElementById('cube3d-sm').classList.remove('paused'), 2500);
+    }
+  });
+});
+document.getElementById('scene-sm').addEventListener('click', () => {
+  document.getElementById('cube3d-sm').classList.toggle('paused');
+});
+
+// ── Dimension bars ───────────────────────────────────────────
+const dimConfig = [
+  { key:'construction', label:'Construction', icon:'🏗',  bg:'#E1F5EE' },
+  { key:'sales',        label:'Sales',        icon:'📈', bg:'#FAECE7' },
+  { key:'cx',           label:'CX',           icon:'🤝', bg:'#EEEDFE' },
+  { key:'finance',      label:'Finance',      icon:'💰', bg:'#FAEEDA' },
+  { key:'design',       label:'Design & Engg',icon:'📐', bg:'#E6F1FB' },
+  { key:'asset',        label:'Asset & Ops',  icon:'🏠', bg:'#EEEDFE' },
+];
+document.getElementById('dim-bars').innerHTML = dimConfig.map(d => {
+  const sc = p.cube ? p.cube[d.key] : { score: 0, rating: 0 };
+  const color = scoreColor(sc.score);
+  return `
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+    <div style="width:20px;height:20px;border-radius:4px;background:${d.bg};display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">${d.icon}</div>
+    <div style="font-size:10px;color:var(--grey);width:80px;flex-shrink:0;">${d.label}</div>
+    <div style="flex:1;height:5px;background:var(--grey-light);border-radius:3px;overflow:hidden;">
+      <div style="height:100%;border-radius:3px;background:${color};width:${sc.score}%;"></div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:${color};width:28px;text-align:right;">${sc.score}%</div>
+    <div style="font-size:10px;color:var(--grey-mid);width:26px;text-align:right;">${sc.rating>0?'('+sc.rating+')':'—'}</div>
+  </div>`;
+}).join('');
+
+// ── Parameter mini grid ──────────────────────────────────────
+const params = p.parameters || {};
+const paramKeys = ['cost','revenue','schedule','scope','qa','qc','risk','resources','esg'];
+const paramLabels = { cost:'Cost', revenue:'Revenue', schedule:'Schedule', scope:'Scope', qa:'QA', qc:'QC', risk:'Risk', resources:'Res', esg:'ESG' };
+const statusColors2 = { ok: '#085041', warning: '#633806', critical: '#791F1F' };
+document.getElementById('param-mini').innerHTML = paramKeys.map(k => {
+  const param = params[k] || { value: 'N/A', status: 'ok' };
+  const col = statusColors2[param.status] || '#444';
+  return `<div style="background:var(--grey-light);border-radius:4px;padding:4px 5px;text-align:center;" data-tip="${param.detail||''}">
+    <div style="font-size:8px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.03em;">${paramLabels[k]}</div>
+    <div style="font-size:10px;font-weight:700;color:${col};margin-top:1px;">${param.value}</div>
+  </div>`;
+}).join('');
+
+// ── Regulatory list ──────────────────────────────────────────
+const reg = p.regulatory || [];
+document.getElementById('reg-list').innerHTML = reg.map(r => `
+  <div class="reg-item">
+    <span class="sev-dot sev-${r.status}"></span>
+    <div class="reg-name">${r.authority}</div>
+    <div style="font-size:9px;color:var(--grey-mid);">${r.detail}</div>
+    <span class="reg-status rs-${r.status}">${r.label}</span>
+  </div>`).join('');
+
+// ── Unit heatmap ─────────────────────────────────────────────
+const totalFloors = p.total_floors || 18;
+const unitsPerFloor = p.units_per_floor || 6;
+const totalUnits = p.total_units || 300;
+let booked = p.units_booked || 0;
+let reserved = p.units_reserved || 0;
+let hot = p.units_hot || 0;
+const delayedFloors = [8,9,10,11,12]; // Tower B delayed floors
+
+let hmHtml = '';
+for (let f = totalFloors; f >= 1; f--) {
+  const isDelayed = delayedFloors.includes(f);
+  hmHtml += `<div class="floor-label" style="${isDelayed?'color:var(--red-mid);':''}">${f < 10 ? '0'+f : f}</div>`;
+  hmHtml += `<div style="display:grid;grid-template-columns:repeat(${unitsPerFloor},1fr);gap:2px;">`;
+  for (let u = 1; u <= unitsPerFloor; u++) {
+    const unitIndex = (totalFloors - f) * unitsPerFloor + (u - 1);
+    let cls, tipText;
+    if (unitIndex < booked * 0.65) {
+      cls = 'uc-booked'; tipText = `Floor ${f} Unit ${u} — Booked`;
+    } else if (unitIndex < booked * 0.65 + reserved) {
+      cls = 'uc-reserved'; tipText = `Floor ${f} Unit ${u} — Reserved`;
+    } else if (unitIndex < booked * 0.65 + reserved + hot) {
+      cls = 'uc-hot'; tipText = `Floor ${f} Unit ${u} — Hot lead`;
+    } else if (isDelayed && u <= 3) {
+      cls = 'uc-construction'; tipText = `Floor ${f} Unit ${u} — Construction delayed`;
+    } else {
+      cls = 'uc-available'; tipText = `Floor ${f} Unit ${u} — Available`;
+    }
+    hmHtml += `<div class="unit-cell ${cls}" data-tip="${tipText}" onclick="showUnitDetail(${f},${u})"></div>`;
+  }
+  hmHtml += '</div>';
+}
+document.getElementById('unit-heatmap').innerHTML = hmHtml;
+
+function showUnitDetail(floor, unit) {
+  const buyer = window.PIQ.projects.skyline.buyers.find(b => b.unit.includes(floor+''));
+  if (buyer) {
+    alert(`Floor ${floor}, Unit ${unit}\n${buyer.name}\n${buyer.unit}\nPaid: ${buyer.paid}/${buyer.total} instalments\nNPS: ${buyer.nps}/5`);
+  } else {
+    alert(`Floor ${floor}, Unit ${unit}\nStatus: Available\nClick to initiate booking`);
+  }
+}
+
+// ── Work package table ───────────────────────────────────────
+const wps = p.work_packages || [];
+const statusDot = { complete:'#1D9E75', ok:'#1D9E75', warning:'#EF9F27', critical:'#E24B4A' };
+document.getElementById('wp-table').innerHTML = wps.map(wp => {
+  const diff = wp.actual - wp.plan;
+  const diffText = diff >= 0 ? `<span style="color:#1D9E75;">+${diff}%</span>` : `<span style="color:#E24B4A;">${diff}%</span>`;
+  return `
+  <div class="wp-row">
+    <div>
+      <div style="font-weight:600;color:var(--black);font-size:11px;">${wp.name}</div>
+      <div style="font-size:9px;color:var(--grey-mid);">${wp.discipline}</div>
+    </div>
+    <div style="font-size:10px;color:var(--grey-mid);">${wp.floors}</div>
+    <div style="font-size:10px;">${wp.plan}%</div>
+    <div style="font-size:10px;font-weight:600;">${wp.actual}% ${diffText}</div>
+    <div><span class="sev-dot sev-${wp.status==='complete'||wp.status==='ok'?'ok':wp.status==='warning'?'warning':'critical'}"></span></div>
+  </div>`;
+}).join('');
+
+// ── NCR list ─────────────────────────────────────────────────
+const ncrs = p.ncrs || [];
+document.getElementById('ncr-count').textContent = `${ncrs.filter(n=>n.status==='open').length} open`;
+const sevColors = { critical:'var(--red)', major:'var(--amber)', minor:'var(--grey)' };
+const sevBg     = { critical:'var(--red-light)', major:'var(--amber-light)', minor:'var(--grey-light)' };
+document.getElementById('ncr-list').innerHTML = ncrs.map(ncr => `
+  <div class="ncr-row">
+    <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:${sevBg[ncr.severity]};color:${sevColors[ncr.severity]};text-transform:uppercase;flex-shrink:0;">${ncr.severity}</span>
+    <div style="flex:1;">
+      <div style="font-weight:600;font-size:11px;">${ncr.id}</div>
+      <div style="font-size:10px;color:var(--grey-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">${ncr.description}</div>
+    </div>
+    <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:${ncr.status==='open'?'var(--red-light)':'var(--teal-light)'};color:${ncr.status==='open'?'var(--red)':'var(--teal)'};flex-shrink:0;">${ncr.status}</span>
+  </div>`).join('');
+
+// ── Project IQ feed ──────────────────────────────────────────
+const iqItems = [
+  { type:'critical', text:'<strong>Cross-dim risk:</strong> Plastering delay → 23 CX possession breaches → Rs.1.2 Cr RERA penalty → Q3 cash gap Rs.3.8 Cr. Recovery plan needed by May 5.' },
+  { type:'warning',  text:'<strong>Social alert:</strong> 3 negative reviews on 99acres this week citing "no construction updates". CX ticket auto-created. Respond within 24 hrs.' },
+  { type:'critical', text:'<strong>Regulatory:</strong> Water board connection pending — if not resolved by May 15, OC application delays by 45+ days.' },
+  { type:'info',     text:'<strong>Market:</strong> Kokapet demand up 18%. Competitor Prestige Elm at Rs.7,200/sqft — 8% above Tower A 3BHK rate. Pricing review advised.' },
+  { type:'positive', text:'<strong>Progress:</strong> Tower A floors 1-7 plastering complete — 6 days ahead of internal target. Tiling can start Monday.' },
+];
+const iconMap2  = { critical:'!', warning:'!', info:'↑', positive:'✓' };
+const classMap2 = { critical:'ii-critical', warning:'ii-warning', info:'ii-info', positive:'ii-positive' };
+document.getElementById('proj-iq-feed').innerHTML = iqItems.map(item => `
+  <div style="display:flex;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:white;">
+    <div style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;" class="${classMap2[item.type]}">${iconMap2[item.type]}</div>
+    <div style="font-size:11px;color:var(--grey);line-height:1.4;">${item.text}</div>
+  </div>`).join('');
+
+// ── Cash flow chart ──────────────────────────────────────────
+const cf = p.cashflow || [];
+new Chart(document.getElementById('cashflow-chart'), {
+  type: 'bar',
+  data: {
+    labels: cf.map(c => c.month),
+    datasets: [
+      { label:'Inflow',  data: cf.map(c => c.inflow),  backgroundColor:'#1D9E7580', borderColor:'#1D9E75', borderWidth:1.5, borderRadius:3 },
+      { label:'Outflow', data: cf.map(c => c.outflow), backgroundColor:'#E24B4A80', borderColor:'#E24B4A', borderWidth:1.5, borderRadius:3 },
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ labels:{ font:{ family:'DM Sans', size:10 }, boxWidth:10, padding:8 }}},
+    scales:{
+      x:{ grid:{ display:false }, ticks:{ font:{ family:'DM Sans', size:10 }}},
+      y:{ grid:{ color:'#f0efe8' }, ticks:{ font:{ family:'DM Sans', size:10 }, callback: v => 'Rs.'+v }},
+    }
+  }
+});
+
+// ── Pipeline chart ───────────────────────────────────────────
+const pl = p.pipeline || [];
+new Chart(document.getElementById('pipeline-chart'), {
+  type: 'bar',
+  data: {
+    labels: pl.map(s => s.stage),
+    datasets:[{
+      label:'Units',
+      data: pl.map(s => s.count),
+      backgroundColor:['#E6EDF7','#C5D9F0','#85B7EB','#378ADD','#1B3A6B'],
+      borderRadius:4,
+    }]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:false }},
+    scales:{
+      x:{ grid:{ color:'#f0efe8' }, ticks:{ font:{ family:'DM Sans', size:10 }}},
+      y:{ grid:{ display:false }, ticks:{ font:{ family:'DM Sans', size:10 }}},
+    }
+  }
+});
+
+// ── Tabs ─────────────────────────────────────────────────────
+function setTab(tab, el) {
+  document.querySelectorAll('.dim-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Setup tooltips last
+setupTooltips();
+</script>
+</body>
+</html>
