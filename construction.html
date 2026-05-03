@@ -1916,6 +1916,19 @@ renderHeatmap();
 renderAmenities();
 setupTooltips();
 
+
+// Expose functions globally for onclick handlers
+window.setContent = setContent;
+window.setView = setView;
+window.selectTower = selectTower;
+window.openDrilldown = openDrilldown;
+window.openAmenityDrilldown = openAmenityDrilldown;
+window.closeDrilldown = closeDrilldown;
+window.setDdView = setDdView;
+window.saveEngUpdate = saveEngUpdate;
+window.filterDisc = filterDisc;
+window.openIQ = openIQ;
+
 }); // end window.load
 </script>
 </body>
