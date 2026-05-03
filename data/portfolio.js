@@ -623,3 +623,513 @@ window.PIQ = {
   }, // end projects
 
 }; // end window.PIQ
+
+// ============================================================
+// PROJECT IQ — Standard Task Master
+// Indian Residential Construction — CPWD / NBO aligned
+// Configurable via Admin panel in final product
+// Version 1.0 — May 2026
+// ============================================================
+
+window.PIQ.taskMaster = {
+
+  // ── PROJECT TYPES ────────────────────────────────────────
+  // Each project type has its own task list with weights
+  // Weights at task level must sum to 100 per unit type
+  // Sub-task weights must sum to 100 within their parent task
+
+  residential_highrise: {
+    label: 'Residential High-Rise',
+    disciplines: ['Civil', 'Structure', 'MEP', 'Electrical', 'Finishing', 'Plumbing', 'Safety', 'Landscape'],
+    tasks: [
+
+      {
+        code: 'EXCAV', name: 'Excavation & Earth Work', discipline: 'Civil',
+        weight_pct: 2, qc_required: false, milestone_type: 'construction',
+        subtasks: [
+          { code: 'EXCAV-01', name: 'Setting out and layout marking',      weight_pct: 15, qc_required: false },
+          { code: 'EXCAV-02', name: 'Excavation to required depth',         weight_pct: 50, qc_required: false },
+          { code: 'EXCAV-03', name: 'Shoring and dewatering if required',   weight_pct: 15, qc_required: false },
+          { code: 'EXCAV-04', name: 'Anti-termite treatment to soil',       weight_pct: 10, qc_required: true  },
+          { code: 'EXCAV-05', name: 'Backfilling and compaction',           weight_pct: 10, qc_required: true  },
+        ]
+      },
+
+      {
+        code: 'FOUND', name: 'Foundation', discipline: 'Structure',
+        weight_pct: 6, qc_required: true, milestone_type: 'construction',
+        subtasks: [
+          { code: 'FOUND-01', name: 'PCC (Plain Cement Concrete) bed',       weight_pct: 10, qc_required: true  },
+          { code: 'FOUND-02', name: 'Reinforcement steel binding — footing',  weight_pct: 20, qc_required: true  },
+          { code: 'FOUND-03', name: 'Formwork for footings',                  weight_pct: 10, qc_required: false },
+          { code: 'FOUND-04', name: 'Concrete pour — footings',               weight_pct: 25, qc_required: true  },
+          { code: 'FOUND-05', name: 'Curing — minimum 7 days',                weight_pct: 10, qc_required: true  },
+          { code: 'FOUND-06', name: 'Cube test result — pass',                weight_pct: 10, qc_required: true  },
+          { code: 'FOUND-07', name: 'Waterproofing to raft/footings',         weight_pct: 10, qc_required: true  },
+          { code: 'FOUND-08', name: 'Foundation completion certificate',       weight_pct: 5,  qc_required: true  },
+        ]
+      },
+
+      {
+        code: 'PODM', name: 'Podium & Basement (if applicable)', discipline: 'Structure',
+        weight_pct: 4, qc_required: true, milestone_type: 'construction',
+        subtasks: [
+          { code: 'PODM-01', name: 'Retaining wall construction',             weight_pct: 30, qc_required: true  },
+          { code: 'PODM-02', name: 'Basement slab — reinforcement and pour',  weight_pct: 30, qc_required: true  },
+          { code: 'PODM-03', name: 'Waterproofing — basement walls and slab', weight_pct: 25, qc_required: true  },
+          { code: 'PODM-04', name: 'Drainage layer and protection board',     weight_pct: 15, qc_required: false },
+        ]
+      },
+
+      {
+        code: 'STRUCT', name: 'Structural Frame — Columns, Beams, Slabs', discipline: 'Structure',
+        weight_pct: 15, qc_required: true, milestone_type: 'payment',
+        subtasks: [
+          { code: 'STRUCT-01', name: 'Column reinforcement binding',            weight_pct: 12, qc_required: true  },
+          { code: 'STRUCT-02', name: 'Column formwork erection',                weight_pct: 8,  qc_required: false },
+          { code: 'STRUCT-03', name: 'Column concrete pour and vibration',      weight_pct: 12, qc_required: true  },
+          { code: 'STRUCT-04', name: 'Beam and slab shuttering',                weight_pct: 10, qc_required: false },
+          { code: 'STRUCT-05', name: 'Slab reinforcement — bottom mat',         weight_pct: 10, qc_required: true  },
+          { code: 'STRUCT-06', name: 'MEP sleeves and inserts before pour',     weight_pct: 5,  qc_required: false },
+          { code: 'STRUCT-07', name: 'Slab reinforcement — top mat',            weight_pct: 8,  qc_required: true  },
+          { code: 'STRUCT-08', name: 'Concrete pour — beam and slab',           weight_pct: 15, qc_required: true  },
+          { code: 'STRUCT-09', name: 'Curing — minimum 14 days',                weight_pct: 8,  qc_required: true  },
+          { code: 'STRUCT-10', name: 'Cube test result — pass',                 weight_pct: 7,  qc_required: true  },
+          { code: 'STRUCT-11', name: 'Formwork striking',                        weight_pct: 5,  qc_required: false },
+        ]
+      },
+
+      {
+        code: 'BRICK', name: 'Brick / Block Masonry', discipline: 'Civil',
+        weight_pct: 6, qc_required: true, milestone_type: 'none',
+        subtasks: [
+          { code: 'BRICK-01', name: 'First course setting and DPC application', weight_pct: 15, qc_required: true  },
+          { code: 'BRICK-02', name: 'External walls — full height masonry',      weight_pct: 35, qc_required: false },
+          { code: 'BRICK-03', name: 'Internal partition walls',                  weight_pct: 30, qc_required: false },
+          { code: 'BRICK-04', name: 'Door and window frames fixing',             weight_pct: 10, qc_required: false },
+          { code: 'BRICK-05', name: 'Lintel casting over openings',              weight_pct: 10, qc_required: true  },
+        ]
+      },
+
+      {
+        code: 'WTRPF', name: 'Waterproofing', discipline: 'Civil',
+        weight_pct: 3, qc_required: true, milestone_type: 'none',
+        subtasks: [
+          { code: 'WTRPF-01', name: 'Bathroom and toilet waterproofing',        weight_pct: 35, qc_required: true  },
+          { code: 'WTRPF-02', name: 'Kitchen waterproofing',                     weight_pct: 20, qc_required: true  },
+          { code: 'WTRPF-03', name: 'Terrace / roof waterproofing',              weight_pct: 25, qc_required: true  },
+          { code: 'WTRPF-04', name: 'Balcony waterproofing',                     weight_pct: 10, qc_required: true  },
+          { code: 'WTRPF-05', name: 'Water tank waterproofing',                  weight_pct: 10, qc_required: true  },
+        ]
+      },
+
+      {
+        code: 'MEP_R', name: 'MEP Rough-in (Inside Walls)', discipline: 'MEP',
+        weight_pct: 6, qc_required: true, milestone_type: 'payment',
+        subtasks: [
+          { code: 'MEP_R-01', name: 'Electrical conduit laying in walls and slab', weight_pct: 20, qc_required: false },
+          { code: 'MEP_R-02', name: 'Plumbing supply pipes — concealed',           weight_pct: 20, qc_required: true  },
+          { code: 'MEP_R-03', name: 'Drainage and soil pipes — concealed',         weight_pct: 15, qc_required: true  },
+          { code: 'MEP_R-04', name: 'AC refrigerant pipes and drain — concealed',  weight_pct: 15, qc_required: false },
+          { code: 'MEP_R-05', name: 'Fire sprinkler — concealed network',          weight_pct: 15, qc_required: true  },
+          { code: 'MEP_R-06', name: 'MEP rough-in inspection and sign-off',        weight_pct: 15, qc_required: true  },
+        ]
+      },
+
+      {
+        code: 'PLSTR', name: 'Plastering', discipline: 'Finishing',
+        weight_pct: 7, qc_required: true, milestone_type: 'none',
+        subtasks: [
+          { code: 'PLSTR-01', name: 'Hacking of concrete surfaces',              weight_pct: 8,  qc_required: false },
+          { code: 'PLSTR-02', name: 'POP beading fixing on corners and jambs',   weight_pct: 7,  qc_required: false },
+          { code: 'PLSTR-03', name: 'Chicken mesh at masonry-concrete junctions',weight_pct: 5,  qc_required: false },
+          { code: 'PLSTR-04', name: 'First coat plaster — internal walls',       weight_pct: 20, qc_required: false },
+          { code: 'PLSTR-05', name: 'QC inspection — first coat',                weight_pct: 5,  qc_required: true  },
+          { code: 'PLSTR-06', name: 'Second coat plaster — internal walls',      weight_pct: 20, qc_required: false },
+          { code: 'PLSTR-07', name: 'Ceiling plaster',                           weight_pct: 15, qc_required: false },
+          { code: 'PLSTR-08', name: 'External plaster — first coat',             weight_pct: 10, qc_required: false },
+          { code: 'PLSTR-09', name: 'External plaster — finish coat',            weight_pct: 5,  qc_required: false },
+          { code: 'PLSTR-10', name: 'Final QC inspection — all surfaces',        weight_pct: 5,  qc_required: true  },
+        ]
+      },
+
+      {
+        code: 'ELEC_F', name: 'Electrical Fit-out', discipline: 'Electrical',
+        weight_pct: 6, qc_required: true, milestone_type: 'none',
+        subtasks: [
+          { code: 'ELEC_F-01', name: 'Wire pulling through conduits',             weight_pct: 20, qc_required: false },
+          { code: 'ELEC_F-02', name: 'Distribution board installation',           weight_pct: 15, qc_required: true  },
+          { code: 'ELEC_F-03', name: 'Switches and socket point installation',    weight_pct: 20, qc_required: false },
+          { code: 'ELEC_F-04', name: 'Light fixtures and fan points',             weight_pct: 15, qc_required: false },
+          { code: 'ELEC_F-05', name: 'AC power points and isolators',             weight_pct: 10, qc_required: false },
+          { code: 'ELEC_F-06', name: 'Earth continuity test',                     weight_pct: 10, qc_required: true  },
+          { code: 'ELEC_F-07', name: 'Insulation resistance test',                weight_pct: 10, qc_required: true  },
+        ]
+      },
+
+      {
+        code: 'PLMB_F', name: 'Plumbing & Sanitary Fit-out', discipline: 'Plumbing',
+        weight_pct: 5, qc_required: true, milestone_type: 'none',
+        subtasks: [
+          { code: 'PLMB_F-01', name: 'Water supply lines — exposed fitting',     weight_pct: 20, qc_required: false },
+          { code: 'PLMB_F-02', name: 'Drainage connections to sanitary ware',    weight_pct: 15, qc_required: false },
+          { code: 'PLMB_F-03', name: 'WC, washbasin, shower unit installation',  weight_pct: 20, qc_required: false },
+          { code: 'PLMB_F-04', name: 'Kitchen sink and tap fitting',             weight_pct: 10, qc_required: false },
+          { code: 'PLMB_F-05', name: 'Water pressure test — 24 hours',           weight_pct: 15, qc_required: true  },
+          { code: 'PLMB_F-06', name: 'Drainage flow test',                       weight_pct: 10, qc_required: true  },
+          { code: 'PLMB_F-07', name: 'Geyser and water heater connections',      weight_pct: 10, qc_required: false },
+        ]
+      },
+
+      {
+        code: 'TILE', name: 'Tiling & Flooring', discipline: 'Finishing',
+        weight_pct: 8, qc_required: true, milestone_type: 'payment',
+        subtasks: [
+          { code: 'TILE-01', name: 'Floor screed / bed for tiling',              weight_pct: 10, qc_required: false },
+          { code: 'TILE-02', name: 'Living and dining floor tiling',              weight_pct: 15, qc_required: false },
+          { code: 'TILE-03', name: 'Bedroom floor tiling',                       weight_pct: 15, qc_required: false },
+          { code: 'TILE-04', name: 'Kitchen floor and dado tiling',              weight_pct: 15, qc_required: false },
+          { code: 'TILE-05', name: 'Bathroom floor — anti-skid tiles',           weight_pct: 10, qc_required: false },
+          { code: 'TILE-06', name: 'Bathroom wall tiling — full height',         weight_pct: 15, qc_required: false },
+          { code: 'TILE-07', name: 'Balcony floor tiling',                       weight_pct: 5,  qc_required: false },
+          { code: 'TILE-08', name: 'Skirting all rooms',                         weight_pct: 5,  qc_required: false },
+          { code: 'TILE-09', name: 'Grouting and cleaning',                      weight_pct: 5,  qc_required: false },
+          { code: 'TILE-10', name: 'QC inspection — levelness and alignment',    weight_pct: 5,  qc_required: true  },
+        ]
+      },
+
+      {
+        code: 'GYPS', name: 'Gypsum / False Ceiling', discipline: 'Finishing',
+        weight_pct: 3, qc_required: false, milestone_type: 'none',
+        subtasks: [
+          { code: 'GYPS-01', name: 'GI framework for false ceiling',             weight_pct: 35, qc_required: false },
+          { code: 'GYPS-02', name: 'Gypsum board fixing',                        weight_pct: 35, qc_required: false },
+          { code: 'GYPS-03', name: 'Putty and sanding for smooth finish',        weight_pct: 20, qc_required: false },
+          { code: 'GYPS-04', name: 'Cove / cornice work if applicable',          weight_pct: 10, qc_required: false },
+        ]
+      },
+
+      {
+        code: 'PAINT', name: 'Painting', discipline: 'Finishing',
+        weight_pct: 5, qc_required: false, milestone_type: 'none',
+        subtasks: [
+          { code: 'PAINT-01', name: 'Wall putty — internal walls and ceiling',   weight_pct: 20, qc_required: false },
+          { code: 'PAINT-02', name: 'Primer coat — internal',                    weight_pct: 15, qc_required: false },
+          { code: 'PAINT-03', name: '1st coat emulsion paint — internal',        weight_pct: 20, qc_required: false },
+          { code: 'PAINT-04', name: '2nd coat emulsion paint — internal',        weight_pct: 20, qc_required: false },
+          { code: 'PAINT-05', name: 'External paint — primer coat',              weight_pct: 10, qc_required: false },
+          { code: 'PAINT-06', name: 'External paint — finish coat',              weight_pct: 10, qc_required: false },
+          { code: 'PAINT-07', name: 'Touch-up and defect rectification',         weight_pct: 5,  qc_required: false },
+        ]
+      },
+
+      {
+        code: 'DOOR_WIN', name: 'Doors, Windows & Grilles', discipline: 'Finishing',
+        weight_pct: 4, qc_required: false, milestone_type: 'none',
+        subtasks: [
+          { code: 'DOOR_WIN-01', name: 'Main entrance door installation',        weight_pct: 20, qc_required: false },
+          { code: 'DOOR_WIN-02', name: 'Internal door shutters and frames',      weight_pct: 25, qc_required: false },
+          { code: 'DOOR_WIN-03', name: 'UPVC / aluminium windows installation',  weight_pct: 25, qc_required: false },
+          { code: 'DOOR_WIN-04', name: 'Safety grilles and mosquito mesh',       weight_pct: 15, qc_required: false },
+          { code: 'DOOR_WIN-05', name: 'Door hardware — hinges, handles, locks', weight_pct: 15, qc_required: false },
+        ]
+      },
+
+      {
+        code: 'KITCH', name: 'Kitchen — Modular / Civil Work', discipline: 'Finishing',
+        weight_pct: 4, qc_required: false, milestone_type: 'none',
+        subtasks: [
+          { code: 'KITCH-01', name: 'Kitchen counter / platform — granite/marble',weight_pct: 30, qc_required: false },
+          { code: 'KITCH-02', name: 'Under-counter and overhead cabinets',        weight_pct: 30, qc_required: false },
+          { code: 'KITCH-03', name: 'Kitchen sink and tap fitting',               weight_pct: 20, qc_required: false },
+          { code: 'KITCH-04', name: 'Exhaust chimney provision',                  weight_pct: 10, qc_required: false },
+          { code: 'KITCH-05', name: 'Final inspection and snag clearance',        weight_pct: 10, qc_required: true  },
+        ]
+      },
+
+      {
+        code: 'MEP_FIN', name: 'MEP Final Connections & Testing', discipline: 'MEP',
+        weight_pct: 4, qc_required: true, milestone_type: 'construction',
+        subtasks: [
+          { code: 'MEP_FIN-01', name: 'AC indoor unit installation',              weight_pct: 20, qc_required: false },
+          { code: 'MEP_FIN-02', name: 'Geyser / water heater installation',       weight_pct: 15, qc_required: false },
+          { code: 'MEP_FIN-03', name: 'Intercom and video doorbell wiring',       weight_pct: 10, qc_required: false },
+          { code: 'MEP_FIN-04', name: 'Fire alarm detector installation',         weight_pct: 15, qc_required: true  },
+          { code: 'MEP_FIN-05', name: 'Complete MEP system test and commissioning',weight_pct: 25, qc_required: true  },
+          { code: 'MEP_FIN-06', name: 'MEP handover certificate',                 weight_pct: 15, qc_required: true  },
+        ]
+      },
+
+      {
+        code: 'SNAG', name: 'Snag List & Pre-Possession Inspection', discipline: 'Finishing',
+        weight_pct: 2, qc_required: true, milestone_type: 'construction',
+        subtasks: [
+          { code: 'SNAG-01', name: 'Internal snag inspection — all rooms',        weight_pct: 30, qc_required: true  },
+          { code: 'SNAG-02', name: 'Buyer pre-possession walk-through',           weight_pct: 20, qc_required: false },
+          { code: 'SNAG-03', name: 'Snag items rectification',                    weight_pct: 30, qc_required: false },
+          { code: 'SNAG-04', name: 'Final QC sign-off — unit ready for handover', weight_pct: 20, qc_required: true  },
+        ]
+      },
+
+      {
+        code: 'POSS', name: 'Possession & Handover', discipline: 'Civil',
+        weight_pct: 2, qc_required: true, milestone_type: 'payment',
+        subtasks: [
+          { code: 'POSS-01', name: 'OC (Occupancy Certificate) received',         weight_pct: 40, qc_required: true  },
+          { code: 'POSS-02', name: 'NOC from bank and legal clearance',           weight_pct: 20, qc_required: false },
+          { code: 'POSS-03', name: 'Possession letter issued to buyer',           weight_pct: 20, qc_required: false },
+          { code: 'POSS-04', name: 'Key handover and documentation',              weight_pct: 20, qc_required: false },
+        ]
+      },
+
+    ]
+  }, // end residential_highrise
+
+  // ── VILLA / PLOTTED ──────────────────────────────────────
+  villa: {
+    label: 'Villa Community',
+    note: 'Similar to high-rise but no lift, terrace waterproofing added, external compound wall, garden area',
+    tasks: [] // Inherits from residential_highrise with additions — to be expanded
+  },
+
+  commercial: {
+    label: 'Commercial Office',
+    note: 'No residential units. Leasing focus. Different finishing standards — raised flooring, HVAC zones, fire system, OC mandatory',
+    tasks: [] // Configured separately — to be expanded
+  },
+
+};
+
+// ── TASK MASTER HELPERS ──────────────────────────────────
+
+// Get tasks for a project type
+window.PIQ.getTasksForProject = function(projectType) {
+  const typeMap = {
+    'Residential High-Rise': 'residential_highrise',
+    'Villa Community': 'villa',
+    'Commercial Office': 'commercial',
+  };
+  const key = typeMap[projectType] || 'residential_highrise';
+  return window.PIQ.taskMaster[key].tasks || window.PIQ.taskMaster.residential_highrise.tasks;
+};
+
+// Compute task % from sub-task statuses
+window.PIQ.computeTaskPct = function(taskCode, subtaskStatuses) {
+  const tasks = window.PIQ.taskMaster.residential_highrise.tasks;
+  const task = tasks.find(t => t.code === taskCode);
+  if(!task) return 0;
+  let pct = 0;
+  task.subtasks.forEach(st => {
+    const status = subtaskStatuses[st.code] || 'not_started';
+    if(status === 'completed') pct += st.weight_pct;
+    // in_progress = 0 contribution until completed (objective computation)
+  });
+  return Math.round(pct);
+};
+
+// Compute unit % from task statuses
+window.PIQ.computeUnitPct = function(projectType, taskPcts) {
+  const tasks = window.PIQ.getTasksForProject(projectType);
+  let pct = 0;
+  tasks.forEach(t => {
+    const taskPct = taskPcts[t.code] || 0;
+    pct += (t.weight_pct * taskPct) / 100;
+  });
+  return Math.round(pct);
+};
+
+
+// ============================================================
+// PROJECT IQ — Standard Task & Sub-task Master
+// Indian Residential Construction — CPWD / NBO aligned
+// Configurable via Admin panel in final product
+// Version 1.0 — May 2026
+// ============================================================
+
+window.PIQ.taskMaster = {
+
+  residential_highrise: {
+    label: 'Residential High-Rise',
+    tasks: [
+      { code:'EXCAV',    name:'Excavation & Earth Work',                discipline:'Civil',      weight_pct:2,  milestone_type:'construction',
+        subtasks:[
+          {code:'EXCAV-01',name:'Setting out and layout marking',          weight_pct:15,qc_required:false},
+          {code:'EXCAV-02',name:'Excavation to required depth',             weight_pct:50,qc_required:false},
+          {code:'EXCAV-03',name:'Shoring and dewatering if required',       weight_pct:15,qc_required:false},
+          {code:'EXCAV-04',name:'Anti-termite treatment to soil',           weight_pct:10,qc_required:true},
+          {code:'EXCAV-05',name:'Backfilling and compaction',               weight_pct:10,qc_required:true},
+        ]},
+      { code:'FOUND',    name:'Foundation',                               discipline:'Structure', weight_pct:6,  milestone_type:'payment',
+        subtasks:[
+          {code:'FOUND-01',name:'PCC (Plain Cement Concrete) bed',          weight_pct:10,qc_required:true},
+          {code:'FOUND-02',name:'Reinforcement steel binding -- footing',   weight_pct:20,qc_required:true},
+          {code:'FOUND-03',name:'Formwork for footings',                    weight_pct:10,qc_required:false},
+          {code:'FOUND-04',name:'Concrete pour -- footings',                weight_pct:25,qc_required:true},
+          {code:'FOUND-05',name:'Curing -- minimum 7 days',                 weight_pct:10,qc_required:true},
+          {code:'FOUND-06',name:'Cube test result -- pass',                  weight_pct:10,qc_required:true},
+          {code:'FOUND-07',name:'Waterproofing to raft and footings',       weight_pct:10,qc_required:true},
+          {code:'FOUND-08',name:'Foundation completion certificate',        weight_pct:5, qc_required:true},
+        ]},
+      { code:'STRUCT',   name:'Structural Frame -- Columns, Beams, Slabs', discipline:'Structure', weight_pct:17, milestone_type:'payment',
+        subtasks:[
+          {code:'STRUCT-01',name:'Column reinforcement binding',             weight_pct:12,qc_required:true},
+          {code:'STRUCT-02',name:'Column formwork erection',                 weight_pct:8, qc_required:false},
+          {code:'STRUCT-03',name:'Column concrete pour and vibration',       weight_pct:12,qc_required:true},
+          {code:'STRUCT-04',name:'Beam and slab shuttering',                 weight_pct:10,qc_required:false},
+          {code:'STRUCT-05',name:'Slab reinforcement -- bottom mat',         weight_pct:10,qc_required:true},
+          {code:'STRUCT-06',name:'MEP sleeves and inserts before pour',      weight_pct:5, qc_required:false},
+          {code:'STRUCT-07',name:'Slab reinforcement -- top mat',            weight_pct:8, qc_required:true},
+          {code:'STRUCT-08',name:'Concrete pour -- beam and slab',           weight_pct:15,qc_required:true},
+          {code:'STRUCT-09',name:'Curing -- minimum 14 days',                weight_pct:8, qc_required:true},
+          {code:'STRUCT-10',name:'Cube test result -- pass',                  weight_pct:7, qc_required:true},
+          {code:'STRUCT-11',name:'Formwork striking after curing',           weight_pct:5, qc_required:false},
+        ]},
+      { code:'BRICK',    name:'Brick and Block Masonry',                  discipline:'Civil',      weight_pct:8,  milestone_type:'none',
+        subtasks:[
+          {code:'BRICK-01',name:'First course setting and DPC application',  weight_pct:15,qc_required:true},
+          {code:'BRICK-02',name:'External walls -- full height masonry',      weight_pct:35,qc_required:false},
+          {code:'BRICK-03',name:'Internal partition walls',                   weight_pct:30,qc_required:false},
+          {code:'BRICK-04',name:'Door and window frames fixing',              weight_pct:10,qc_required:false},
+          {code:'BRICK-05',name:'Lintel casting over openings',               weight_pct:10,qc_required:true},
+        ]},
+      { code:'WTRPF',    name:'Waterproofing',                            discipline:'Civil',      weight_pct:3,  milestone_type:'none',
+        subtasks:[
+          {code:'WTRPF-01',name:'Bathroom and toilet waterproofing',         weight_pct:35,qc_required:true},
+          {code:'WTRPF-02',name:'Kitchen waterproofing',                      weight_pct:20,qc_required:true},
+          {code:'WTRPF-03',name:'Terrace and roof waterproofing',             weight_pct:25,qc_required:true},
+          {code:'WTRPF-04',name:'Balcony waterproofing',                      weight_pct:10,qc_required:true},
+          {code:'WTRPF-05',name:'Water tank waterproofing',                   weight_pct:10,qc_required:true},
+        ]},
+      { code:'MEP_R',    name:'MEP Rough-in (Inside Walls)',              discipline:'MEP',        weight_pct:8,  milestone_type:'payment',
+        subtasks:[
+          {code:'MEP_R-01',name:'Electrical conduit laying in walls and slab',weight_pct:20,qc_required:false},
+          {code:'MEP_R-02',name:'Plumbing supply pipes -- concealed',         weight_pct:20,qc_required:true},
+          {code:'MEP_R-03',name:'Drainage and soil pipes -- concealed',       weight_pct:15,qc_required:true},
+          {code:'MEP_R-04',name:'AC refrigerant pipes and drain -- concealed',weight_pct:15,qc_required:false},
+          {code:'MEP_R-05',name:'Fire sprinkler -- concealed network',        weight_pct:15,qc_required:true},
+          {code:'MEP_R-06',name:'MEP rough-in inspection and sign-off',       weight_pct:15,qc_required:true},
+        ]},
+      { code:'PLSTR',    name:'Plastering',                               discipline:'Finishing',  weight_pct:7,  milestone_type:'payment',
+        subtasks:[
+          {code:'PLSTR-01',name:'Hacking of concrete surfaces',               weight_pct:8, qc_required:false},
+          {code:'PLSTR-02',name:'POP beading fixing on corners and jambs',    weight_pct:7, qc_required:false},
+          {code:'PLSTR-03',name:'Chicken mesh at masonry-concrete junctions', weight_pct:5, qc_required:false},
+          {code:'PLSTR-04',name:'First coat plaster -- internal walls',       weight_pct:20,qc_required:false},
+          {code:'PLSTR-05',name:'QC inspection -- first coat',                weight_pct:5, qc_required:true},
+          {code:'PLSTR-06',name:'Second coat plaster -- internal walls',      weight_pct:20,qc_required:false},
+          {code:'PLSTR-07',name:'Ceiling plaster',                            weight_pct:15,qc_required:false},
+          {code:'PLSTR-08',name:'External plaster -- first coat',             weight_pct:10,qc_required:false},
+          {code:'PLSTR-09',name:'External plaster -- finish coat',            weight_pct:5, qc_required:false},
+          {code:'PLSTR-10',name:'Final QC inspection -- all surfaces',        weight_pct:5, qc_required:true},
+        ]},
+      { code:'ELEC_F',   name:'Electrical Fit-out',                       discipline:'Electrical', weight_pct:6,  milestone_type:'none',
+        subtasks:[
+          {code:'ELEC_F-01',name:'Wire pulling through conduits',              weight_pct:20,qc_required:false},
+          {code:'ELEC_F-02',name:'Distribution board installation',            weight_pct:15,qc_required:true},
+          {code:'ELEC_F-03',name:'Switches and socket point installation',     weight_pct:20,qc_required:false},
+          {code:'ELEC_F-04',name:'Light fixtures and fan points',              weight_pct:15,qc_required:false},
+          {code:'ELEC_F-05',name:'AC power points and isolators',              weight_pct:10,qc_required:false},
+          {code:'ELEC_F-06',name:'Earth continuity test',                      weight_pct:10,qc_required:true},
+          {code:'ELEC_F-07',name:'Insulation resistance test',                 weight_pct:10,qc_required:true},
+        ]},
+      { code:'PLMB_F',   name:'Plumbing and Sanitary Fit-out',            discipline:'Plumbing',   weight_pct:5,  milestone_type:'none',
+        subtasks:[
+          {code:'PLMB_F-01',name:'Water supply lines -- exposed fitting',      weight_pct:20,qc_required:false},
+          {code:'PLMB_F-02',name:'Drainage connections to sanitary ware',      weight_pct:15,qc_required:false},
+          {code:'PLMB_F-03',name:'WC, washbasin, shower unit installation',    weight_pct:20,qc_required:false},
+          {code:'PLMB_F-04',name:'Kitchen sink and tap fitting',               weight_pct:10,qc_required:false},
+          {code:'PLMB_F-05',name:'Water pressure test -- 24 hours',            weight_pct:15,qc_required:true},
+          {code:'PLMB_F-06',name:'Drainage flow test',                         weight_pct:10,qc_required:true},
+          {code:'PLMB_F-07',name:'Geyser and water heater connections',        weight_pct:10,qc_required:false},
+        ]},
+      { code:'TILE',     name:'Tiling and Flooring',                      discipline:'Finishing',  weight_pct:10,  milestone_type:'payment',
+        subtasks:[
+          {code:'TILE-01',name:'Floor screed and bed for tiling',             weight_pct:10,qc_required:false},
+          {code:'TILE-02',name:'Living and dining floor tiling',               weight_pct:15,qc_required:false},
+          {code:'TILE-03',name:'Bedroom floor tiling',                        weight_pct:15,qc_required:false},
+          {code:'TILE-04',name:'Kitchen floor and dado tiling',               weight_pct:15,qc_required:false},
+          {code:'TILE-05',name:'Bathroom floor -- anti-skid tiles',            weight_pct:10,qc_required:false},
+          {code:'TILE-06',name:'Bathroom wall tiling -- full height',          weight_pct:15,qc_required:false},
+          {code:'TILE-07',name:'Balcony floor tiling',                        weight_pct:5, qc_required:false},
+          {code:'TILE-08',name:'Skirting all rooms',                          weight_pct:5, qc_required:false},
+          {code:'TILE-09',name:'Grouting and cleaning',                       weight_pct:8, qc_required:false},
+          {code:'TILE-10',name:'QC inspection -- levelness and alignment',     weight_pct:2, qc_required:true},
+        ]},
+      { code:'GYPS',     name:'Gypsum and False Ceiling',                  discipline:'Finishing',  weight_pct:3,  milestone_type:'none',
+        subtasks:[
+          {code:'GYPS-01',name:'GI framework for false ceiling',              weight_pct:35,qc_required:false},
+          {code:'GYPS-02',name:'Gypsum board fixing',                        weight_pct:35,qc_required:false},
+          {code:'GYPS-03',name:'Putty and sanding for smooth finish',        weight_pct:20,qc_required:false},
+          {code:'GYPS-04',name:'Cove and cornice work if applicable',        weight_pct:10,qc_required:false},
+        ]},
+      { code:'PAINT',    name:'Painting',                                  discipline:'Finishing',  weight_pct:7,  milestone_type:'none',
+        subtasks:[
+          {code:'PAINT-01',name:'Wall putty -- internal walls and ceiling',   weight_pct:20,qc_required:false},
+          {code:'PAINT-02',name:'Primer coat -- internal',                    weight_pct:15,qc_required:false},
+          {code:'PAINT-03',name:'1st coat emulsion paint -- internal',        weight_pct:20,qc_required:false},
+          {code:'PAINT-04',name:'2nd coat emulsion paint -- internal',        weight_pct:20,qc_required:false},
+          {code:'PAINT-05',name:'External paint -- primer coat',              weight_pct:10,qc_required:false},
+          {code:'PAINT-06',name:'External paint -- finish coat',              weight_pct:10,qc_required:false},
+          {code:'PAINT-07',name:'Touch-up and defect rectification',          weight_pct:5, qc_required:false},
+        ]},
+      { code:'DOOR_WIN', name:'Doors, Windows and Grilles',                discipline:'Finishing',  weight_pct:4,  milestone_type:'none',
+        subtasks:[
+          {code:'DOOR_WIN-01',name:'Main entrance door installation',         weight_pct:20,qc_required:false},
+          {code:'DOOR_WIN-02',name:'Internal door shutters and frames',       weight_pct:25,qc_required:false},
+          {code:'DOOR_WIN-03',name:'UPVC and aluminium windows installation', weight_pct:25,qc_required:false},
+          {code:'DOOR_WIN-04',name:'Safety grilles and mosquito mesh',        weight_pct:15,qc_required:false},
+          {code:'DOOR_WIN-05',name:'Door hardware -- hinges, handles, locks', weight_pct:15,qc_required:false},
+        ]},
+      { code:'KITCH',    name:'Kitchen -- Modular and Civil Work',          discipline:'Finishing',  weight_pct:4,  milestone_type:'none',
+        subtasks:[
+          {code:'KITCH-01',name:'Kitchen counter and platform -- granite',    weight_pct:30,qc_required:false},
+          {code:'KITCH-02',name:'Under-counter and overhead cabinets',        weight_pct:30,qc_required:false},
+          {code:'KITCH-03',name:'Kitchen sink and tap fitting',               weight_pct:20,qc_required:false},
+          {code:'KITCH-04',name:'Exhaust chimney provision',                  weight_pct:10,qc_required:false},
+          {code:'KITCH-05',name:'Final inspection and snag clearance',        weight_pct:10,qc_required:true},
+        ]},
+      { code:'MEP_FIN',  name:'MEP Final Connections and Testing',          discipline:'MEP',        weight_pct:4,  milestone_type:'construction',
+        subtasks:[
+          {code:'MEP_FIN-01',name:'AC indoor unit installation',              weight_pct:20,qc_required:false},
+          {code:'MEP_FIN-02',name:'Geyser and water heater installation',     weight_pct:15,qc_required:false},
+          {code:'MEP_FIN-03',name:'Intercom and video doorbell wiring',       weight_pct:10,qc_required:false},
+          {code:'MEP_FIN-04',name:'Fire alarm detector installation',         weight_pct:15,qc_required:true},
+          {code:'MEP_FIN-05',name:'Complete MEP system test and commissioning',weight_pct:25,qc_required:true},
+          {code:'MEP_FIN-06',name:'MEP handover certificate',                 weight_pct:15,qc_required:true},
+        ]},
+      { code:'SNAG',     name:'Snag List and Pre-Possession Inspection',    discipline:'Finishing',  weight_pct:4,  milestone_type:'construction',
+        subtasks:[
+          {code:'SNAG-01',name:'Internal snag inspection -- all rooms',       weight_pct:30,qc_required:true},
+          {code:'SNAG-02',name:'Buyer pre-possession walk-through',           weight_pct:20,qc_required:false},
+          {code:'SNAG-03',name:'Snag items rectification',                    weight_pct:30,qc_required:false},
+          {code:'SNAG-04',name:'Final QC sign-off -- unit ready for handover',weight_pct:20,qc_required:true},
+        ]},
+      { code:'POSS',     name:'Possession and Handover',                    discipline:'Civil',      weight_pct:2,  milestone_type:'payment',
+        subtasks:[
+          {code:'POSS-01',name:'OC (Occupancy Certificate) received',         weight_pct:40,qc_required:true},
+          {code:'POSS-02',name:'NOC from bank and legal clearance',           weight_pct:20,qc_required:false},
+          {code:'POSS-03',name:'Possession letter issued to buyer',           weight_pct:20,qc_required:false},
+          {code:'POSS-04',name:'Key handover and documentation',              weight_pct:20,qc_required:false},
+        ]},
+    ]
+  },
+
+  villa:{ label:'Villa Community', tasks:[] },
+  commercial:{ label:'Commercial Office', tasks:[] },
+};
+
+// Helper: compute task % from sub-task statuses (binary -- no partial credit)
+window.PIQ.computeTaskPct = function(taskCode, subtaskStatuses) {
+  const tasks = window.PIQ.taskMaster.residential_highrise.tasks;
+  const task = tasks.find(t => t.code === taskCode);
+  if(!task) return 0;
+  return Math.round(task.subtasks.reduce((sum, st) => {
+    return sum + (subtaskStatuses[st.code]==='completed' ? st.weight_pct : 0);
+  }, 0));
+};
+
+// Helper: compute unit % from task completion percentages
+window.PIQ.computeUnitPct = function(taskPcts) {
+  const tasks = window.PIQ.taskMaster.residential_highrise.tasks;
+  return Math.round(tasks.reduce((sum, t) => sum + (t.weight_pct * (taskPcts[t.code]||0) / 100), 0));
+};
