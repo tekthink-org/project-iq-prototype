@@ -201,6 +201,43 @@ window.PIQ = {
         { name: 'Mrs. Kavitha Nair',  unit: 'Flat 2B Tower B',  paid: 1, total: 4, amount_paid_l: 17, amount_due_l: 51, nps: 3, milestone: 'Agreement',    portal_active: false },
       ],
 
+
+      towers: [
+        {
+          id: 'tower-a',
+          name: 'Tower A',
+          floors: 18,
+          units_per_floor: 6,
+          total_units: 108,
+          status: 'on-track',
+          progress: 72,
+          floors_data: [
+            // floor: [B=booked, A=available, R=reserved, H=hot, C=construction]
+            // Floor 18 (top) to Floor 1 (bottom)
+            [5,1,0,0,0],[6,0,0,0,0],[6,0,0,0,0],[5,0,1,0,0],[6,0,0,0,0],
+            [5,1,0,0,0],[4,0,2,0,0],[6,0,0,0,0],[5,0,0,1,0],[6,0,0,0,0],
+            [4,2,0,0,0],[5,0,1,0,0],[6,0,0,0,0],[5,1,0,0,0],[4,0,0,2,0],
+            [6,0,0,0,0],[5,1,0,0,0],[6,0,0,0,0]
+          ]
+        },
+        {
+          id: 'tower-b',
+          name: 'Tower B',
+          floors: 18,
+          units_per_floor: 6,
+          total_units: 108,
+          status: 'delayed',
+          progress: 37,
+          delayed_floors: [8,9,10,11,12],
+          floors_data: [
+            // Floor 18 to Floor 1
+            [2,2,1,1,0],[1,3,0,2,0],[2,2,0,2,0],[1,3,1,1,0],[2,2,0,2,0],
+            [1,0,0,0,5],[2,0,0,0,4],[2,0,0,0,4],[3,0,0,0,3],[4,0,0,2,0],
+            [4,1,0,1,0],[4,2,0,0,0],[5,1,0,0,0],[4,0,1,1,0],[5,0,1,0,0],
+            [5,1,0,0,0],[6,0,0,0,0],[6,0,0,0,0]
+          ]
+        }
+      ],
       portal_buyer: {
         name: 'Mrs. Lakshmi Rao',
         unit: 'Flat 9B',
@@ -300,6 +337,73 @@ window.PIQ = {
         { month: 'Mar', inflow: 8.4, outflow: 5.2 },
         { month: 'Apr', inflow: 7.1, outflow: 4.4 },
       ],
+
+      towers: [
+        {
+          id: 'block-a', name: 'Block A — Villas 1-20', floors: 1,
+          units_per_floor: 20, total_units: 20, status: 'on-track', progress: 45,
+          delayed_floors: [],
+          floors_data: [[14,4,2,0,0]]
+        },
+        {
+          id: 'block-b', name: 'Block B — Villas 21-40', floors: 1,
+          units_per_floor: 20, total_units: 20, status: 'on-track', progress: 38,
+          delayed_floors: [],
+          floors_data: [[12,5,2,1,0]]
+        },
+        {
+          id: 'block-c', name: 'Block C — Villas 41-60', floors: 1,
+          units_per_floor: 20, total_units: 20, status: 'on-track', progress: 22,
+          delayed_floors: [],
+          floors_data: [[10,7,2,1,0]]
+        },
+        {
+          id: 'block-d', name: 'Block D — Villas 61-80', floors: 1,
+          units_per_floor: 20, total_units: 20, status: 'on-track', progress: 18,
+          delayed_floors: [],
+          floors_data: [[8,8,2,2,0]]
+        },
+      ],
+      work_packages: [
+        { name:'Block A — Foundation',    discipline:'Civil',     floors:'Villas 1-20',  plan:100, actual:100, status:'complete' },
+        { name:'Block A — Structure',     discipline:'Civil',     floors:'Villas 1-20',  plan:100, actual:95,  status:'ok' },
+        { name:'Block A — Brick & Plaster',discipline:'Finishing',floors:'Villas 1-20',  plan:80,  actual:72,  status:'ok' },
+        { name:'Block B — Foundation',    discipline:'Civil',     floors:'Villas 21-40', plan:100, actual:100, status:'complete' },
+        { name:'Block B — Structure',     discipline:'Civil',     floors:'Villas 21-40', plan:85,  actual:80,  status:'ok' },
+        { name:'Block B — Brick & Plaster',discipline:'Finishing',floors:'Villas 21-40', plan:50,  actual:44,  status:'warning' },
+        { name:'Block C — Foundation',    discipline:'Civil',     floors:'Villas 41-60', plan:80,  actual:78,  status:'ok' },
+        { name:'Block C — Structure',     discipline:'Civil',     floors:'Villas 41-60', plan:40,  actual:35,  status:'warning' },
+        { name:'Block D — Foundation',    discipline:'Civil',     floors:'Villas 61-80', plan:50,  actual:48,  status:'ok' },
+        { name:'MEP — All blocks',        discipline:'MEP',       floors:'All villas',   plan:30,  actual:28,  status:'ok' },
+        { name:'Landscaping — Phase 1',   discipline:'Landscape', floors:'Common areas', plan:20,  actual:15,  status:'warning' },
+        { name:'Clubhouse',               discipline:'Civil',     floors:'Common area',  plan:35,  actual:30,  status:'ok' },
+      ],
+      ncrs: [
+        { id:'NCR-012', severity:'major',  description:'Block B brickwork — mortar mix inconsistent on villas 28-32. Re-work ordered.', raised:'20 Apr 2026', due:'28 Apr 2026', owner:'Ravi PM', status:'open' },
+        { id:'NCR-011', severity:'minor',  description:'Landscaping gradient non-compliant near Block A driveway.', raised:'15 Apr 2026', due:'25 Apr 2026', owner:'Site Engg', status:'open' },
+        { id:'NCR-010', severity:'major',  description:'Block C column spacing deviation — structural engineer review required.', raised:'10 Apr 2026', due:'18 Apr 2026', owner:'Structural', status:'closed' },
+      ],
+      regulatory: [
+        { authority:'RERA Quarterly',       status:'critical', detail:'Due 30 Apr 2026 — tomorrow',     label:'1d' },
+        { authority:'HMDA Layout Approval', status:'ok',       detail:'Approved — valid to Jun 2027',   label:'Active' },
+        { authority:'Env Clearance SEIAA',  status:'ok',       detail:'Valid to Dec 2026',              label:'Active' },
+        { authority:'Electricity Board',    status:'ok',       detail:'Temporary connection active',    label:'Active' },
+        { authority:'Water Board',          status:'warning',  detail:'Permanent connection — Q3 2026', label:'Q3' },
+        { authority:'BOCW Registration',    status:'ok',       detail:'320 workers registered',         label:'Active' },
+      ],
+      pipeline: [
+        { stage:'Leads',       count:186, conversion:100 },
+        { stage:'Site Visit',  count:142, conversion:76 },
+        { stage:'Negotiation', count:98,  conversion:69 },
+        { stage:'Booking',     count:54,  conversion:55 },
+        { stage:'Agreement',   count:48,  conversion:89 },
+      ],
+      buyers: [
+        { name:'Mr. Suresh Babu',   unit:'Villa 12 Block A', paid:3, total:4, amount_paid_l:180, amount_due_l:60,  nps:5, milestone:'Construction', portal_active:true },
+        { name:'Mrs. Anitha Reddy', unit:'Villa 28 Block B', paid:2, total:4, amount_paid_l:120, amount_due_l:120, nps:4, milestone:'Construction', portal_active:true },
+        { name:'Mr. Kiran Kumar',   unit:'Villa 45 Block C', paid:1, total:4, amount_paid_l:65,  amount_due_l:195, nps:4, milestone:'Agreement',    portal_active:false },
+      ],
+
     },
 
     tektower: {
@@ -351,6 +455,59 @@ window.PIQ = {
         { month: 'Mar', inflow: 9.2, outflow: 4.8 },
         { month: 'Apr', inflow: 8.6, outflow: 3.9 },
       ],
+
+      towers: [
+        {
+          id: 'tower-main', name: 'TekTower One', floors: 12,
+          units_per_floor: 1, total_units: 12, status: 'on-track', progress: 78,
+          delayed_floors: [],
+          floors_data: [
+            [1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],
+            [1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],
+            [0,1,0,0,0],[0,0,1,0,0],[0,1,0,0,0],[0,0,0,1,0],
+          ]
+        },
+      ],
+      work_packages: [
+        { name:'Structure — All floors',  discipline:'Civil',     floors:'1-12',  plan:100, actual:100, status:'complete' },
+        { name:'MEP rough-in',            discipline:'MEP',       floors:'1-10',  plan:100, actual:96,  status:'ok' },
+        { name:'False ceiling & Drywalls',discipline:'Finishing', floors:'1-8',   plan:90,  actual:88,  status:'ok' },
+        { name:'Flooring — Granite',      discipline:'Finishing', floors:'1-6',   plan:80,  actual:78,  status:'ok' },
+        { name:'Electrical fit-out',      discipline:'Electrical',floors:'1-8',   plan:75,  actual:72,  status:'ok' },
+        { name:'HVAC installation',       discipline:'MEP',       floors:'1-10',  plan:70,  actual:68,  status:'ok' },
+        { name:'Facade glazing',          discipline:'Civil',     floors:'All',   plan:85,  actual:82,  status:'ok' },
+        { name:'Lobby & common areas',    discipline:'Finishing', floors:'G+1',   plan:60,  actual:55,  status:'warning' },
+        { name:'Terrace & rooftop',       discipline:'Civil',     floors:'Terrace',plan:40, actual:38,  status:'ok' },
+        { name:'Lift installation',       discipline:'MEP',       floors:'All',   plan:80,  actual:75,  status:'warning' },
+        { name:'Fire suppression system', discipline:'Safety',    floors:'1-12',  plan:70,  actual:68,  status:'ok' },
+        { name:'OC readiness checklist',  discipline:'Compliance',floors:'All',   plan:30,  actual:20,  status:'warning' },
+      ],
+      ncrs: [
+        { id:'NCR-008', severity:'minor',  description:'HVAC ducting misalignment on Floor 9 — correction in progress.', raised:'22 Apr 2026', due:'30 Apr 2026', owner:'MEP Engg', status:'open' },
+        { id:'NCR-007', severity:'minor',  description:'Lobby false ceiling joint visible — rework required.', raised:'18 Apr 2026', due:'26 Apr 2026', owner:'Finishing', status:'open' },
+        { id:'NCR-006', severity:'major',  description:'Facade glazing unit 3B defective — replacement ordered.', raised:'10 Apr 2026', due:'20 Apr 2026', owner:'Facade', status:'closed' },
+      ],
+      regulatory: [
+        { authority:'AAI Height NOC',     status:'ok',      detail:'Valid to Jun 2026',               label:'Active' },
+        { authority:'Fire NOC',           status:'ok',      detail:'Valid to Dec 2026',               label:'Active' },
+        { authority:'HMDA Building Plan', status:'ok',      detail:'Valid to Dec 2026',               label:'Active' },
+        { authority:'OC Application',     status:'warning', detail:'Pre-inspection checklist pending', label:'Prep' },
+        { authority:'Electricity Board',  status:'ok',      detail:'Permanent connection applied',    label:'Applied' },
+        { authority:'PCB Compliance',     status:'ok',      detail:'Audit passed Mar 2026',           label:'Active' },
+      ],
+      pipeline: [
+        { stage:'Enquiries',    count:42,  conversion:100 },
+        { stage:'Discussions',  count:28,  conversion:67 },
+        { stage:'LOI signed',   count:14,  conversion:50 },
+        { stage:'Lease agreed', count:10,  conversion:71 },
+        { stage:'Registered',   count:8,   conversion:80 },
+      ],
+      buyers: [
+        { name:'TechSolutions Pvt Ltd', unit:'Floors 1-3',  paid:3, total:4, amount_paid_l:1200, amount_due_l:400, nps:5, milestone:'Fit-out', portal_active:true },
+        { name:'FinServ India Ltd',     unit:'Floors 4-6',  paid:2, total:4, amount_paid_l:800,  amount_due_l:800, nps:4, milestone:'Agreement',portal_active:true },
+        { name:'GlobalCorp APAC',       unit:'Floors 7-8',  paid:1, total:3, amount_paid_l:600,  amount_due_l:1200,nps:4, milestone:'LOI',     portal_active:false },
+      ],
+
     },
 
     greenvalley: {
@@ -402,6 +559,65 @@ window.PIQ = {
         { month: 'Mar', inflow: 0, outflow: 0.6 },
         { month: 'Apr', inflow: 0, outflow: 0.4 },
       ],
+
+      towers: [
+        {
+          id: 'sector-a', name: 'Sector A — Plots 1-66', floors: 1,
+          units_per_floor: 22, total_units: 66, status: 'pre-launch', progress: 0,
+          delayed_floors: [],
+          floors_data: [[0,46,0,14,6]]
+        },
+        {
+          id: 'sector-b', name: 'Sector B — Plots 67-132', floors: 1,
+          units_per_floor: 22, total_units: 66, status: 'pre-launch', progress: 0,
+          delayed_floors: [],
+          floors_data: [[0,52,0,8,6]]
+        },
+        {
+          id: 'sector-c', name: 'Sector C — Plots 133-197', floors: 1,
+          units_per_floor: 22, total_units: 65, status: 'pre-launch', progress: 0,
+          delayed_floors: [],
+          floors_data: [[0,55,0,6,4]]
+        },
+        {
+          id: 'sector-d', name: 'Sector D — Plots 198-263', floors: 1,
+          units_per_floor: 22, total_units: 66, status: 'pre-launch', progress: 0,
+          delayed_floors: [],
+          floors_data: [[0,60,0,2,4]]
+        },
+      ],
+      work_packages: [
+        { name:'HMDA Layout Approval',    discipline:'Compliance', floors:'Full layout',  plan:100, actual:85,  status:'warning' },
+        { name:'RERA Registration',       discipline:'Compliance', floors:'All sectors',  plan:100, actual:0,   status:'critical' },
+        { name:'Internal road formation', discipline:'Civil',      floors:'Sectors A-D',  plan:20,  actual:12,  status:'warning' },
+        { name:'Drainage network',        discipline:'Civil',      floors:'Sectors A-D',  plan:15,  actual:8,   status:'warning' },
+        { name:'Electricity ducting',     discipline:'Electrical', floors:'Sectors A-B',  plan:10,  actual:5,   status:'ok' },
+        { name:'Compound wall',           discipline:'Civil',      floors:'Boundary',     plan:40,  actual:35,  status:'ok' },
+        { name:'Entrance gate & guard',   discipline:'Civil',      floors:'Main entry',   plan:30,  actual:25,  status:'ok' },
+        { name:'Water supply network',    discipline:'Plumbing',   floors:'Sectors A-D',  plan:10,  actual:0,   status:'critical' },
+        { name:'Landscaping — entrance',  discipline:'Landscape',  floors:'Entry zone',   plan:20,  actual:15,  status:'ok' },
+      ],
+      ncrs: [
+        { id:'NCR-GV-002', severity:'major',  description:'HMDA layout submission has boundary discrepancy — survey correction required.', raised:'18 Apr 2026', due:'05 May 2026', owner:'Legal team', status:'open' },
+        { id:'NCR-GV-001', severity:'minor',  description:'Compound wall alignment deviation at Sector C boundary.', raised:'10 Apr 2026', due:'20 Apr 2026', owner:'Civil', status:'closed' },
+      ],
+      regulatory: [
+        { authority:'HMDA Layout Approval', status:'warning',  detail:'In review — boundary issue raised', label:'Review' },
+        { authority:'RERA Registration',    status:'critical', detail:'Cannot file until HMDA approved',  label:'Blocked' },
+        { authority:'Env Clearance SEIAA',  status:'ok',       detail:'Approved — valid to 2028',        label:'Active' },
+        { authority:'Water Board NOC',      status:'warning',  detail:'Applied — pending inspection',    label:'Pending' },
+        { authority:'Electricity Board',    status:'warning',  detail:'Application submitted',           label:'Pending' },
+        { authority:'BOCW Registration',    status:'ok',       detail:'Registered for site workers',     label:'Active' },
+      ],
+      pipeline: [
+        { stage:'Enquiries',        count:284, conversion:100 },
+        { stage:'Pre-registration', count:134, conversion:47 },
+        { stage:'Site visit',       count:62,  conversion:46 },
+        { stage:'Hot leads',        count:28,  conversion:45 },
+        { stage:'Booking ready',    count:0,   conversion:0 },
+      ],
+      buyers: [],
+
     },
 
   }, // end projects
