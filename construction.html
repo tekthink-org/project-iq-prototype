@@ -112,10 +112,10 @@
 /* Engineer input */
 .eng-input{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
 .eng-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
-.eng-slider{flex:1;height:4px;border-radius:2px;background:var(--border);outline:none;-webkit-appearance:none;}
-.eng-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--navy);cursor:pointer;}
-.eng-num{font-size:12px;font-weight:700;color:var(--navy);width:34px;text-align:right;}
-.eng-save{padding:4px 12px;background:var(--navy);color:white;border:none;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);}
+.eng-select{flex:1;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px;font-family:var(--font);outline:none;background:white;color:var(--black);cursor:pointer;}
+.eng-select:focus{border-color:var(--navy);}
+.eng-save{padding:6px 14px;background:var(--navy);color:white;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);}
+.eng-save:hover{background:#122848;}
 .eng-note{width:100%;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:10px;font-family:var(--font);outline:none;resize:none;}
 .eng-note:focus{border-color:var(--navy);}
 /* PM detail grid */
@@ -1752,13 +1752,19 @@ function openDrilldown(towerName, floor, unit, salesType, constrPct, isDelayed){
   document.getElementById('dd-title').textContent = towerName+' — Floor '+floor+' Unit '+unit;
   document.getElementById('dd-sub').textContent = (buyer?buyer.name+' · ':'')+pid.charAt(0).toUpperCase()+pid.slice(1)+' Heights · '+(salesType==='B'?'Booked':salesType==='R'?'Reserved':salesType==='H'?'Hot lead':'Available');
 
-  // Ring
+  // Ring — compute from task statuses x weightage (not from constrPct)
+  const taskWeights = {t1:20,t2:15,t3:8,t4:18,t5:12,t6:15,t7:8,t8:4};
+  const computedUnitPct = Math.round(unitTasks.reduce((sum,t)=>{
+    const w = taskWeights[t.id]||10;
+    const contrib = t.status==='done'?w:t.status==='prog'?w*0.35:0;
+    return sum+contrib;
+  },0));
   const circumference = 2*Math.PI*24;
-  const offset = circumference*(1-pct/100);
+  const offset = circumference*(1-computedUnitPct/100);
   document.getElementById('dd-ring-fill').setAttribute('stroke-dashoffset', offset.toFixed(1));
-  document.getElementById('dd-ring-pct').textContent = pct+'%';
+  document.getElementById('dd-ring-pct').textContent = computedUnitPct+'%';
   document.getElementById('dd-ring-title').textContent = 'Unit completion — '+unitRef;
-  document.getElementById('dd-ring-meta').innerHTML = 'Planned: 75% · '+(pct<75?'<span style="color:#FCA5A5;">'+Math.abs(75-pct)+'% behind plan</span>':'<span style="color:#34D399;">On plan</span>');
+  document.getElementById('dd-ring-meta').innerHTML = 'Weighted from '+unitTasks.length+' tasks · Planned: 75% · '+(computedUnitPct<75?'<span style="color:#FCA5A5;">'+Math.abs(75-computedUnitPct)+'% behind plan</span>':'<span style="color:#34D399;">On plan</span>');
 
   // Show/hide buyer tab
   const buyerTabEl = document.getElementById('buyer-tab');
@@ -1844,13 +1850,18 @@ function setDdView(view, el){
         ${t.status==='blocked'?'<div style="font-size:10px;color:var(--red);margin-top:5px;">Blocked — plastering must reach 80% before tiling can begin.</div>':''}
         ${t.status!=='done'&&t.status!=='blocked'?`
         <div class="eng-input">
-          <div style="font-size:9px;font-weight:700;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Update progress</div>
+          <div style="font-size:9px;font-weight:700;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Update status</div>
           <div class="eng-row">
-            <input type="range" class="eng-slider" min="0" max="100" value="${t.pct}" oninput="document.getElementById('n-${t.id}').textContent=this.value+'%'" id="s-${t.id}">
-            <div class="eng-num" id="n-${t.id}">${t.pct}%</div>
-            <button class="eng-save" onclick="saveEngUpdate('${t.id}','${t.name}')">Save</button>
+            <select class="eng-select" id="s-${t.id}" style="flex:1;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px;font-family:var(--font);outline:none;background:white;cursor:pointer;">
+              <option value="not_started" ${t.status==='pend'?'selected':''}>○ Not started</option>
+              <option value="in_progress" ${t.status==='prog'?'selected':''}>→ In progress</option>
+              <option value="completed" ${t.status==='done'?'selected':''}>✓ Completed</option>
+              <option value="blocked" ${t.status==='blocked'?'selected':''}>⛔ Blocked</option>
+            </select>
+            <button class="eng-save" style="padding:6px 14px;background:var(--navy);color:white;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);" onclick="saveEngUpdate('${t.id}','${t.name}')">Save</button>
           </div>
-          <textarea class="eng-note" rows="2" placeholder="Note: issue, observation, photo reference..."></textarea>
+          <div style="font-size:10px;color:var(--grey-mid);margin-bottom:4px;background:#f9f9f7;padding:5px 8px;border-radius:5px;">Progress % is computed automatically from status x task weightage. You do not enter a number.</div>
+          <textarea class="eng-note" rows="2" placeholder="Note: issue, observation, photo reference, block reason..." style="width:100%;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:10px;font-family:var(--font);outline:none;resize:none;"></textarea>
         </div>`:''}
       </div>`;
     }).join('');
@@ -1902,10 +1913,12 @@ function setDdView(view, el){
 }
 
 function saveEngUpdate(id, name){
-  const slider = document.getElementById('s-'+id);
-  if(slider){
-    const val = slider.value;
-    alert('Progress saved: '+name+' → '+val+'%\n\nIn the live system this would:\n• Update unit completion %\n• Recalculate EVM (EV, CPI, SPI)\n• Update buyer portal\n• Trigger AI alerts if behind plan\n• Update RERA quarterly progress');
+  const sel = document.getElementById('s-'+id);
+  if(sel){
+    const statusMap = {not_started:'Not started',in_progress:'In progress',completed:'Completed',blocked:'Blocked'};
+    const statusLabel = statusMap[sel.value] || sel.value;
+    const computedPct = sel.value==='completed'?100:sel.value==='in_progress'?50:0;
+    alert('Status saved: '+name+'\nNew status: '+statusLabel+'\n\nIn the live system this would:\n• Compute task % from status x weight_pct\n• Recompute unit completion % (weighted average)\n• Recalculate EVM — EV, CPI, SPI\n• Update buyer portal instantly\n• Fire AI alert if behind plan\n• Update RERA quarterly progress\n\nProgress % is never entered manually — it is always derived from status.');
   }
 }
 
