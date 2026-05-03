@@ -1,7 +1,7 @@
 // ============================================================
-// PROJECT IQ — Portfolio Data
+// PROJECT IQ -- Portfolio Data
 // Seven Hills Constructions
-// Baseline v1.0 — May 2026
+// Baseline v1.0 -- May 2026
 // ============================================================
 
 window.PIQ = {
@@ -50,16 +50,16 @@ window.PIQ = {
   ],
 
   portfolio_alerts: [
-    { severity: 'critical', dimension: 'Construction → CX → Finance', message: 'Skyline Heights — Tower B plastering 44 days behind. 23 buyer possession dates at risk. Rs.1.2 Cr RERA penalty exposure. Q3 cash gap Rs.3.8 Cr.' },
+    { severity: 'critical', dimension: 'Construction -> CX -> Finance', message: 'Skyline Heights -- Tower B plastering 44 days behind. 23 buyer possession dates at risk. Rs.1.2 Cr RERA penalty exposure. Q3 cash gap Rs.3.8 Cr.' },
     { severity: 'warning', dimension: 'Regulatory', message: 'Fire NOC renewal due in 18 days (Skyline Heights). Water board connection blocking OC application.' },
     { severity: 'warning', dimension: 'Finance', message: 'Rs.6 Cr payables overdue across portfolio. 3 vendor bills pending PM certification before release.' },
-    { severity: 'info', dimension: 'Market Intelligence', message: 'Kokapet demand up 18% this month. Competitor Prestige Elm launched at Rs.7,200/sqft — 8% above Skyline Heights 3BHK rate.' },
-    { severity: 'positive', dimension: 'Sales', message: 'Green Valley Enclave pre-registrations reached 134 leads. HMDA approval expected this week — RERA filing can be triggered immediately.' },
+    { severity: 'info', dimension: 'Market Intelligence', message: 'Kokapet demand up 18% this month. Competitor Prestige Elm launched at Rs.7,200/sqft -- 8% above Skyline Heights 3BHK rate.' },
+    { severity: 'positive', dimension: 'Sales', message: 'Green Valley Enclave pre-registrations reached 134 leads. HMDA approval expected this week -- RERA filing can be triggered immediately.' },
   ],
 
   iq_morning_brief: [
-    { type: 'critical', text: 'Skyline Heights: Night shift on Tower B saves 30 days vs Rs.4.2L cost — recommend MD approval today.' },
-    { type: 'warning', text: '3 negative reviews on 99acres this week — "no updates" theme. Auto-drafted CX escalation. Respond within 24 hours.' },
+    { type: 'critical', text: 'Skyline Heights: Night shift on Tower B saves 30 days vs Rs.4.2L cost -- recommend MD approval today.' },
+    { type: 'warning', text: '3 negative reviews on 99acres this week -- "no updates" theme. Auto-drafted CX escalation. Respond within 24 hours.' },
     { type: 'info', text: 'Green Valley HMDA approval expected this week. RERA filing ready to trigger immediately after.' },
     { type: 'positive', text: 'TekTower One: 78% complete, 68% leased. On track Sep 2026 handover. Initiate OC pre-inspection checklist now.' },
     { type: 'warning', text: 'Collections Rs.2.4 Cr overdue from 18 buyers across portfolio. Auto-reminder batch recommended.' },
@@ -111,7 +111,7 @@ window.PIQ = {
       pending_payables_cr: 6,
       collection_efficiency: 84,
 
-      alert: 'Tower B plastering delayed 44 days — floors 8-12. Blocking tiling sequence. 23 possession dates at risk.',
+      alert: 'Tower B plastering delayed 44 days -- floors 8-12. Blocking tiling sequence. 23 possession dates at risk.',
 
       cube: {
         construction: { score: 54, rating: 3.8, trend: 'down' },
@@ -135,9 +135,9 @@ window.PIQ = {
       },
 
       regulatory: [
-        { authority: 'Fire NOC',         status: 'critical', detail: 'Due 17 May 2026 — 18 days',   label: '18d' },
-        { authority: 'Water Board OC',   status: 'critical', detail: 'Pending — blocks OC filing',   label: 'Urgent' },
-        { authority: 'RERA Quarterly',   status: 'warning',  detail: 'Due 30 Apr 2026 — tomorrow',   label: '1d' },
+        { authority: 'Fire NOC',         status: 'critical', detail: 'Due 17 May 2026 -- 18 days',   label: '18d' },
+        { authority: 'Water Board OC',   status: 'critical', detail: 'Pending -- blocks OC filing',   label: 'Urgent' },
+        { authority: 'RERA Quarterly',   status: 'warning',  detail: 'Due 30 Apr 2026 -- tomorrow',   label: '1d' },
         { authority: 'PCB Compliance',   status: 'warning',  detail: 'Audit 10 May 2026',             label: '11d' },
         { authority: 'HMDA Building Plan', status: 'ok',     detail: 'Valid to Dec 2026',             label: 'Active' },
         { authority: 'AAI Height NOC',   status: 'ok',       detail: 'Valid to Jun 2026',             label: 'Active' },
@@ -146,14 +146,14 @@ window.PIQ = {
       ],
 
       work_packages: [
-        { name: 'Tower A — Structure',    discipline: 'Civil',      floors: '1-18', plan: 100, actual: 100, status: 'complete' },
-        { name: 'Tower B — Structure',    discipline: 'Civil',      floors: '1-18', plan: 100, actual: 95,  status: 'warning'  },
-        { name: 'Tower A — MEP Rough-in', discipline: 'MEP',        floors: '1-12', plan: 80,  actual: 78,  status: 'ok'       },
-        { name: 'Tower B — MEP Rough-in', discipline: 'MEP',        floors: '1-8',  plan: 60,  actual: 52,  status: 'warning'  },
-        { name: 'Tower A — Plastering',   discipline: 'Finishing',  floors: '1-18', plan: 75,  actual: 72,  status: 'ok'       },
-        { name: 'Tower B — Plastering',   discipline: 'Finishing',  floors: '1-7',  plan: 80,  actual: 44,  status: 'critical' },
-        { name: 'Tower A — Tiling',       discipline: 'Finishing',  floors: '1-7',  plan: 50,  actual: 48,  status: 'ok'       },
-        { name: 'Tower B — Tiling',       discipline: 'Finishing',  floors: '1-4',  plan: 40,  actual: 0,   status: 'critical' },
+        { name: 'Tower A -- Structure',    discipline: 'Civil',      floors: '1-18', plan: 100, actual: 100, status: 'complete' },
+        { name: 'Tower B -- Structure',    discipline: 'Civil',      floors: '1-18', plan: 100, actual: 95,  status: 'warning'  },
+        { name: 'Tower A -- MEP Rough-in', discipline: 'MEP',        floors: '1-12', plan: 80,  actual: 78,  status: 'ok'       },
+        { name: 'Tower B -- MEP Rough-in', discipline: 'MEP',        floors: '1-8',  plan: 60,  actual: 52,  status: 'warning'  },
+        { name: 'Tower A -- Plastering',   discipline: 'Finishing',  floors: '1-18', plan: 75,  actual: 72,  status: 'ok'       },
+        { name: 'Tower B -- Plastering',   discipline: 'Finishing',  floors: '1-7',  plan: 80,  actual: 44,  status: 'critical' },
+        { name: 'Tower A -- Tiling',       discipline: 'Finishing',  floors: '1-7',  plan: 50,  actual: 48,  status: 'ok'       },
+        { name: 'Tower B -- Tiling',       discipline: 'Finishing',  floors: '1-4',  plan: 40,  actual: 0,   status: 'critical' },
         { name: 'Electrical Wiring',      discipline: 'Electrical', floors: '1-10', plan: 65,  actual: 61,  status: 'ok'       },
         { name: 'Plumbing',               discipline: 'Plumbing',   floors: '1-8',  plan: 55,  actual: 50,  status: 'ok'       },
         { name: 'Landscaping',            discipline: 'Landscape',  floors: 'Ground', plan: 15, actual: 8,  status: 'warning'  },
@@ -162,9 +162,9 @@ window.PIQ = {
 
       ncrs: [
         { id: 'NCR-047', severity: 'critical', description: 'Floor 7 plastering started without QC certification. Tiling blocked.', raised: '26 Apr 2026', due: '30 Apr 2026', owner: 'Ravi Kumar', status: 'open' },
-        { id: 'NCR-046', severity: 'major',    description: 'Tower B concrete cube test result borderline — re-test ordered.',       raised: '24 Apr 2026', due: '28 Apr 2026', owner: 'Suresh PM',  status: 'open' },
-        { id: 'NCR-045', severity: 'minor',    description: 'MEP conduit misaligned Floor 12 — rectification required.',            raised: '22 Apr 2026', due: '05 May 2026', owner: 'Arun MEP',   status: 'open' },
-        { id: 'NCR-044', severity: 'major',    description: 'Waterproofing membrane not applied before screed — Floor 6 terrace.',  raised: '18 Apr 2026', due: '25 Apr 2026', owner: 'Ravi Kumar', status: 'closed' },
+        { id: 'NCR-046', severity: 'major',    description: 'Tower B concrete cube test result borderline -- re-test ordered.',       raised: '24 Apr 2026', due: '28 Apr 2026', owner: 'Suresh PM',  status: 'open' },
+        { id: 'NCR-045', severity: 'minor',    description: 'MEP conduit misaligned Floor 12 -- rectification required.',            raised: '22 Apr 2026', due: '05 May 2026', owner: 'Arun MEP',   status: 'open' },
+        { id: 'NCR-044', severity: 'major',    description: 'Waterproofing membrane not applied before screed -- Floor 6 terrace.',  raised: '18 Apr 2026', due: '25 Apr 2026', owner: 'Ravi Kumar', status: 'closed' },
         { id: 'NCR-043', severity: 'minor',    description: 'Electrical conduit spacing non-compliant Floor 9.',                    raised: '15 Apr 2026', due: '22 Apr 2026', owner: 'Arun MEP',   status: 'closed' },
       ],
 
@@ -256,7 +256,7 @@ window.PIQ = {
           { stage: 'Booking',        date: '15 Mar 2024', status: 'completed' },
           { stage: 'Agreement',      date: '02 Apr 2024', status: 'completed' },
           { stage: 'Foundation',     date: '30 Jun 2024', status: 'completed' },
-          { stage: 'Slab — Floor 9', date: '15 Jan 2025', status: 'completed' },
+          { stage: 'Slab -- Floor 9', date: '15 Jan 2025', status: 'completed' },
           { stage: 'Structure done', date: '30 Mar 2025', status: 'completed' },
           { stage: 'MEP rough-in',   date: '30 Jun 2025', status: 'completed' },
           { stage: 'Plastering',     date: '28 Feb 2026', status: 'delayed'   },
@@ -340,55 +340,55 @@ window.PIQ = {
 
       towers: [
         {
-          id: 'block-a', name: 'Block A — Villas 1-20', floors: 1,
+          id: 'block-a', name: 'Block A -- Villas 1-20', floors: 1,
           units_per_floor: 20, total_units: 20, status: 'on-track', progress: 45,
           delayed_floors: [],
           floors_data: [[14,4,2,0,0]]
         },
         {
-          id: 'block-b', name: 'Block B — Villas 21-40', floors: 1,
+          id: 'block-b', name: 'Block B -- Villas 21-40', floors: 1,
           units_per_floor: 20, total_units: 20, status: 'on-track', progress: 38,
           delayed_floors: [],
           floors_data: [[12,5,2,1,0]]
         },
         {
-          id: 'block-c', name: 'Block C — Villas 41-60', floors: 1,
+          id: 'block-c', name: 'Block C -- Villas 41-60', floors: 1,
           units_per_floor: 20, total_units: 20, status: 'on-track', progress: 22,
           delayed_floors: [],
           floors_data: [[10,7,2,1,0]]
         },
         {
-          id: 'block-d', name: 'Block D — Villas 61-80', floors: 1,
+          id: 'block-d', name: 'Block D -- Villas 61-80', floors: 1,
           units_per_floor: 20, total_units: 20, status: 'on-track', progress: 18,
           delayed_floors: [],
           floors_data: [[8,8,2,2,0]]
         },
       ],
       work_packages: [
-        { name:'Block A — Foundation',    discipline:'Civil',     floors:'Villas 1-20',  plan:100, actual:100, status:'complete' },
-        { name:'Block A — Structure',     discipline:'Civil',     floors:'Villas 1-20',  plan:100, actual:95,  status:'ok' },
-        { name:'Block A — Brick & Plaster',discipline:'Finishing',floors:'Villas 1-20',  plan:80,  actual:72,  status:'ok' },
-        { name:'Block B — Foundation',    discipline:'Civil',     floors:'Villas 21-40', plan:100, actual:100, status:'complete' },
-        { name:'Block B — Structure',     discipline:'Civil',     floors:'Villas 21-40', plan:85,  actual:80,  status:'ok' },
-        { name:'Block B — Brick & Plaster',discipline:'Finishing',floors:'Villas 21-40', plan:50,  actual:44,  status:'warning' },
-        { name:'Block C — Foundation',    discipline:'Civil',     floors:'Villas 41-60', plan:80,  actual:78,  status:'ok' },
-        { name:'Block C — Structure',     discipline:'Civil',     floors:'Villas 41-60', plan:40,  actual:35,  status:'warning' },
-        { name:'Block D — Foundation',    discipline:'Civil',     floors:'Villas 61-80', plan:50,  actual:48,  status:'ok' },
-        { name:'MEP — All blocks',        discipline:'MEP',       floors:'All villas',   plan:30,  actual:28,  status:'ok' },
-        { name:'Landscaping — Phase 1',   discipline:'Landscape', floors:'Common areas', plan:20,  actual:15,  status:'warning' },
+        { name:'Block A -- Foundation',    discipline:'Civil',     floors:'Villas 1-20',  plan:100, actual:100, status:'complete' },
+        { name:'Block A -- Structure',     discipline:'Civil',     floors:'Villas 1-20',  plan:100, actual:95,  status:'ok' },
+        { name:'Block A -- Brick & Plaster',discipline:'Finishing',floors:'Villas 1-20',  plan:80,  actual:72,  status:'ok' },
+        { name:'Block B -- Foundation',    discipline:'Civil',     floors:'Villas 21-40', plan:100, actual:100, status:'complete' },
+        { name:'Block B -- Structure',     discipline:'Civil',     floors:'Villas 21-40', plan:85,  actual:80,  status:'ok' },
+        { name:'Block B -- Brick & Plaster',discipline:'Finishing',floors:'Villas 21-40', plan:50,  actual:44,  status:'warning' },
+        { name:'Block C -- Foundation',    discipline:'Civil',     floors:'Villas 41-60', plan:80,  actual:78,  status:'ok' },
+        { name:'Block C -- Structure',     discipline:'Civil',     floors:'Villas 41-60', plan:40,  actual:35,  status:'warning' },
+        { name:'Block D -- Foundation',    discipline:'Civil',     floors:'Villas 61-80', plan:50,  actual:48,  status:'ok' },
+        { name:'MEP -- All blocks',        discipline:'MEP',       floors:'All villas',   plan:30,  actual:28,  status:'ok' },
+        { name:'Landscaping -- Phase 1',   discipline:'Landscape', floors:'Common areas', plan:20,  actual:15,  status:'warning' },
         { name:'Clubhouse',               discipline:'Civil',     floors:'Common area',  plan:35,  actual:30,  status:'ok' },
       ],
       ncrs: [
-        { id:'NCR-012', severity:'major',  description:'Block B brickwork — mortar mix inconsistent on villas 28-32. Re-work ordered.', raised:'20 Apr 2026', due:'28 Apr 2026', owner:'Ravi PM', status:'open' },
+        { id:'NCR-012', severity:'major',  description:'Block B brickwork -- mortar mix inconsistent on villas 28-32. Re-work ordered.', raised:'20 Apr 2026', due:'28 Apr 2026', owner:'Ravi PM', status:'open' },
         { id:'NCR-011', severity:'minor',  description:'Landscaping gradient non-compliant near Block A driveway.', raised:'15 Apr 2026', due:'25 Apr 2026', owner:'Site Engg', status:'open' },
-        { id:'NCR-010', severity:'major',  description:'Block C column spacing deviation — structural engineer review required.', raised:'10 Apr 2026', due:'18 Apr 2026', owner:'Structural', status:'closed' },
+        { id:'NCR-010', severity:'major',  description:'Block C column spacing deviation -- structural engineer review required.', raised:'10 Apr 2026', due:'18 Apr 2026', owner:'Structural', status:'closed' },
       ],
       regulatory: [
-        { authority:'RERA Quarterly',       status:'critical', detail:'Due 30 Apr 2026 — tomorrow',     label:'1d' },
-        { authority:'HMDA Layout Approval', status:'ok',       detail:'Approved — valid to Jun 2027',   label:'Active' },
+        { authority:'RERA Quarterly',       status:'critical', detail:'Due 30 Apr 2026 -- tomorrow',     label:'1d' },
+        { authority:'HMDA Layout Approval', status:'ok',       detail:'Approved -- valid to Jun 2027',   label:'Active' },
         { authority:'Env Clearance SEIAA',  status:'ok',       detail:'Valid to Dec 2026',              label:'Active' },
         { authority:'Electricity Board',    status:'ok',       detail:'Temporary connection active',    label:'Active' },
-        { authority:'Water Board',          status:'warning',  detail:'Permanent connection — Q3 2026', label:'Q3' },
+        { authority:'Water Board',          status:'warning',  detail:'Permanent connection -- Q3 2026', label:'Q3' },
         { authority:'BOCW Registration',    status:'ok',       detail:'320 workers registered',         label:'Active' },
       ],
       pipeline: [
@@ -413,7 +413,7 @@ window.PIQ = {
       location: 'HITEC City, Hyderabad',
       status: 'on-track',
       status_label: 'On Track',
-      rera_no: 'N/A — Commercial',
+      rera_no: 'N/A -- Commercial',
       rera_status: 'N/A',
       total_units: 12,
       total_floors: 12,
@@ -469,10 +469,10 @@ window.PIQ = {
         },
       ],
       work_packages: [
-        { name:'Structure — All floors',  discipline:'Civil',     floors:'1-12',  plan:100, actual:100, status:'complete' },
+        { name:'Structure -- All floors',  discipline:'Civil',     floors:'1-12',  plan:100, actual:100, status:'complete' },
         { name:'MEP rough-in',            discipline:'MEP',       floors:'1-10',  plan:100, actual:96,  status:'ok' },
         { name:'False ceiling & Drywalls',discipline:'Finishing', floors:'1-8',   plan:90,  actual:88,  status:'ok' },
-        { name:'Flooring — Granite',      discipline:'Finishing', floors:'1-6',   plan:80,  actual:78,  status:'ok' },
+        { name:'Flooring -- Granite',      discipline:'Finishing', floors:'1-6',   plan:80,  actual:78,  status:'ok' },
         { name:'Electrical fit-out',      discipline:'Electrical',floors:'1-8',   plan:75,  actual:72,  status:'ok' },
         { name:'HVAC installation',       discipline:'MEP',       floors:'1-10',  plan:70,  actual:68,  status:'ok' },
         { name:'Facade glazing',          discipline:'Civil',     floors:'All',   plan:85,  actual:82,  status:'ok' },
@@ -483,9 +483,9 @@ window.PIQ = {
         { name:'OC readiness checklist',  discipline:'Compliance',floors:'All',   plan:30,  actual:20,  status:'warning' },
       ],
       ncrs: [
-        { id:'NCR-008', severity:'minor',  description:'HVAC ducting misalignment on Floor 9 — correction in progress.', raised:'22 Apr 2026', due:'30 Apr 2026', owner:'MEP Engg', status:'open' },
-        { id:'NCR-007', severity:'minor',  description:'Lobby false ceiling joint visible — rework required.', raised:'18 Apr 2026', due:'26 Apr 2026', owner:'Finishing', status:'open' },
-        { id:'NCR-006', severity:'major',  description:'Facade glazing unit 3B defective — replacement ordered.', raised:'10 Apr 2026', due:'20 Apr 2026', owner:'Facade', status:'closed' },
+        { id:'NCR-008', severity:'minor',  description:'HVAC ducting misalignment on Floor 9 -- correction in progress.', raised:'22 Apr 2026', due:'30 Apr 2026', owner:'MEP Engg', status:'open' },
+        { id:'NCR-007', severity:'minor',  description:'Lobby false ceiling joint visible -- rework required.', raised:'18 Apr 2026', due:'26 Apr 2026', owner:'Finishing', status:'open' },
+        { id:'NCR-006', severity:'major',  description:'Facade glazing unit 3B defective -- replacement ordered.', raised:'10 Apr 2026', due:'20 Apr 2026', owner:'Facade', status:'closed' },
       ],
       regulatory: [
         { authority:'AAI Height NOC',     status:'ok',      detail:'Valid to Jun 2026',               label:'Active' },
@@ -562,25 +562,25 @@ window.PIQ = {
 
       towers: [
         {
-          id: 'sector-a', name: 'Sector A — Plots 1-66', floors: 1,
+          id: 'sector-a', name: 'Sector A -- Plots 1-66', floors: 1,
           units_per_floor: 22, total_units: 66, status: 'pre-launch', progress: 0,
           delayed_floors: [],
           floors_data: [[0,46,0,14,6]]
         },
         {
-          id: 'sector-b', name: 'Sector B — Plots 67-132', floors: 1,
+          id: 'sector-b', name: 'Sector B -- Plots 67-132', floors: 1,
           units_per_floor: 22, total_units: 66, status: 'pre-launch', progress: 0,
           delayed_floors: [],
           floors_data: [[0,52,0,8,6]]
         },
         {
-          id: 'sector-c', name: 'Sector C — Plots 133-197', floors: 1,
+          id: 'sector-c', name: 'Sector C -- Plots 133-197', floors: 1,
           units_per_floor: 22, total_units: 65, status: 'pre-launch', progress: 0,
           delayed_floors: [],
           floors_data: [[0,55,0,6,4]]
         },
         {
-          id: 'sector-d', name: 'Sector D — Plots 198-263', floors: 1,
+          id: 'sector-d', name: 'Sector D -- Plots 198-263', floors: 1,
           units_per_floor: 22, total_units: 66, status: 'pre-launch', progress: 0,
           delayed_floors: [],
           floors_data: [[0,60,0,2,4]]
@@ -595,17 +595,17 @@ window.PIQ = {
         { name:'Compound wall',           discipline:'Civil',      floors:'Boundary',     plan:40,  actual:35,  status:'ok' },
         { name:'Entrance gate & guard',   discipline:'Civil',      floors:'Main entry',   plan:30,  actual:25,  status:'ok' },
         { name:'Water supply network',    discipline:'Plumbing',   floors:'Sectors A-D',  plan:10,  actual:0,   status:'critical' },
-        { name:'Landscaping — entrance',  discipline:'Landscape',  floors:'Entry zone',   plan:20,  actual:15,  status:'ok' },
+        { name:'Landscaping -- entrance',  discipline:'Landscape',  floors:'Entry zone',   plan:20,  actual:15,  status:'ok' },
       ],
       ncrs: [
-        { id:'NCR-GV-002', severity:'major',  description:'HMDA layout submission has boundary discrepancy — survey correction required.', raised:'18 Apr 2026', due:'05 May 2026', owner:'Legal team', status:'open' },
+        { id:'NCR-GV-002', severity:'major',  description:'HMDA layout submission has boundary discrepancy -- survey correction required.', raised:'18 Apr 2026', due:'05 May 2026', owner:'Legal team', status:'open' },
         { id:'NCR-GV-001', severity:'minor',  description:'Compound wall alignment deviation at Sector C boundary.', raised:'10 Apr 2026', due:'20 Apr 2026', owner:'Civil', status:'closed' },
       ],
       regulatory: [
-        { authority:'HMDA Layout Approval', status:'warning',  detail:'In review — boundary issue raised', label:'Review' },
+        { authority:'HMDA Layout Approval', status:'warning',  detail:'In review -- boundary issue raised', label:'Review' },
         { authority:'RERA Registration',    status:'critical', detail:'Cannot file until HMDA approved',  label:'Blocked' },
-        { authority:'Env Clearance SEIAA',  status:'ok',       detail:'Approved — valid to 2028',        label:'Active' },
-        { authority:'Water Board NOC',      status:'warning',  detail:'Applied — pending inspection',    label:'Pending' },
+        { authority:'Env Clearance SEIAA',  status:'ok',       detail:'Approved -- valid to 2028',        label:'Active' },
+        { authority:'Water Board NOC',      status:'warning',  detail:'Applied -- pending inspection',    label:'Pending' },
         { authority:'Electricity Board',    status:'warning',  detail:'Application submitted',           label:'Pending' },
         { authority:'BOCW Registration',    status:'ok',       detail:'Registered for site workers',     label:'Active' },
       ],
