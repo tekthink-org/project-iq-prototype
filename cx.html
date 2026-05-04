@@ -2117,13 +2117,17 @@ document.getElementById('journey-board').innerHTML = journeyStages.map(stage =>
 ).join('');
 
 // ── ESCALATION TRACKER ────────────────────────────────────
-const escalations = p.escalations || [
-  {id:'ESC-031',buyer:'Mrs. Lakshmi Rao',unit:'9B',   category:'Possession Delay', severity:'high',    sla_hrs:48, raised:'28 Apr',status:'open',  elapsed_hrs:44},
-  {id:'ESC-030',buyer:'Mr. Venkat Reddy',unit:'12A',  category:'No Progress Update',severity:'medium',  sla_hrs:24, raised:'27 Apr',status:'open',  elapsed_hrs:18},
-  {id:'ESC-029',buyer:'TechCorp Ltd',    unit:'L2',   category:'Quality Issue',     severity:'critical',sla_hrs:12, raised:'26 Apr',status:'open',  elapsed_hrs:52},
-  {id:'ESC-028',buyer:'Dr. Anand Kumar', unit:'B-12', category:'Payment Query',     severity:'low',     sla_hrs:72, raised:'25 Apr',status:'closed',elapsed_hrs:48},
-  {id:'ESC-027',buyer:'Mr. Raju Sharma', unit:'3B',   category:'Modification delay',severity:'medium',  sla_hrs:48, raised:'24 Apr',status:'inprog',elapsed_hrs:30},
+const escalationDefaults = [
+  {id:'ESC-031',buyer:'Mrs. Lakshmi Rao',unit:'9B',   category:'Possession Delay',  severity:'high',    sla_hrs:48, raised:'28 Apr',status:'open',  elapsed_hrs:44},
+  {id:'ESC-030',buyer:'Mr. Venkat Reddy',unit:'12A',  category:'No Progress Update', severity:'medium',  sla_hrs:24, raised:'27 Apr',status:'open',  elapsed_hrs:18},
+  {id:'ESC-029',buyer:'TechCorp Ltd',    unit:'L2',   category:'Quality Issue',      severity:'critical',sla_hrs:12, raised:'26 Apr',status:'open',  elapsed_hrs:52},
+  {id:'ESC-028',buyer:'Dr. Anand Kumar', unit:'B-12', category:'Payment Query',      severity:'low',     sla_hrs:72, raised:'25 Apr',status:'closed',elapsed_hrs:48},
+  {id:'ESC-027',buyer:'Mr. Raju Sharma', unit:'3B',   category:'Modification delay', severity:'medium',  sla_hrs:48, raised:'24 Apr',status:'inprog',elapsed_hrs:30},
 ];
+// Merge portfolio escalations with defaults to ensure elapsed_hrs always exists
+const escalations = (p.escalations && p.escalations.length)
+  ? p.escalations.map((e,i) => ({elapsed_hrs:24, sla_hrs:48, raised:'Recent', status:'open', ...e, ...escalationDefaults[i]||{}}))
+  : escalationDefaults;
 
 document.getElementById('esc-count').textContent = escalations.filter(e=>e.status==='open').length + ' open · ' + escalations.filter(e=>e.status==='closed').length + ' closed';
 
