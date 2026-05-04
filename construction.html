@@ -1831,38 +1831,106 @@ function setDdView(view, el){
   const body = document.getElementById('dd-body');
 
   if(view==='eng'){
+    // Get task master for this project type
+    const projType = p.type || 'Residential High-Rise';
+    const tm = window.PIQ.getTaskMasterForProject ? window.PIQ.getTaskMasterForProject(projType) : window.PIQ.taskMaster.residential_highrise;
+    const tasks = tm ? tm.tasks : [];
+
+    // Dummy subtask statuses for demo (in production: fetched from DB per unit)
+    const demoStatuses = {
+      'EXCAV':{'EXCAV-01':'completed','EXCAV-02':'completed','EXCAV-03':'completed','EXCAV-04':'completed','EXCAV-05':'completed'},
+      'FOUND':{'FOUND-01':'completed','FOUND-02':'completed','FOUND-03':'completed','FOUND-04':'completed','FOUND-05':'completed','FOUND-06':'completed','FOUND-07':'completed','FOUND-08':'completed'},
+      'STRUCT':{'STRUCT-01':'completed','STRUCT-02':'completed','STRUCT-03':'completed','STRUCT-04':'completed','STRUCT-05':'completed','STRUCT-06':'completed','STRUCT-07':'completed','STRUCT-08':'completed','STRUCT-09':'completed','STRUCT-10':'completed','STRUCT-11':'completed'},
+      'BRICK':{'BRICK-01':'completed','BRICK-02':'completed','BRICK-03':'completed','BRICK-04':'completed','BRICK-05':'completed'},
+      'WTRPF':{'WTRPF-01':'completed','WTRPF-02':'completed','WTRPF-03':'completed','WTRPF-04':'completed','WTRPF-05':'completed'},
+      'MEP_R':{'MEP_R-01':'completed','MEP_R-02':'completed','MEP_R-03':'completed','MEP_R-04':'completed','MEP_R-05':'completed','MEP_R-06':'completed'},
+      'PLSTR':{'PLSTR-01':'completed','PLSTR-02':'completed','PLSTR-03':'completed','PLSTR-04':'in_progress','PLSTR-05':'not_started','PLSTR-06':'not_started','PLSTR-07':'not_started','PLSTR-08':'not_started','PLSTR-09':'not_started','PLSTR-10':'not_started'},
+      'ELEC_F':{'ELEC_F-01':'in_progress','ELEC_F-02':'not_started','ELEC_F-03':'not_started','ELEC_F-04':'not_started','ELEC_F-05':'not_started','ELEC_F-06':'not_started','ELEC_F-07':'not_started'},
+      'PLMB_F':{'PLMB_F-01':'not_started','PLMB_F-02':'not_started','PLMB_F-03':'not_started','PLMB_F-04':'not_started','PLMB_F-05':'not_started','PLMB_F-06':'not_started','PLMB_F-07':'not_started'},
+      'TILE':{'TILE-01':'not_started','TILE-02':'not_started','TILE-03':'not_started','TILE-04':'not_started','TILE-05':'not_started','TILE-06':'not_started','TILE-07':'not_started','TILE-08':'not_started','TILE-09':'not_started','TILE-10':'not_started'},
+      'GYPS':{'GYPS-01':'not_started','GYPS-02':'not_started','GYPS-03':'not_started','GYPS-04':'not_started'},
+      'PAINT':{'PAINT-01':'not_started','PAINT-02':'not_started','PAINT-03':'not_started','PAINT-04':'not_started','PAINT-05':'not_started','PAINT-06':'not_started','PAINT-07':'not_started'},
+      'DOOR_WIN':{'DOOR_WIN-01':'not_started','DOOR_WIN-02':'not_started','DOOR_WIN-03':'not_started','DOOR_WIN-04':'not_started','DOOR_WIN-05':'not_started'},
+      'KITCH':{'KITCH-01':'not_started','KITCH-02':'not_started','KITCH-03':'not_started','KITCH-04':'not_started','KITCH-05':'not_started'},
+      'MEP_FIN':{'MEP_FIN-01':'not_started','MEP_FIN-02':'not_started','MEP_FIN-03':'not_started','MEP_FIN-04':'not_started','MEP_FIN-05':'not_started','MEP_FIN-06':'not_started'},
+      'SNAG':{'SNAG-01':'not_started','SNAG-02':'not_started','SNAG-03':'not_started','SNAG-04':'not_started'},
+      'POSS':{'POSS-01':'not_started','POSS-02':'not_started','POSS-03':'not_started','POSS-04':'not_started'},
+    };
+
+    // Compute task % from subtask statuses
+    function computeTaskPct(task) {
+      const statuses = demoStatuses[task.code] || {};
+      return task.subtasks.reduce((sum, st) => sum + (statuses[st.code]==='completed' ? st.weight_pct : 0), 0);
+    }
+
+    const discColors = {'Civil':'#1B3A6B','Structure':'#0F6E56','MEP':'#EF9F27','Electrical':'#7F77DD','Finishing':'#D85A30','Plumbing':'#378ADD','Safety':'#E24B4A','Landscape':'#1D9E75','Compliance':'#888'};
+
     body.innerHTML = `<div style="background:var(--navy-light);border-radius:7px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--navy);">
-      <strong>Engineer:</strong> Update task progress below. Your entries update the project dashboard, buyer portal, and EVM in real time.</div>`+
-    unitTasks.map(t=>{
-      const barCol=t.status==='done'?'#22C55E':t.status==='blocked'?'#FCA5A5':t.status==='prog'?'#60A5FA':'#E5E7EB';
-      const tagCls=t.status==='done'?'dt-done':t.status==='blocked'?'dt-blk':t.status==='prog'?'dt-prog':'dt-pend';
-      const tagLbl=t.status==='done'?'Done':t.status==='blocked'?'Blocked':t.status==='prog'?'In progress':'Pending';
-      return `<div class="dd-task${t.status==='blocked'?' blocked':''}">
-        <div class="dd-task-top">
-          <div class="dd-task-icon" style="background:${t.bg};">${t.icon}</div>
-          <div class="dd-task-name">${t.name}</div>
-          <div class="dd-task-tag ${tagCls}">${tagLbl}</div>
-        </div>
-        <div class="dd-bar-row">
-          <div class="dd-bar-wrap"><div class="dd-bar-fill" style="width:${t.pct}%;background:${barCol};"></div></div>
-          <div class="dd-pct" style="color:${barCol};">${t.pct}%</div>
-        </div>
-        ${t.status==='blocked'?'<div style="font-size:10px;color:var(--red);margin-top:5px;">Blocked — plastering must reach 80% before tiling can begin.</div>':''}
-        ${t.status!=='done'&&t.status!=='blocked'?`
-        <div class="eng-input">
-          <div style="font-size:9px;font-weight:700;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Update status</div>
-          <div class="eng-row">
-            <select class="eng-select" id="s-${t.id}" style="flex:1;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px;font-family:var(--font);outline:none;background:white;cursor:pointer;">
-              <option value="not_started" ${t.status==='pend'?'selected':''}>○ Not started</option>
-              <option value="in_progress" ${t.status==='prog'?'selected':''}>→ In progress</option>
-              <option value="completed" ${t.status==='done'?'selected':''}>✓ Completed</option>
-              <option value="blocked" ${t.status==='blocked'?'selected':''}>⛔ Blocked</option>
-            </select>
-            <button class="eng-save" style="padding:6px 14px;background:var(--navy);color:white;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);" onclick="saveEngUpdate('${t.id}','${t.name}')">Save</button>
+      <strong>Engineer:</strong> Expand each task to update sub-task status. Progress is computed automatically from status x weightage.
+    </div>` + tasks.map(task => {
+      const taskPct = computeTaskPct(task);
+      const statuses = demoStatuses[task.code] || {};
+      const doneCount = task.subtasks.filter(st => statuses[st.code]==='completed').length;
+      const taskStatus = taskPct===100?'done':taskPct>0?'prog':'pend';
+      const barCol = taskPct===100?'#22C55E':taskPct>0?'#60A5FA':'#E5E7EB';
+      const tagCls = taskPct===100?'dt-done':taskPct>0?'dt-prog':'dt-pend';
+      const tagLbl = taskPct===100?'Complete':taskPct>0?'In progress':'Not started';
+      const discCol = discColors[task.discipline] || '#888';
+      const isBlocked = task.code==='TILE' && demoStatuses['PLSTR']['PLSTR-04']==='in_progress';
+
+      return `<div class="dd-task${isBlocked?' blocked':''}" style="margin-bottom:5px;">
+        <div class="dd-task-top" onclick="toggleAccordion('acc-${task.code}')" style="cursor:pointer;">
+          <div class="dd-task-icon" style="background:${taskPct===100?'#E1F5EE':taskPct>0?'#EFF6FF':'#F3F4F6'};">
+            <span style="font-size:10px;">${taskPct===100?'✓':taskPct>0?'→':'○'}</span>
           </div>
-          <div style="font-size:10px;color:var(--grey-mid);margin-bottom:4px;background:#f9f9f7;padding:5px 8px;border-radius:5px;">Progress % is computed automatically from status x task weightage. You do not enter a number.</div>
-          <textarea class="eng-note" rows="2" placeholder="Note: issue, observation, photo reference, block reason..." style="width:100%;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:10px;font-family:var(--font);outline:none;resize:none;"></textarea>
-        </div>`:''}
+          <div style="flex:1;">
+            <div class="dd-task-name">${task.name}</div>
+            <div style="font-size:9px;color:${discCol};font-weight:600;">${task.discipline} · ${doneCount}/${task.subtasks.length} sub-tasks done</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            ${isBlocked?'<span class="dd-task-tag dt-blk">Blocked</span>':'<span class="dd-task-tag '+tagCls+'">'+taskPct+'%</span>'}
+            <span style="font-size:14px;color:var(--grey-mid);transition:transform .2s;" id="arr-${task.code}">▸</span>
+          </div>
+        </div>
+        <div class="dd-bar-row" style="margin-bottom:0;">
+          <div class="dd-bar-wrap"><div class="dd-bar-fill" style="width:${taskPct}%;background:${barCol};"></div></div>
+        </div>
+        ${isBlocked?'<div style="font-size:10px;color:var(--red);padding:4px 0;">⛔ Blocked — plastering must reach 80% before tiling begins.</div>':''}
+
+        <!-- Sub-task accordion -->
+        <div id="acc-${task.code}" style="display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+          ${task.subtasks.map((st,si) => {
+            const stStatus = statuses[st.code] || 'not_started';
+            const stDone = stStatus === 'completed';
+            const stProg = stStatus === 'in_progress';
+            const stBlocked = stStatus === 'blocked';
+            const stIcon = stDone ? '✓' : stProg ? '→' : stBlocked ? '⛔' : '○';
+            const stCol = stDone ? '#16A34A' : stProg ? '#1E40AF' : stBlocked ? '#991B1B' : '#9CA3AF';
+            const stBg = stDone ? '#E1F5EE' : stProg ? '#EFF6FF' : stBlocked ? '#FEE2E2' : '#F9F9F7';
+            const qcBadge = st.qc_required ? '<span style="font-size:8px;background:#FAEEDA;color:#633806;padding:1px 4px;border-radius:3px;font-weight:700;margin-left:4px;">QC</span>' : '';
+            return `<div style="background:${stBg};border-radius:7px;padding:8px 10px;margin-bottom:5px;border:0.5px solid var(--border);">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:${stDone?'0':'6px'};">
+                <div style="width:20px;height:20px;border-radius:50%;background:${stCol}22;color:${stCol};font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${stIcon}</div>
+                <div style="flex:1;">
+                  <div style="font-size:10px;font-weight:600;color:var(--black);">${st.name}${qcBadge}</div>
+                  <div style="font-size:9px;color:var(--grey-mid);">Weight: ${st.weight_pct}% of ${task.name}</div>
+                </div>
+              </div>
+              ${!stDone && !isBlocked ? `<div style="display:flex;align-items:center;gap:7px;">
+                <select id="st-${task.code}-${si}" style="flex:1;border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:10px;font-family:var(--font);outline:none;background:white;cursor:pointer;">
+                  <option value="not_started" ${stStatus==='not_started'?'selected':''}>○ Not started</option>
+                  <option value="in_progress" ${stStatus==='in_progress'?'selected':''}>→ In progress</option>
+                  <option value="completed" ${stStatus==='completed'?'selected':''}>✓ Completed</option>
+                  <option value="blocked" ${stStatus==='blocked'?'selected':''}>⛔ Blocked</option>
+                </select>
+                <button onclick="saveSubtask('${task.code}','${st.code}','st-${task.code}-${si}','${st.name}')" style="padding:5px 10px;background:var(--navy);color:white;border:none;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;">Save</button>
+              </div>` : ''}
+            </div>`;
+          }).join('')}
+          <div style="font-size:9px;color:var(--grey-mid);padding:4px 6px;background:#f9f9f7;border-radius:4px;">
+            Progress is computed from sub-task completion x weightage. You never enter a percentage.
+          </div>
+        </div>
       </div>`;
     }).join('');
 
@@ -1930,6 +1998,26 @@ renderAmenities();
 setupTooltips();
 
 
+// ── Accordion and subtask helpers ────────────────────────
+function toggleAccordion(id) {
+  const el = document.getElementById(id);
+  const taskCode = id.replace('acc-','');
+  const arr = document.getElementById('arr-'+taskCode);
+  if(el) {
+    const isOpen = el.style.display !== 'none';
+    el.style.display = isOpen ? 'none' : 'block';
+    if(arr) arr.style.transform = isOpen ? '' : 'rotate(90deg)';
+  }
+}
+
+function saveSubtask(taskCode, subtaskCode, selectId, subtaskName) {
+  const sel = document.getElementById(selectId);
+  if(!sel) return;
+  const statusMap = {not_started:'Not started', in_progress:'In progress', completed:'Completed', blocked:'Blocked'};
+  const newStatus = statusMap[sel.value] || sel.value;
+  alert('Sub-task updated:\n\n' + subtaskName + '\nNew status: ' + newStatus + '\n\nIn the live system this would:\n- Recompute task % (sum of completed sub-task weights)\n- Recompute unit completion %\n- Update EVM: EV, CPI, SPI\n- Refresh buyer portal\n- Trigger AI alert if behind plan\n- Update RERA quarterly %');
+}
+
 // Expose functions globally for onclick handlers
 window.setContent = setContent;
 window.setView = setView;
@@ -1941,6 +2029,8 @@ window.setDdView = setDdView;
 window.saveEngUpdate = saveEngUpdate;
 window.filterDisc = filterDisc;
 window.openIQ = openIQ;
+window.toggleAccordion = toggleAccordion;
+window.saveSubtask = saveSubtask;
 
 }); // end window.load
 </script>
