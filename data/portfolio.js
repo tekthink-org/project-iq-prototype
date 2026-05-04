@@ -1133,3 +1133,367 @@ window.PIQ.computeUnitPct = function(taskPcts) {
   const tasks = window.PIQ.taskMaster.residential_highrise.tasks;
   return Math.round(tasks.reduce((sum, t) => sum + (t.weight_pct * (taskPcts[t.code]||0) / 100), 0));
 };
+
+// ============================================================
+// PROJECT IQ — Additional Task Masters
+// Plotted Development, Villa Community, Commercial Office
+// Version 1.0 — May 2026
+// ============================================================
+
+// ── PLOTTED DEVELOPMENT ──────────────────────────────────
+// Plots have NO unit construction tasks — only infrastructure
+// development tasks that apply to the entire layout / sector.
+// Progress is tracked at plot level for services readiness
+// and at sector/layout level for infrastructure completion.
+
+window.PIQ.taskMaster.plotted = {
+  label: 'Plotted Development',
+  note: 'Infrastructure development tasks. No unit-level construction. Plot readiness = all services available at plot boundary.',
+  tasks: [
+    { code:'SURV',    name:'Survey, Demarcation & Layout',        discipline:'Civil',      weight_pct:4,  milestone_type:'construction',
+      subtasks:[
+        {code:'SURV-01',name:'Total station survey of entire layout',          weight_pct:25,qc_required:true},
+        {code:'SURV-02',name:'Plot boundary demarcation and corner pegs',      weight_pct:25,qc_required:true},
+        {code:'SURV-03',name:'Road centre line marking',                        weight_pct:20,qc_required:false},
+        {code:'SURV-04',name:'Levels and contour mapping',                      weight_pct:15,qc_required:false},
+        {code:'SURV-05',name:'Survey records submission to authority',          weight_pct:15,qc_required:true},
+      ]},
+    { code:'SITE_CLR', name:'Site Clearing & Grubbing',           discipline:'Civil',      weight_pct:3,  milestone_type:'none',
+      subtasks:[
+        {code:'SITE_CLR-01',name:'Removal of vegetation and trees',            weight_pct:40,qc_required:false},
+        {code:'SITE_CLR-02',name:'Demolition of existing structures if any',   weight_pct:30,qc_required:false},
+        {code:'SITE_CLR-03',name:'Debris removal and site levelling',          weight_pct:20,qc_required:false},
+        {code:'SITE_CLR-04',name:'Environmental clearance compliance',         weight_pct:10,qc_required:true},
+      ]},
+    { code:'EARTH',   name:'Earthwork & Grading',                 discipline:'Civil',      weight_pct:6,  milestone_type:'none',
+      subtasks:[
+        {code:'EARTH-01',name:'Bulk earthwork -- cut and fill to formation level',weight_pct:35,qc_required:false},
+        {code:'EARTH-02',name:'Subgrade preparation -- compaction to 95% MDD', weight_pct:25,qc_required:true},
+        {code:'EARTH-03',name:'Slope protection and erosion control',           weight_pct:15,qc_required:false},
+        {code:'EARTH-04',name:'Formation level approval by engineer',          weight_pct:15,qc_required:true},
+        {code:'EARTH-05',name:'Borrow pit restoration if applicable',          weight_pct:10,qc_required:false},
+      ]},
+    { code:'COMP_WALL',name:'Compound Wall & Boundary Fencing',   discipline:'Civil',      weight_pct:5,  milestone_type:'none',
+      subtasks:[
+        {code:'COMP_WALL-01',name:'Foundation for compound wall',              weight_pct:25,qc_required:false},
+        {code:'COMP_WALL-02',name:'Compound wall -- brick masonry',            weight_pct:40,qc_required:false},
+        {code:'COMP_WALL-03',name:'Plastering and coping on wall top',         weight_pct:20,qc_required:false},
+        {code:'COMP_WALL-04',name:'Main gate and pedestrian gate',             weight_pct:15,qc_required:false},
+      ]},
+    { code:'INT_RD',  name:'Internal Roads & Footpaths',          discipline:'Civil',      weight_pct:15, milestone_type:'payment',
+      subtasks:[
+        {code:'INT_RD-01',name:'Subgrade preparation and compaction',          weight_pct:15,qc_required:true},
+        {code:'INT_RD-02',name:'Sub-base layer -- granular material',          weight_pct:15,qc_required:true},
+        {code:'INT_RD-03',name:'Base course laying and compaction',            weight_pct:15,qc_required:true},
+        {code:'INT_RD-04',name:'Wearing course -- BM / SDBC / CC',            weight_pct:20,qc_required:true},
+        {code:'INT_RD-05',name:'Kerb stones and edge treatment',               weight_pct:10,qc_required:false},
+        {code:'INT_RD-06',name:'Footpath / pavement laying',                  weight_pct:10,qc_required:false},
+        {code:'INT_RD-07',name:'Road marking and signage',                    weight_pct:5, qc_required:false},
+        {code:'INT_RD-08',name:'Road quality test -- core cutting',            weight_pct:10,qc_required:true},
+      ]},
+    { code:'DRAIN',   name:'Stormwater Drainage Network',         discipline:'Civil',      weight_pct:8,  milestone_type:'none',
+      subtasks:[
+        {code:'DRAIN-01',name:'Drain trench excavation along roads',           weight_pct:20,qc_required:false},
+        {code:'DRAIN-02',name:'Drain bed preparation -- PCC bed',              weight_pct:15,qc_required:false},
+        {code:'DRAIN-03',name:'RCC drain / NP2 pipe laying',                  weight_pct:25,qc_required:true},
+        {code:'DRAIN-04',name:'Manholes and inspection chambers',              weight_pct:20,qc_required:true},
+        {code:'DRAIN-05',name:'Drain cover slabs and gratings',                weight_pct:10,qc_required:false},
+        {code:'DRAIN-06',name:'Hydraulic testing and flow verification',       weight_pct:10,qc_required:true},
+      ]},
+    { code:'UG_SEWER', name:'Underground Sewerage Network',       discipline:'Civil',      weight_pct:7,  milestone_type:'none',
+      subtasks:[
+        {code:'UG_SEWER-01',name:'Sewer trench excavation',                    weight_pct:20,qc_required:false},
+        {code:'UG_SEWER-02',name:'NP3 / NP4 stoneware pipe laying with bedding',weight_pct:30,qc_required:true},
+        {code:'UG_SEWER-03',name:'Manholes at junctions and intervals',        weight_pct:20,qc_required:true},
+        {code:'UG_SEWER-04',name:'Connection to individual plot sewer points', weight_pct:15,qc_required:false},
+        {code:'UG_SEWER-05',name:'Air test and leakage test',                  weight_pct:10,qc_required:true},
+        {code:'UG_SEWER-06',name:'Connection to STP / municipal sewer',        weight_pct:5, qc_required:true},
+      ]},
+    { code:'WATER_SUP',name:'Water Supply Network',               discipline:'Civil',      weight_pct:8,  milestone_type:'payment',
+      subtasks:[
+        {code:'WATER_SUP-01',name:'Water supply trench excavation',            weight_pct:15,qc_required:false},
+        {code:'WATER_SUP-02',name:'HDPE / DI pipe laying and jointing',        weight_pct:30,qc_required:true},
+        {code:'WATER_SUP-03',name:'Overhead / underground storage tank',       weight_pct:20,qc_required:true},
+        {code:'WATER_SUP-04',name:'Distribution lines to individual plots',    weight_pct:15,qc_required:false},
+        {code:'WATER_SUP-05',name:'Isolation valves and stop cocks at plots',  weight_pct:10,qc_required:false},
+        {code:'WATER_SUP-06',name:'Hydro-pressure test -- 1.5x working pressure',weight_pct:10,qc_required:true},
+      ]},
+    { code:'ELEC_INF', name:'Electrical Infrastructure',          discipline:'Electrical', weight_pct:8,  milestone_type:'payment',
+      subtasks:[
+        {code:'ELEC_INF-01',name:'HT cable trench and conduit laying',         weight_pct:20,qc_required:false},
+        {code:'ELEC_INF-02',name:'Transformer installation -- EB approved',    weight_pct:20,qc_required:true},
+        {code:'ELEC_INF-03',name:'LT distribution network -- underground',     weight_pct:20,qc_required:false},
+        {code:'ELEC_INF-04',name:'Street lighting poles and fixtures',         weight_pct:15,qc_required:false},
+        {code:'ELEC_INF-05',name:'Individual plot service connections',         weight_pct:15,qc_required:false},
+        {code:'ELEC_INF-06',name:'EB inspection and power on',                 weight_pct:10,qc_required:true},
+      ]},
+    { code:'LAND_DEV', name:'Landscaping & Common Area Development',discipline:'Landscape', weight_pct:10, milestone_type:'none',
+      subtasks:[
+        {code:'LAND_DEV-01',name:'Park area grading and lawn formation',       weight_pct:20,qc_required:false},
+        {code:'LAND_DEV-02',name:'Tree plantation along roads and parks',      weight_pct:20,qc_required:false},
+        {code:'LAND_DEV-03',name:'Children play area equipment installation',  weight_pct:15,qc_required:false},
+        {code:'LAND_DEV-04',name:'Avenue lighting for roads and parks',        weight_pct:15,qc_required:false},
+        {code:'LAND_DEV-05',name:'Entrance plaza and landscaping',             weight_pct:15,qc_required:false},
+        {code:'LAND_DEV-06',name:'Irrigation system for parks',                weight_pct:10,qc_required:false},
+        {code:'LAND_DEV-07',name:'Signage -- road names, plot numbers, directions',weight_pct:5,qc_required:false},
+      ]},
+    { code:'AMENITY_P', name:'Club House & Amenities',            discipline:'Civil',      weight_pct:8,  milestone_type:'none',
+      subtasks:[
+        {code:'AMENITY_P-01',name:'Club house structure and roofing',          weight_pct:30,qc_required:true},
+        {code:'AMENITY_P-02',name:'Club house internal finishing',             weight_pct:20,qc_required:false},
+        {code:'AMENITY_P-03',name:'Swimming pool -- if applicable',            weight_pct:20,qc_required:true},
+        {code:'AMENITY_P-04',name:'Sports courts -- badminton, basketball',    weight_pct:15,qc_required:false},
+        {code:'AMENITY_P-05',name:'Security cabin and boom barriers',          weight_pct:15,qc_required:false},
+      ]},
+    { code:'PLOT_DMARC',name:'Individual Plot Demarcation & Services',discipline:'Civil',  weight_pct:6,  milestone_type:'construction',
+      subtasks:[
+        {code:'PLOT_DMARC-01',name:'Plot corner pegs and boundary stones',     weight_pct:30,qc_required:true},
+        {code:'PLOT_DMARC-02',name:'Plot number painting on boundary',         weight_pct:15,qc_required:false},
+        {code:'PLOT_DMARC-03',name:'Sewer connection point at plot edge',      weight_pct:20,qc_required:false},
+        {code:'PLOT_DMARC-04',name:'Water connection point at plot edge',      weight_pct:20,qc_required:false},
+        {code:'PLOT_DMARC-05',name:'Electrical connection point at plot',      weight_pct:15,qc_required:false},
+      ]},
+    { code:'RERA_PLOT', name:'RERA Compliance & Handover',        discipline:'Compliance', weight_pct:5,  milestone_type:'payment',
+      subtasks:[
+        {code:'RERA_PLOT-01',name:'RERA registration and project filing',      weight_pct:20,qc_required:true},
+        {code:'RERA_PLOT-02',name:'HMDA / DTCP layout approval obtained',      weight_pct:30,qc_required:true},
+        {code:'RERA_PLOT-03',name:'Completion certificate from authority',     weight_pct:25,qc_required:true},
+        {code:'RERA_PLOT-04',name:'Sale deed registration for each plot',      weight_pct:15,qc_required:false},
+        {code:'RERA_PLOT-05',name:'Plot handover to buyer',                    weight_pct:10,qc_required:false},
+      ]},
+    { code:'STP',     name:'Sewage Treatment Plant (STP)',         discipline:'MEP',        weight_pct:4,  milestone_type:'construction',
+      subtasks:[
+        {code:'STP-01',name:'STP civil works -- tanks and chambers',           weight_pct:35,qc_required:true},
+        {code:'STP-02',name:'STP mechanical and electrical equipment',         weight_pct:35,qc_required:true},
+        {code:'STP-03',name:'STP commissioning and trial run',                 weight_pct:20,qc_required:true},
+        {code:'STP-04',name:'Pollution control board NOC',                     weight_pct:10,qc_required:true},
+      ]},
+    { code:'SOLID_WASTE',name:'Solid Waste Management',           discipline:'Civil',      weight_pct:3,  milestone_type:'none',
+      subtasks:[
+        {code:'SOLID_WASTE-01',name:'Garbage collection bins at designated points',weight_pct:40,qc_required:false},
+        {code:'SOLID_WASTE-02',name:'Composting area -- organic waste',         weight_pct:30,qc_required:false},
+        {code:'SOLID_WASTE-03',name:'Garbage vehicle access points',           weight_pct:30,qc_required:false},
+      ]},
+  ]
+};
+
+// ── VILLA COMMUNITY ──────────────────────────────────────
+// Similar to residential high-rise but ground + 1 or 2 floors only
+// Key differences: no lift, terrace waterproofing critical,
+// external compound wall per villa, garden area, car porch
+
+window.PIQ.taskMaster.villa = {
+  label: 'Villa Community',
+  note: 'Ground + 1 or 2 floors. External compound wall and garden per villa. Car porch.',
+  tasks: [
+    { code:'EXCAV',    name:'Excavation & Earth Work',            discipline:'Civil',      weight_pct:3,  milestone_type:'construction',
+      subtasks:[
+        {code:'EXCAV-01',name:'Setting out and layout marking',                weight_pct:15,qc_required:true},
+        {code:'EXCAV-02',name:'Excavation to required depth',                  weight_pct:45,qc_required:false},
+        {code:'EXCAV-03',name:'Anti-termite treatment to soil',                weight_pct:20,qc_required:true},
+        {code:'EXCAV-04',name:'Backfilling and compaction',                    weight_pct:20,qc_required:true},
+      ]},
+    { code:'FOUND',    name:'Foundation',                         discipline:'Structure',  weight_pct:8,  milestone_type:'payment',
+      subtasks:[
+        {code:'FOUND-01',name:'PCC bed',                                        weight_pct:10,qc_required:true},
+        {code:'FOUND-02',name:'Reinforcement binding -- isolated footings',    weight_pct:20,qc_required:true},
+        {code:'FOUND-03',name:'Formwork for footings',                          weight_pct:10,qc_required:false},
+        {code:'FOUND-04',name:'Concrete pour -- footings',                     weight_pct:25,qc_required:true},
+        {code:'FOUND-05',name:'Curing -- minimum 7 days',                      weight_pct:10,qc_required:true},
+        {code:'FOUND-06',name:'Cube test result -- pass',                       weight_pct:10,qc_required:true},
+        {code:'FOUND-07',name:'Plinth beam and DPC',                           weight_pct:15,qc_required:true},
+      ]},
+    { code:'STRUCT',   name:'Structural Frame',                   discipline:'Structure',  weight_pct:18, milestone_type:'payment',
+      subtasks:[
+        {code:'STRUCT-01',name:'Column reinforcement and concreting -- GF',    weight_pct:20,qc_required:true},
+        {code:'STRUCT-02',name:'Roof slab -- GF (first slab)',                 weight_pct:25,qc_required:true},
+        {code:'STRUCT-03',name:'Cube test -- first slab',                       weight_pct:5, qc_required:true},
+        {code:'STRUCT-04',name:'Column reinforcement and concreting -- FF',    weight_pct:15,qc_required:true},
+        {code:'STRUCT-05',name:'Roof slab -- FF (top slab)',                   weight_pct:20,qc_required:true},
+        {code:'STRUCT-06',name:'Cube test -- top slab',                         weight_pct:5, qc_required:true},
+        {code:'STRUCT-07',name:'Staircase RCC',                                weight_pct:10,qc_required:true},
+      ]},
+    { code:'BRICK',    name:'Brick Masonry',                      discipline:'Civil',      weight_pct:7,  milestone_type:'none',
+      subtasks:[
+        {code:'BRICK-01',name:'External walls -- full height both floors',     weight_pct:40,qc_required:false},
+        {code:'BRICK-02',name:'Internal partition walls',                       weight_pct:35,qc_required:false},
+        {code:'BRICK-03',name:'Compound wall -- villa boundary',               weight_pct:15,qc_required:false},
+        {code:'BRICK-04',name:'Lintel and chajja casting',                     weight_pct:10,qc_required:true},
+      ]},
+    { code:'WTRPF',    name:'Waterproofing',                      discipline:'Civil',      weight_pct:5,  milestone_type:'none',
+      subtasks:[
+        {code:'WTRPF-01',name:'Bathroom and toilet waterproofing',             weight_pct:25,qc_required:true},
+        {code:'WTRPF-02',name:'Kitchen waterproofing',                          weight_pct:15,qc_required:true},
+        {code:'WTRPF-03',name:'Terrace waterproofing -- critical for villa',   weight_pct:35,qc_required:true},
+        {code:'WTRPF-04',name:'Balcony and car porch waterproofing',           weight_pct:15,qc_required:true},
+        {code:'WTRPF-05',name:'Ponding test -- 48 hours',                      weight_pct:10,qc_required:true},
+      ]},
+    { code:'MEP_R',    name:'MEP Rough-in',                       discipline:'MEP',        weight_pct:6,  milestone_type:'payment',
+      subtasks:[
+        {code:'MEP_R-01',name:'Electrical conduit laying in walls',            weight_pct:25,qc_required:false},
+        {code:'MEP_R-02',name:'Plumbing supply pipes -- concealed',            weight_pct:25,qc_required:true},
+        {code:'MEP_R-03',name:'Drainage pipes -- concealed',                   weight_pct:20,qc_required:true},
+        {code:'MEP_R-04',name:'AC provision points',                           weight_pct:15,qc_required:false},
+        {code:'MEP_R-05',name:'MEP rough-in inspection',                       weight_pct:15,qc_required:true},
+      ]},
+    { code:'PLSTR',    name:'Plastering',                         discipline:'Finishing',  weight_pct:9,  milestone_type:'none',
+      subtasks:[
+        {code:'PLSTR-01',name:'Surface preparation -- hacking and mesh',       weight_pct:15,qc_required:false},
+        {code:'PLSTR-02',name:'Internal wall plastering -- both floors',       weight_pct:30,qc_required:false},
+        {code:'PLSTR-03',name:'Ceiling plastering -- both floors',             weight_pct:20,qc_required:false},
+        {code:'PLSTR-04',name:'External plastering -- both floors',            weight_pct:25,qc_required:false},
+        {code:'PLSTR-05',name:'QC inspection -- all plastered surfaces',       weight_pct:10,qc_required:true},
+      ]},
+    { code:'ELEC_F',   name:'Electrical Fit-out',                 discipline:'Electrical', weight_pct:7,  milestone_type:'none',
+      subtasks:[
+        {code:'ELEC_F-01',name:'Wire pulling and DB installation',             weight_pct:25,qc_required:true},
+        {code:'ELEC_F-02',name:'Switches, sockets and fixtures -- GF',        weight_pct:25,qc_required:false},
+        {code:'ELEC_F-03',name:'Switches, sockets and fixtures -- FF',        weight_pct:25,qc_required:false},
+        {code:'ELEC_F-04',name:'Earth continuity and insulation test',         weight_pct:25,qc_required:true},
+      ]},
+    { code:'PLMB_F',   name:'Plumbing Fit-out',                   discipline:'Plumbing',   weight_pct:5,  milestone_type:'none',
+      subtasks:[
+        {code:'PLMB_F-01',name:'Sanitary fixtures -- bathrooms and kitchen',   weight_pct:40,qc_required:false},
+        {code:'PLMB_F-02',name:'External sump and overhead tank',              weight_pct:20,qc_required:false},
+        {code:'PLMB_F-03',name:'Pressure test and flow test',                  weight_pct:25,qc_required:true},
+        {code:'PLMB_F-04',name:'External drain connection to layout sewer',   weight_pct:15,qc_required:true},
+      ]},
+    { code:'TILE',     name:'Tiling and Flooring',                discipline:'Finishing',  weight_pct:9,  milestone_type:'payment',
+      subtasks:[
+        {code:'TILE-01',name:'Living, dining, kitchen floor tiling -- GF',     weight_pct:25,qc_required:false},
+        {code:'TILE-02',name:'Bedroom flooring -- GF',                         weight_pct:15,qc_required:false},
+        {code:'TILE-03',name:'Flooring -- FF all rooms',                       weight_pct:20,qc_required:false},
+        {code:'TILE-04',name:'Bathroom tiling -- floor and walls',             weight_pct:20,qc_required:false},
+        {code:'TILE-05',name:'Car porch and pathway paving',                   weight_pct:10,qc_required:false},
+        {code:'TILE-06',name:'QC inspection and grouting',                     weight_pct:10,qc_required:true},
+      ]},
+    { code:'PAINT',    name:'Painting',                           discipline:'Finishing',  weight_pct:7,  milestone_type:'none',
+      subtasks:[
+        {code:'PAINT-01',name:'Internal putty, primer and 2 coats -- GF',     weight_pct:30,qc_required:false},
+        {code:'PAINT-02',name:'Internal putty, primer and 2 coats -- FF',     weight_pct:25,qc_required:false},
+        {code:'PAINT-03',name:'External texture / paint -- full villa',        weight_pct:30,qc_required:false},
+        {code:'PAINT-04',name:'Touch-up and final finish',                     weight_pct:15,qc_required:false},
+      ]},
+    { code:'DOOR_WIN', name:'Doors, Windows and Grilles',         discipline:'Finishing',  weight_pct:5,  milestone_type:'none',
+      subtasks:[
+        {code:'DOOR_WIN-01',name:'Main entrance door -- solid wood or steel',  weight_pct:25,qc_required:false},
+        {code:'DOOR_WIN-02',name:'Internal doors -- all rooms',                weight_pct:25,qc_required:false},
+        {code:'DOOR_WIN-03',name:'Windows -- UPVC or aluminium',              weight_pct:25,qc_required:false},
+        {code:'DOOR_WIN-04',name:'Grilles and safety mesh',                    weight_pct:25,qc_required:false},
+      ]},
+    { code:'EXT_WORK', name:'External Works -- Garden & Car Porch',discipline:'Landscape', weight_pct:3,  milestone_type:'none',
+      subtasks:[
+        {code:'EXT_WORK-01',name:'Car porch -- RCC canopy or fabrication',    weight_pct:30,qc_required:false},
+        {code:'EXT_WORK-02',name:'Garden area grading and topsoil',            weight_pct:25,qc_required:false},
+        {code:'EXT_WORK-03',name:'Garden pathway and stepping stones',         weight_pct:20,qc_required:false},
+        {code:'EXT_WORK-04',name:'Compound wall -- gate and wicket gate',     weight_pct:25,qc_required:false},
+      ]},
+    { code:'KITCH',    name:'Kitchen -- Counter, Cabinets & Fittings',discipline:'Finishing',  weight_pct:4,  milestone_type:'none',
+      subtasks:[
+        {code:'KITCH-01',name:'Granite / marble kitchen counter and platform',weight_pct:35,qc_required:false},
+        {code:'KITCH-02',name:'Overhead and under-counter cabinets',          weight_pct:30,qc_required:false},
+        {code:'KITCH-03',name:'Kitchen sink, tap and exhaust provision',      weight_pct:25,qc_required:false},
+        {code:'KITCH-04',name:'Final kitchen inspection and snag',            weight_pct:10,qc_required:true},
+      ]},
+    { code:'SNAG',     name:'Snag List & Handover',               discipline:'Finishing',  weight_pct:4,  milestone_type:'payment',
+      subtasks:[
+        {code:'SNAG-01',name:'Complete villa snag inspection',                 weight_pct:30,qc_required:true},
+        {code:'SNAG-02',name:'Buyer walk-through and snag agreement',         weight_pct:20,qc_required:false},
+        {code:'SNAG-03',name:'Snag rectification and final clean',             weight_pct:30,qc_required:false},
+        {code:'SNAG-04',name:'Villa handover -- keys and documents',           weight_pct:20,qc_required:true},
+      ]},
+  ]
+};
+
+// ── COMMERCIAL OFFICE ─────────────────────────────────────
+// Shell and core + fit-out. No residential. OC mandatory.
+// Leasing by floor. Different finishing standards.
+
+window.PIQ.taskMaster.commercial = {
+  label: 'Commercial Office',
+  note: 'Shell and core construction. Floor-by-floor leasing. OC mandatory before occupation.',
+  tasks: [
+    { code:'FOUND_C',  name:'Foundation & Basement',              discipline:'Structure',  weight_pct:10, milestone_type:'payment',
+      subtasks:[
+        {code:'FOUND_C-01',name:'Piling -- if required',                       weight_pct:20,qc_required:true},
+        {code:'FOUND_C-02',name:'Raft or pile cap construction',               weight_pct:25,qc_required:true},
+        {code:'FOUND_C-03',name:'Basement retaining walls',                    weight_pct:20,qc_required:true},
+        {code:'FOUND_C-04',name:'Basement slab and waterproofing',             weight_pct:20,qc_required:true},
+        {code:'FOUND_C-05',name:'Foundation completion certificate',           weight_pct:15,qc_required:true},
+      ]},
+    { code:'STRUCT_C', name:'Structural Frame -- All Floors',     discipline:'Structure',  weight_pct:20, milestone_type:'payment',
+      subtasks:[
+        {code:'STRUCT_C-01',name:'Column and shear wall construction -- per floor',weight_pct:30,qc_required:true},
+        {code:'STRUCT_C-02',name:'Flat slab / beam-slab per floor',            weight_pct:35,qc_required:true},
+        {code:'STRUCT_C-03',name:'Cube test -- pass each floor',                weight_pct:10,qc_required:true},
+        {code:'STRUCT_C-04',name:'Core walls -- lift and staircase',           weight_pct:15,qc_required:true},
+        {code:'STRUCT_C-05',name:'Structural audit and certification',         weight_pct:10,qc_required:true},
+      ]},
+    { code:'FACADE',   name:'Building Facade & Glazing',          discipline:'Civil',      weight_pct:12, milestone_type:'none',
+      subtasks:[
+        {code:'FACADE-01',name:'Curtain wall / unitised glazing system',       weight_pct:50,qc_required:true},
+        {code:'FACADE-02',name:'External cladding -- ACP / stone / paint',    weight_pct:25,qc_required:false},
+        {code:'FACADE-03',name:'Roof parapet and terrace treatment',           weight_pct:15,qc_required:false},
+        {code:'FACADE-04',name:'Water tightness test for facade',              weight_pct:10,qc_required:true},
+      ]},
+    { code:'MEP_SHELL',name:'MEP Shell & Core',                   discipline:'MEP',        weight_pct:15, milestone_type:'payment',
+      subtasks:[
+        {code:'MEP_SHELL-01',name:'Central HVAC plant and AHU per floor',     weight_pct:20,qc_required:true},
+        {code:'MEP_SHELL-02',name:'Fire fighting network -- sprinklers, hydrants',weight_pct:20,qc_required:true},
+        {code:'MEP_SHELL-03',name:'Electrical HT and LT distribution',         weight_pct:20,qc_required:true},
+        {code:'MEP_SHELL-04',name:'DG set and UPS room',                       weight_pct:10,qc_required:true},
+        {code:'MEP_SHELL-05',name:'Lifts -- supply, installation, commissioning',weight_pct:15,qc_required:true},
+        {code:'MEP_SHELL-06',name:'BMS -- building management system',         weight_pct:10,qc_required:true},
+        {code:'MEP_SHELL-07',name:'MEP shell commissioning certificate',       weight_pct:5, qc_required:true},
+      ]},
+    { code:'FITOUT_C', name:'Floor Fit-out (per leased floor)',   discipline:'Finishing',  weight_pct:15, milestone_type:'none',
+      subtasks:[
+        {code:'FITOUT_C-01',name:'Raised access flooring -- if applicable',    weight_pct:15,qc_required:false},
+        {code:'FITOUT_C-02',name:'False ceiling -- GI grid and tiles',         weight_pct:20,qc_required:false},
+        {code:'FITOUT_C-03',name:'Internal partitions -- glass / drywall',     weight_pct:20,qc_required:false},
+        {code:'FITOUT_C-04',name:'Flooring -- carpet, vinyl or polished concrete',weight_pct:15,qc_required:false},
+        {code:'FITOUT_C-05',name:'Painting and finishing',                      weight_pct:10,qc_required:false},
+        {code:'FITOUT_C-06',name:'Tenant MEP connections per floor',           weight_pct:15,qc_required:true},
+        {code:'FITOUT_C-07',name:'Floor completion and handover to tenant',    weight_pct:5, qc_required:true},
+      ]},
+    { code:'COMMON_C', name:'Common Areas & Lobby',               discipline:'Finishing',  weight_pct:8,  milestone_type:'none',
+      subtasks:[
+        {code:'COMMON_C-01',name:'Ground floor lobby -- granite and marble',   weight_pct:30,qc_required:false},
+        {code:'COMMON_C-02',name:'Lift lobby finishing per floor',             weight_pct:25,qc_required:false},
+        {code:'COMMON_C-03',name:'Toilets -- all floors',                      weight_pct:25,qc_required:false},
+        {code:'COMMON_C-04',name:'Staircase finishing',                        weight_pct:20,qc_required:false},
+      ]},
+    { code:'EXT_WORKS_C',name:'External Development',             discipline:'Civil',      weight_pct:5,  milestone_type:'none',
+      subtasks:[
+        {code:'EXT_WORKS_C-01',name:'Parking area -- surface and marking',    weight_pct:35,qc_required:false},
+        {code:'EXT_WORKS_C-02',name:'Landscaping and compound wall',          weight_pct:35,qc_required:false},
+        {code:'EXT_WORKS_C-03',name:'Signage and hoarding',                   weight_pct:30,qc_required:false},
+      ]},
+    { code:'SAFETY_C', name:'Fire & Safety Systems',              discipline:'Safety',     weight_pct:5,  milestone_type:'construction',
+      subtasks:[
+        {code:'SAFETY_C-01',name:'Fire alarm and detection system',            weight_pct:30,qc_required:true},
+        {code:'SAFETY_C-02',name:'Emergency lighting and exit signs',          weight_pct:25,qc_required:true},
+        {code:'SAFETY_C-03',name:'Fire NOC from fire department',              weight_pct:30,qc_required:true},
+        {code:'SAFETY_C-04',name:'Mock drill and safety audit',                weight_pct:15,qc_required:true},
+      ]},
+    { code:'OC_CERT',  name:'OC & Handover Readiness',            discipline:'Compliance', weight_pct:10, milestone_type:'payment',
+      subtasks:[
+        {code:'OC_CERT-01',name:'Completion certificate -- GHMC / local body', weight_pct:25,qc_required:true},
+        {code:'OC_CERT-02',name:'OC (Occupancy Certificate) obtained',         weight_pct:30,qc_required:true},
+        {code:'OC_CERT-03',name:'EB permanent power connection',               weight_pct:15,qc_required:true},
+        {code:'OC_CERT-04',name:'Water and sewage connection -- permanent',    weight_pct:15,qc_required:true},
+        {code:'OC_CERT-05',name:'Building handover documentation',             weight_pct:15,qc_required:false},
+      ]},
+  ]
+};
+
+// ── TASK MASTER ROUTER ────────────────────────────────────
+window.PIQ.getTaskMasterForProject = function(projectType) {
+  const map = {
+    'Residential High-Rise': 'residential_highrise',
+    'Villa Community':        'villa',
+    'Commercial Office':      'commercial',
+    'Plotted Development':    'plotted',
+  };
+  return window.PIQ.taskMaster[map[projectType]] || window.PIQ.taskMaster.residential_highrise;
+};
