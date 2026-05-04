@@ -1224,6 +1224,7 @@ function openIQ() {
   document.body.appendChild(overlay);
   document.getElementById('iq-input').focus();
 }
+window.openIQ = openIQ;
 
 // ── IQ Response simulator ────────────────────────────────────
 const iqResponses = {
@@ -1502,6 +1503,7 @@ function openDrilldown(towerName, floor, unit, salesType, constrPct, isDelayed){
 
   document.getElementById('dd-overlay').classList.add('open');
 }
+window.openDrilldown = openDrilldown;
 
 function openAmenityDrilldown(idx){
   const a = amenities[idx];
@@ -1542,12 +1544,14 @@ function openAmenityDrilldown(idx){
   document.querySelectorAll('.dd-tab').forEach(t=>t.style.display='none');
   document.getElementById('dd-overlay').classList.add('open');
 }
+window.openAmenityDrilldown = openAmenityDrilldown;
 
 function closeDrilldown(){
   document.getElementById('dd-overlay').classList.remove('open');
   // Restore tabs
   document.querySelectorAll('.dd-tab').forEach(t=>t.style.display='');
 }
+window.closeDrilldown = closeDrilldown;
 
 function selectTower(idx){
   currentTower = idx;
@@ -1559,6 +1563,7 @@ function selectTower(idx){
   });
   renderHeatmap();
 }
+window.selectTower = selectTower;
 
 // ── CONTENT TOGGLE (Flats / Common Areas) ────────────────
 function setContent(content, btn){
@@ -1573,6 +1578,7 @@ function setContent(content, btn){
   document.getElementById('context-label').style.display = isCommon ? 'flex' : 'none';
   if(isCommon){ currentView='construction'; }
 }
+window.setContent = setContent;
 
 // ── VIEW TOGGLE (Sales / Construction) ──────────────────
 function setView(view, btn){
@@ -1584,6 +1590,7 @@ function setView(view, btn){
   renderLegend();
   renderHeatmap();
 }
+window.setView = setView;
 
 // ── AMENITIES ────────────────────────────────────────────
 const amenities = [
@@ -1688,6 +1695,7 @@ function filterDisc(disc, el){
   el.classList.add('active');
   renderWpTable();
 }
+window.filterDisc = filterDisc;
 function renderWpTable(){
   const filtered = activeDisc==='All' ? wps : wps.filter(wp=>wp.discipline===activeDisc);
   const dotCol={complete:'#1D9E75',ok:'#1D9E75',warning:'#EF9F27',critical:'#E24B4A'};
@@ -1980,6 +1988,7 @@ function setDdView(view, el){
     </div>`;
   }
 }
+window.setDdView = setDdView;
 
 function saveEngUpdate(id, name){
   const sel = document.getElementById('s-'+id);
@@ -1990,6 +1999,7 @@ function saveEngUpdate(id, name){
     alert('Status saved: '+name+'\nNew status: '+statusLabel+'\n\nIn the live system this would:\n• Compute task % from status x weight_pct\n• Recompute unit completion % (weighted average)\n• Recalculate EVM — EV, CPI, SPI\n• Update buyer portal instantly\n• Fire AI alert if behind plan\n• Update RERA quarterly progress\n\nProgress % is never entered manually — it is always derived from status.');
   }
 }
+window.saveEngUpdate = saveEngUpdate;
 
 // ── INIT RENDERS ─────────────────────────────────────────
 renderLegend();
@@ -2010,6 +2020,7 @@ function toggleAccordion(id) {
     if(arr) arr.style.transform = isOpen ? '' : 'rotate(90deg)';
   }
 }
+window.toggleAccordion = toggleAccordion;
 
 function saveSubtask(taskCode, subtaskCode, selectId, subtaskName) {
   const sel = document.getElementById(selectId);
@@ -2018,20 +2029,9 @@ function saveSubtask(taskCode, subtaskCode, selectId, subtaskName) {
   const newStatus = statusMap[sel.value] || sel.value;
   alert('Sub-task updated:\n\n' + subtaskName + '\nNew status: ' + newStatus + '\n\nIn the live system this would:\n- Recompute task % (sum of completed sub-task weights)\n- Recompute unit completion %\n- Update EVM: EV, CPI, SPI\n- Refresh buyer portal\n- Trigger AI alert if behind plan\n- Update RERA quarterly %');
 }
-
-// Expose functions globally for onclick handlers
-window.setContent = setContent;
-window.setView = setView;
-window.selectTower = selectTower;
-window.openDrilldown = openDrilldown;
-window.openAmenityDrilldown = openAmenityDrilldown;
-window.closeDrilldown = closeDrilldown;
-window.setDdView = setDdView;
-window.saveEngUpdate = saveEngUpdate;
-window.filterDisc = filterDisc;
-window.openIQ = openIQ;
-window.toggleAccordion = toggleAccordion;
 window.saveSubtask = saveSubtask;
+
+// Functions exposed individually after each definition
 
 }); // end window.load
 </script>
