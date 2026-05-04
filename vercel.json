@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    { "source": "/",            "destination": "/index.html" },
+    { "source": "/portfolio",   "destination": "/index.html" },
+    { "source": "/project",     "destination": "/project.html" },
+    { "source": "/construction","destination": "/construction.html" },
+    { "source": "/sales",       "destination": "/sales.html" },
+    { "source": "/cx",          "destination": "/cx.html" },
+    { "source": "/finance",     "destination": "/finance.html" },
+    { "source": "/portal",      "destination": "/portal.html" }
+  ]
+}
