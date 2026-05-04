@@ -1469,6 +1469,86 @@ function renderHeatmap(){
   setupTooltips();
 }
 
+
+function openDrilldown(towerName, floor, unit, salesType, constrPct, isDelayed){
+  const unitRef = towerName+' Floor '+floor+' Unit '+unit;
+  const isSkylineTowerB = pid==='skyline' && towerName==='Tower B';
+  const pct = isSkylineTowerB && floor>=8 && floor<=12 ? (isDelayed?25:constrPct) : constrPct;
+  const buyer = pid==='skyline' && floor===9 && unit===1 ? window.PIQ.projects.skyline.portal_buyer : null;
+
+  document.getElementById('dd-title').textContent = towerName+' — Floor '+floor+' Unit '+unit;
+  document.getElementById('dd-sub').textContent = (buyer?buyer.name+' · ':'')+pid.charAt(0).toUpperCase()+pid.slice(1)+' Heights · '+(salesType==='B'?'Booked':salesType==='R'?'Reserved':salesType==='H'?'Hot lead':'Available');
+
+  // Ring — compute from task statuses x weightage (not from constrPct)
+  const taskWeights = {t1:20,t2:15,t3:8,t4:18,t5:12,t6:15,t7:8,t8:4};
+  const computedUnitPct = Math.round(unitTasks.reduce((sum,t)=>{
+    const w = taskWeights[t.id]||10;
+    const contrib = t.status==='done'?w:t.status==='prog'?w*0.35:0;
+    return sum+contrib;
+  },0));
+  const circumference = 2*Math.PI*24;
+  const offset = circumference*(1-computedUnitPct/100);
+  document.getElementById('dd-ring-fill').setAttribute('stroke-dashoffset', offset.toFixed(1));
+  document.getElementById('dd-ring-pct').textContent = computedUnitPct+'%';
+  document.getElementById('dd-ring-title').textContent = 'Unit completion — '+unitRef;
+  document.getElementById('dd-ring-meta').innerHTML = 'Weighted from '+unitTasks.length+' tasks · Planned: 75% · '+(computedUnitPct<75?'<span style="color:#FCA5A5;">'+Math.abs(75-computedUnitPct)+'% behind plan</span>':'<span style="color:#34D399;">On plan</span>');
+
+  // Show/hide buyer tab
+  const buyerTabEl = document.getElementById('buyer-tab');
+  buyerTabEl.style.display = salesType==='B'?'':'none';
+
+  // Default to engineer view
+  setDdView('eng', document.querySelector('.dd-tab'));
+
+  document.getElementById('dd-overlay').classList.add('open');
+}
+
+function openAmenityDrilldown(idx){
+  const a = amenities[idx];
+  document.getElementById('dd-title').textContent = a.icon+' '+a.name;
+  document.getElementById('dd-sub').textContent = 'Common Area · '+a.sqft.toLocaleString()+' sqft · Construction progress view';
+
+  const circumference = 2*Math.PI*24;
+  const offset = circumference*(1-a.pct/100);
+  document.getElementById('dd-ring-fill').setAttribute('stroke-dashoffset', offset.toFixed(1));
+  document.getElementById('dd-ring-pct').textContent = a.pct+'%';
+  document.getElementById('dd-ring-title').textContent = 'Construction progress — '+a.name;
+  const status = a.pct>=80?'Near complete':a.pct>=50?'In progress':'Early stage';
+  document.getElementById('dd-ring-meta').innerHTML = status+' · '+a.sqft.toLocaleString()+' sqft';
+
+  // Hide buyer tab for amenities
+  document.getElementById('buyer-tab').style.display = 'none';
+
+  // Render amenity tasks
+  const body = document.getElementById('dd-body');
+  if(a.tasks.length){
+    body.innerHTML = a.tasks.map(t=>{
+      const barCol = t.status==='done'?'#22C55E':t.status==='prog'?'#60A5FA':'#E5E7EB';
+      const tagCls = t.status==='done'?'dt-done':t.status==='prog'?'dt-prog':'dt-pend';
+      const tagLbl = t.status==='done'?'Complete':t.status==='prog'?'In progress':'Pending';
+      return `<div class="ad-task">
+        <div class="ad-icon" style="background:${t.status==='done'?'#E1F5EE':'#E6F1FB'};">${t.icon}</div>
+        <div class="ad-name">${t.name}</div>
+        <div class="ad-bar"><div class="ad-fill" style="width:${t.pct}%;background:${barCol};"></div></div>
+        <div class="ad-pct" style="color:${t.status==='done'?'#16A34A':t.status==='prog'?'#1E40AF':'#9CA3AF'};">${t.pct}%</div>
+        <div class="dd-task-tag ${tagCls}" style="font-size:9px;margin-left:4px;">${tagLbl}</div>
+      </div>`;
+    }).join('');
+  } else {
+    body.innerHTML = '<div style="font-size:11px;color:var(--grey-mid);padding:8px;">Task detail coming soon for this amenity.</div>';
+  }
+
+  // Show only one tab for amenities
+  document.querySelectorAll('.dd-tab').forEach(t=>t.style.display='none');
+  document.getElementById('dd-overlay').classList.add('open');
+}
+
+function closeDrilldown(){
+  document.getElementById('dd-overlay').classList.remove('open');
+  // Restore tabs
+  document.querySelectorAll('.dd-tab').forEach(t=>t.style.display='');
+}
+
 function selectTower(idx){
   currentTower = idx;
   // Update tab active states
@@ -1742,85 +1822,6 @@ const buyerMilestones=[
   {status:'pend',  title:'Pre-possession check',  desc:'You will be invited for a walk-through before handover.',    date:'Oct 2026 (plan)'},
   {status:'pend',  title:'Possession',            desc:'Key handover. OC received. All documents ready.',             date:'Dec 2026'},
 ];
-
-function openDrilldown(towerName, floor, unit, salesType, constrPct, isDelayed){
-  const unitRef = towerName+' Floor '+floor+' Unit '+unit;
-  const isSkylineTowerB = pid==='skyline' && towerName==='Tower B';
-  const pct = isSkylineTowerB && floor>=8 && floor<=12 ? (isDelayed?25:constrPct) : constrPct;
-  const buyer = pid==='skyline' && floor===9 && unit===1 ? window.PIQ.projects.skyline.portal_buyer : null;
-
-  document.getElementById('dd-title').textContent = towerName+' — Floor '+floor+' Unit '+unit;
-  document.getElementById('dd-sub').textContent = (buyer?buyer.name+' · ':'')+pid.charAt(0).toUpperCase()+pid.slice(1)+' Heights · '+(salesType==='B'?'Booked':salesType==='R'?'Reserved':salesType==='H'?'Hot lead':'Available');
-
-  // Ring — compute from task statuses x weightage (not from constrPct)
-  const taskWeights = {t1:20,t2:15,t3:8,t4:18,t5:12,t6:15,t7:8,t8:4};
-  const computedUnitPct = Math.round(unitTasks.reduce((sum,t)=>{
-    const w = taskWeights[t.id]||10;
-    const contrib = t.status==='done'?w:t.status==='prog'?w*0.35:0;
-    return sum+contrib;
-  },0));
-  const circumference = 2*Math.PI*24;
-  const offset = circumference*(1-computedUnitPct/100);
-  document.getElementById('dd-ring-fill').setAttribute('stroke-dashoffset', offset.toFixed(1));
-  document.getElementById('dd-ring-pct').textContent = computedUnitPct+'%';
-  document.getElementById('dd-ring-title').textContent = 'Unit completion — '+unitRef;
-  document.getElementById('dd-ring-meta').innerHTML = 'Weighted from '+unitTasks.length+' tasks · Planned: 75% · '+(computedUnitPct<75?'<span style="color:#FCA5A5;">'+Math.abs(75-computedUnitPct)+'% behind plan</span>':'<span style="color:#34D399;">On plan</span>');
-
-  // Show/hide buyer tab
-  const buyerTabEl = document.getElementById('buyer-tab');
-  buyerTabEl.style.display = salesType==='B'?'':'none';
-
-  // Default to engineer view
-  setDdView('eng', document.querySelector('.dd-tab'));
-
-  document.getElementById('dd-overlay').classList.add('open');
-}
-
-function openAmenityDrilldown(idx){
-  const a = amenities[idx];
-  document.getElementById('dd-title').textContent = a.icon+' '+a.name;
-  document.getElementById('dd-sub').textContent = 'Common Area · '+a.sqft.toLocaleString()+' sqft · Construction progress view';
-
-  const circumference = 2*Math.PI*24;
-  const offset = circumference*(1-a.pct/100);
-  document.getElementById('dd-ring-fill').setAttribute('stroke-dashoffset', offset.toFixed(1));
-  document.getElementById('dd-ring-pct').textContent = a.pct+'%';
-  document.getElementById('dd-ring-title').textContent = 'Construction progress — '+a.name;
-  const status = a.pct>=80?'Near complete':a.pct>=50?'In progress':'Early stage';
-  document.getElementById('dd-ring-meta').innerHTML = status+' · '+a.sqft.toLocaleString()+' sqft';
-
-  // Hide buyer tab for amenities
-  document.getElementById('buyer-tab').style.display = 'none';
-
-  // Render amenity tasks
-  const body = document.getElementById('dd-body');
-  if(a.tasks.length){
-    body.innerHTML = a.tasks.map(t=>{
-      const barCol = t.status==='done'?'#22C55E':t.status==='prog'?'#60A5FA':'#E5E7EB';
-      const tagCls = t.status==='done'?'dt-done':t.status==='prog'?'dt-prog':'dt-pend';
-      const tagLbl = t.status==='done'?'Complete':t.status==='prog'?'In progress':'Pending';
-      return `<div class="ad-task">
-        <div class="ad-icon" style="background:${t.status==='done'?'#E1F5EE':'#E6F1FB'};">${t.icon}</div>
-        <div class="ad-name">${t.name}</div>
-        <div class="ad-bar"><div class="ad-fill" style="width:${t.pct}%;background:${barCol};"></div></div>
-        <div class="ad-pct" style="color:${t.status==='done'?'#16A34A':t.status==='prog'?'#1E40AF':'#9CA3AF'};">${t.pct}%</div>
-        <div class="dd-task-tag ${tagCls}" style="font-size:9px;margin-left:4px;">${tagLbl}</div>
-      </div>`;
-    }).join('');
-  } else {
-    body.innerHTML = '<div style="font-size:11px;color:var(--grey-mid);padding:8px;">Task detail coming soon for this amenity.</div>';
-  }
-
-  // Show only one tab for amenities
-  document.querySelectorAll('.dd-tab').forEach(t=>t.style.display='none');
-  document.getElementById('dd-overlay').classList.add('open');
-}
-
-function closeDrilldown(){
-  document.getElementById('dd-overlay').classList.remove('open');
-  // Restore tabs
-  document.querySelectorAll('.dd-tab').forEach(t=>t.style.display='');
-}
 
 let currentDdView = 'eng';
 function setDdView(view, el){
