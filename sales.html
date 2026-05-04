@@ -2102,13 +2102,15 @@ document.getElementById('kpi-grid').innerHTML = [
 ].map(k => '<div class="kpi"><div class="kpi-label">' + k.label + '</div><div class="kpi-value" style="font-size:' + (String(k.value).length > 7 ? '16px' : '22px') + '">' + k.value + '</div><div class="kpi-sub">' + (k.delta ? '<span class="kpi-delta ' + (k.dclass||'') + '">' + k.delta + '</span> ' : '') + k.sub + '</div></div>').join('');
 
 // ── SALES PIPELINE FUNNEL ─────────────────────────────────
-const pipeline = p.pipeline || [
-  { stage: 'Enquiries',   count: 340, color: '#1B3A6B33', border: '#1B3A6B' },
-  { stage: 'Site visits', count: 187, color: '#1B3A6B55', border: '#1B3A6B' },
-  { stage: 'Negotiation', count: 89,  color: '#1B3A6B88', border: '#1B3A6B' },
-  { stage: 'Bookings',    count: 52,  color: '#1D9E75BB', border: '#1D9E75' },
-  { stage: 'Agreements',  count: 38,  color: '#1D9E75',   border: '#1D9E75' },
-];
+const pipelineData = {
+  skyline:    [{stage:'Enquiries',count:340},{stage:'Site visits',count:187},{stage:'Negotiation',count:89},{stage:'Bookings',count:52},{stage:'Agreements',count:38}],
+  oaks:       [{stage:'Enquiries',count:180},{stage:'Site visits',count:98}, {stage:'Negotiation',count:52},{stage:'Bookings',count:28},{stage:'Agreements',count:22}],
+  tektower:   [{stage:'Enquiries',count:60}, {stage:'Site visits',count:38}, {stage:'Negotiation',count:22},{stage:'Bookings',count:10},{stage:'Agreements',count:8}],
+  greenvalley:[{stage:'Enquiries',count:420},{stage:'Pre-reg',count:134},    {stage:'Site visits',count:72},{stage:'Bookings',count:0}, {stage:'Agreements',count:0}],
+};
+const colors = ['#1B3A6B','#1B3A6B','#2563EB','#1D9E75','#0F6E56'];
+const pipelineRaw = pipelineData[pid] || pipelineData.skyline;
+const pipeline = pipelineRaw.map((s,i) => ({...s, color: colors[i], border: colors[i]}));
 const maxCount = Math.max(...pipeline.map(s => s.count));
 
 document.getElementById('funnel-wrap').innerHTML = pipeline.map((s, i) => {
@@ -2118,8 +2120,8 @@ document.getElementById('funnel-wrap').innerHTML = pipeline.map((s, i) => {
     '<div class="funnel-row">' +
     '<div class="funnel-label">' + s.stage + '</div>' +
     '<div class="funnel-bar-wrap">' +
-    '<div class="funnel-bar" style="width:' + widthPct + '%;background:' + s.color + ';border:1px solid ' + s.border + ';">' +
-    '<span class="funnel-val" style="color:' + (widthPct > 30 ? '#1B3A6B' : 'var(--navy)') + ';">' + s.count + '</span></div></div>' +
+    '<div class="funnel-bar" style="width:' + widthPct + '%;background:' + s.border + ';">' +
+    '<span class="funnel-val" style="color:white;">' + s.count + '</span></div></div>' +
     '<div class="funnel-pct">' + widthPct + '%</div>' +
     '</div>';
 }).join('');
@@ -2127,7 +2129,7 @@ document.getElementById('funnel-wrap').innerHTML = pipeline.map((s, i) => {
 const topOfFunnel = pipeline[0].count;
 const agreements = pipeline[pipeline.length-1].count;
 document.getElementById('conversion-rate').textContent = Math.round((agreements / topOfFunnel) * 100) + '%';
-document.getElementById('avg-booking').textContent = 'Rs.' + Math.round(p.revenue_booked_cr * 100 / (p.units_booked||1)) / 100 + ' Cr';
+document.getElementById('avg-booking').textContent = 'Rs.' + Math.round(p.revenue_booked_cr * 100 / (p.units_booked||1)) + ' L';
 document.getElementById('hot-leads').textContent = (p.units_hot || 38) + ' units';
 
 // ── REVENUE CHART ─────────────────────────────────────────
