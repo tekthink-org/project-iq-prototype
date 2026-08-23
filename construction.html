@@ -170,6 +170,44 @@
 .disc-pill.active{background:var(--teal-mid);color:white;border-color:var(--teal-mid);}
 /* Tooltip */
 .tip{position:fixed;background:var(--navy);color:white;padding:5px 10px;border-radius:5px;font-size:10px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:9999;max-width:220px;line-height:1.4;font-family:var(--font);}
+
+/* ── Phase 1: baseline, queue, gate, evidence ─────────── */
+.eng-baseline{display:flex;align-items:center;gap:7px;background:#F1EFE8;border:0.5px solid var(--border);border-radius:7px;padding:6px 10px;margin-bottom:6px;font-size:10px;color:var(--grey);}
+.eng-baseline b{color:var(--navy);font-weight:700;}
+.eng-queue{display:flex;align-items:center;gap:7px;background:#FAEEDA;border:0.5px solid #EF9F27;border-radius:7px;padding:6px 10px;margin-bottom:6px;font-size:10px;color:#854F0B;}
+.eng-calc{background:var(--navy);border-radius:8px;padding:9px 11px;margin-bottom:10px;color:#fff;}
+.eng-calc-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
+.eng-calc-big{font-size:20px;font-weight:700;line-height:1;}
+.eng-calc-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;opacity:.75;}
+.eng-calc-eq{font-size:10px;opacity:.85;font-family:var(--font-mono);}
+.eng-calc-held{font-size:10px;color:#FBBF24;margin-top:4px;}
+
+.dd-bar-wrap2{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden;display:flex;}
+.dd-bar-rel{height:100%;}
+.dd-bar-held{height:100%;background:repeating-linear-gradient(45deg,#EF9F27,#EF9F27 2.5px,#FDECC8 2.5px,#FDECC8 5px);}
+
+.dt-held{background:#FAEEDA;color:#854F0B;}
+.dt-rej{background:#FCEBEB;color:#991B1B;}
+
+.gate{border-radius:7px;padding:7px 9px;margin-top:6px;border:0.5px solid;}
+.gate-pending{background:#FFFBEB;border-color:#FCD34D;}
+.gate-rejected{background:#FFF5F5;border-color:#FCA5A5;}
+.gate-top{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.gate-code{font-family:var(--font-mono);font-size:9px;color:var(--grey-mid);}
+.gate-name{font-size:10.5px;font-weight:600;color:var(--black);flex:1;}
+.gate-w{font-size:10px;font-weight:700;color:#854F0B;white-space:nowrap;}
+.gate-state{font-size:9px;padding:1px 6px;border-radius:9px;font-weight:700;white-space:nowrap;}
+.gs-pending{background:#FEF3C7;color:#854F0B;}
+.gs-rejected{background:#FEE2E2;color:#991B1B;}
+.gate-msg{font-size:10px;line-height:1.45;margin-top:3px;}
+.gate-pending .gate-msg{color:#854F0B;}
+.gate-rejected .gate-msg{color:#991B1B;}
+
+.ev{display:flex;align-items:center;gap:6px;background:#fff;border:0.5px solid var(--border);border-radius:5px;padding:4px 7px;margin-top:5px;flex-wrap:wrap;}
+.ev-ic{font-size:11px;}
+.ev-m{font-size:9px;color:var(--grey-mid);font-family:var(--font-mono);}
+.ev-ok{font-size:9px;font-weight:700;color:#0F6E56;background:#E1F5EE;padding:1px 5px;border-radius:4px;white-space:nowrap;}
+.ev-src{font-size:9px;color:var(--grey-mid);}
 </style>
 </head>
 <body>
@@ -1811,15 +1849,48 @@ document.getElementById('hse-summary').innerHTML = [
 
 // ── UNIT DRILL-DOWN ───────────────────────────────────────
 const unitTasks=[
-  {id:'t1',name:'Foundation & Structure',icon:'🧱',bg:'#E1F5EE',pct:100,status:'done',  planStart:'Jan 2024',planEnd:'Jun 2024',actStart:'Jan 2024',actEnd:'Jun 2024',budget:127000,actual:125000,engineer:'Ravi Kumar',  label:'The base and concrete frame of your flat'},
-  {id:'t2',name:'MEP rough-in',          icon:'🔧',bg:'#E6F1FB',pct:100,status:'done',  planStart:'Aug 2024',planEnd:'Nov 2024',actStart:'Sep 2024',actEnd:'Dec 2024',budget:68000, actual:70000, engineer:'Arun MEP',    label:'Electrical conduits, plumbing, and AC ducts inside walls'},
-  {id:'t3',name:'Waterproofing',         icon:'🌊',bg:'#E1F5EE',pct:100,status:'done',  planStart:'Dec 2024',planEnd:'Jan 2025',actStart:'Dec 2024',actEnd:'Jan 2025',budget:18000, actual:17500, engineer:'Ravi Kumar',  label:'Waterproofing applied to bathrooms and wet areas'},
-  {id:'t4',name:'Plastering',            icon:'🪣',bg:'#BFDBFE',pct:35, status:'prog',  planStart:'Feb 2026',planEnd:'Apr 2026',actStart:'Mar 2026',actEnd:null,       budget:55000, actual:19000, engineer:'Suresh Finish',label:'Smooth plaster on all walls and ceiling'},
-  {id:'t5',name:'Electrical fit-out',   icon:'⚡',bg:'#BFDBFE',pct:20, status:'prog',  planStart:'Mar 2026',planEnd:'May 2026',actStart:'Apr 2026',actEnd:null,       budget:48000, actual:9600,  engineer:'PowerTech',   label:'Switches, sockets, lighting, and distribution board'},
-  {id:'t6',name:'Tiling & flooring',    icon:'🔲',bg:'#FEE2E2',pct:0,  status:'blocked',planStart:'May 2026',planEnd:'Jul 2026',actStart:null,actEnd:null,            budget:72000, actual:0,     engineer:'TileMax',     label:'Vitrified tiles for living, bedrooms, kitchen'},
-  {id:'t7',name:'Painting',             icon:'🎨',bg:'#F3F4F6', pct:0,  status:'pend',  planStart:'Jul 2026',planEnd:'Aug 2026',actStart:null,actEnd:null,            budget:38000, actual:0,     engineer:'ColorCoat',   label:'Two coats interior emulsion paint'},
-  {id:'t8',name:'Final fixtures',       icon:'🚿',bg:'#F3F4F6', pct:0,  status:'pend',  planStart:'Aug 2026',planEnd:'Sep 2026',actStart:null,actEnd:null,            budget:45000, actual:0,     engineer:'Arun MEP',    label:'Taps, sanitary ware, door handles, final MEP'},
+  {id:'t1',name:'Foundation & Structure',icon:'\ud83e\uddf1',bg:'#E1F5EE',status:'done',wt:23,rel:23,held:0,
+   planStart:'Jan 2024',planEnd:'Jun 2024',actStart:'Jan 2024',actEnd:'Jun 2024',budget:127000,actual:125000,engineer:'Ravi Kumar',
+   label:'The base and concrete frame of your flat',gates:[]},
+
+  {id:'t2',name:'MEP rough-in',icon:'\ud83d\udd27',bg:'#E6F1FB',status:'done',wt:8,rel:8,held:0,
+   planStart:'Aug 2024',planEnd:'Nov 2024',actStart:'Sep 2024',actEnd:'Dec 2024',budget:68000,actual:70000,engineer:'Arun MEP',
+   label:'Electrical conduits, plumbing, and AC ducts inside walls',gates:[]},
+
+  {id:'t3',name:'Waterproofing',icon:'\ud83c\udf0a',bg:'#E1F5EE',status:'held',wt:3,rel:2.1,held:0.9,
+   planStart:'Dec 2024',planEnd:'Jan 2025',actStart:'Dec 2024',actEnd:'Jan 2025',budget:18000,actual:17500,engineer:'Ravi Kumar',
+   label:'Waterproofing applied to bathrooms and wet areas',
+   gates:[{code:'WTRPF-01',name:'Bathroom and toilet waterproofing \u2014 ponding test',w:0.9,state:'pending',
+     ev:{lat:'17.4412\u00b0N',lng:'78.3891\u00b0E',time:'09:14, 18 Aug 2026',hash:'a3f9\u20262b1c',dev:'in-app'},
+     by:'Ravi Kumar',since:'3 days'}]},
+
+  {id:'t4',name:'Plastering',icon:'\ud83e\udea3',bg:'#BFDBFE',status:'prog',wt:7,rel:2.45,held:0.35,
+   planStart:'Feb 2026',planEnd:'Apr 2026',actStart:'Mar 2026',actEnd:null,budget:55000,actual:19000,engineer:'Suresh Finish',
+   label:'Smooth plaster on all walls and ceiling',
+   gates:[{code:'PLSTR-05',name:'QC inspection \u2014 first coat',w:0.35,state:'pending',
+     ev:{lat:'17.4412\u00b0N',lng:'78.3891\u00b0E',time:'16:48, 20 Aug 2026',hash:'7d21\u20268e4a',dev:'in-app'},
+     by:'Suresh Finish',since:'1 day'}]},
+
+  {id:'t5',name:'Electrical fit-out',icon:'\u26a1',bg:'#BFDBFE',status:'prog',wt:6,rel:1.2,held:0,
+   planStart:'Mar 2026',planEnd:'May 2026',actStart:'Apr 2026',actEnd:null,budget:48000,actual:9600,engineer:'PowerTech',
+   label:'Switches, sockets, lighting, and distribution board',
+   gates:[{code:'ELEC_F-06',name:'Earth continuity test',w:0.6,state:'rejected',
+     ev:{lat:'17.4413\u00b0N',lng:'78.3890\u00b0E',time:'11:02, 19 Aug 2026',hash:'c410\u20265f77',dev:'in-app'},
+     by:'PowerTech',since:'2 days',reason:'Reading outside permitted range \u2014 returned for rework'}]},
+
+  {id:'t6',name:'Tiling & flooring',icon:'\u25a6',bg:'#F3F4F6',status:'blocked',wt:10,rel:0,held:0,
+   planStart:'Apr 2026',planEnd:'Jun 2026',actStart:null,actEnd:null,budget:92000,actual:0,engineer:'TileMax',
+   label:'Floor and wall tiles in all rooms',gates:[]},
+
+  {id:'t7',name:'Painting',icon:'\ud83c\udfa8',bg:'#F3F4F6',status:'pend',wt:7,rel:0,held:0,
+   planStart:'Jun 2026',planEnd:'Aug 2026',actStart:null,actEnd:null,budget:41000,actual:0,engineer:'ColorCoat',
+   label:'Primer and two coats of emulsion',gates:[]},
+
+  {id:'t8',name:'Final fixtures',icon:'\ud83d\udeaa',bg:'#F3F4F6',status:'pend',wt:6,rel:0,held:0,
+   planStart:'Sep 2026',planEnd:'Oct 2026',actStart:null,actEnd:null,budget:38000,actual:0,engineer:'FinishPro',
+   label:'Doors, windows, sanitary ware and kitchen',gates:[]},
 ];
+
 const buyerMilestones=[
   {status:'done',  title:'Booking confirmed',    desc:'Agreement signed. Welcome to Skyline Heights.',               date:'Apr 2024'},
   {status:'done',  title:'Foundation complete',   desc:'Tower B foundation complete. All structural checks passed.',  date:'Jun 2024'},
@@ -1840,41 +1911,100 @@ function setDdView(view, el){
   const body = document.getElementById('dd-body');
 
   if(view==='eng'){
-    body.innerHTML = `<div style="background:var(--navy-light);border-radius:7px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--navy);">
-      <strong>Engineer:</strong> Update task status below. Your entries update the project dashboard, buyer portal, and EVM in real time. Progress % is computed automatically — you never enter a number.
-    </div>`+
+    const totW  = unitTasks.reduce((s,t)=>s+t.wt,0);
+    const relW  = unitTasks.reduce((s,t)=>s+t.rel,0);
+    const heldW = unitTasks.reduce((s,t)=>s+t.held,0);
+    const pctNow  = Math.round(relW/totW*1000)/10;
+    const pctIf   = Math.round((relW+heldW)/totW*1000)/10;
+    const queued  = 2;
+
+    const stMeta = {
+      done:   {cls:'dt-done', lbl:'Complete',  col:'#22C55E'},
+      held:   {cls:'dt-held', lbl:'Weight held',col:'#EF9F27'},
+      prog:   {cls:'dt-prog', lbl:'In progress',col:'#60A5FA'},
+      blocked:{cls:'dt-blk',  lbl:'Blocked',   col:'#FCA5A5'},
+      pend:   {cls:'dt-pend', lbl:'Not started',col:'#E5E7EB'}
+    };
+
+    body.innerHTML =
+    '<div class="eng-baseline"><span>\u25c9</span><span>Measured against <b>Baseline v2</b> \u00b7 effective 14 Jun 2026 \u00b7 authorised by VO-2024-051</span></div>' +
+    (queued ? '<div class="eng-queue"><span>\u23f3</span><span><b>'+queued+' entries queued offline</b> \u2014 captured with evidence, will transmit when connectivity returns</span></div>' : '') +
+    '<div class="eng-calc">' +
+      '<div class="eng-calc-top">' +
+        '<div><div class="eng-calc-big">'+pctNow+'%</div><div class="eng-calc-lbl">Unit progress \u2014 computed</div></div>' +
+        '<div class="eng-calc-eq">'+relW+' of '+totW+' weight units released</div>' +
+      '</div>' +
+      (heldW>0 ? '<div class="eng-calc-held">\u25b2 '+heldW+' units affirmed but withheld pending QC sign-off \u2014 progress would read '+pctIf+'% once released</div>' : '') +
+    '</div>' +
+    '<div style="background:var(--navy-light);border-radius:7px;padding:7px 10px;margin-bottom:10px;font-size:10.5px;color:var(--navy);line-height:1.5;">' +
+      '<strong>Engineer:</strong> Answer the observable question for each sub-task. Photographic evidence is captured in-app and bound to the answer. You never enter a percentage \u2014 progress is computed from released weight.' +
+    '</div>' +
+
     unitTasks.map(t=>{
-      const barCol=t.status==='done'?'#22C55E':t.status==='blocked'?'#FCA5A5':t.status==='prog'?'#60A5FA':'#E5E7EB';
-      const tagCls=t.status==='done'?'dt-done':t.status==='blocked'?'dt-blk':t.status==='prog'?'dt-prog':'dt-pend';
-      const tagLbl=t.status==='done'?'Done':t.status==='blocked'?'Blocked':t.status==='prog'?'In progress':'Pending';
-      return `<div class="dd-task${t.status==='blocked'?' blocked':''}">
-        <div class="dd-task-top">
-          <div class="dd-task-icon" style="background:${t.bg};">${t.icon}</div>
-          <div class="dd-task-name">${t.name}</div>
-          <div class="dd-task-tag ${tagCls}">${tagLbl}</div>
-        </div>
-        <div class="dd-bar-row">
-          <div class="dd-bar-wrap"><div class="dd-bar-fill" style="width:${t.pct}%;background:${barCol};"></div></div>
-          <div class="dd-pct" style="color:${barCol};">${t.pct}%</div>
-        </div>
-        ${t.status==='blocked'?'<div style="font-size:10px;color:var(--red);margin-top:5px;">Blocked — plastering must reach 80% before tiling can begin.</div>':''}
-        ${t.status!=='done'&&t.status!=='blocked'?`
-        <div class="eng-input">
-          <div style="font-size:9px;font-weight:700;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Update status</div>
-          <div class="eng-row">
-            <select class="eng-select" id="s-${t.id}" style="flex:1;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px;font-family:var(--font);outline:none;background:white;cursor:pointer;">
-              <option value="not_started" ${t.status==='pend'?'selected':''}>Not started</option>
-              <option value="in_progress" ${t.status==='prog'?'selected':''}>In progress</option>
-              <option value="completed" ${t.status==='done'?'selected':''}>Completed</option>
-              <option value="blocked" ${t.status==='blocked'?'selected':''}>Blocked</option>
-            </select>
-            <button class="eng-save" style="padding:6px 14px;background:var(--navy);color:white;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);" onclick="saveEngUpdate('${t.id}','${t.name}')">Save</button>
-          </div>
-          <div style="font-size:10px;color:var(--grey-mid);margin-top:4px;padding:5px 8px;background:#f9f9f7;border-radius:5px;">Progress % computed from status x task weightage. You do not enter a number.</div>
-          <textarea class="eng-note" rows="2" placeholder="Note: issue, observation, photo reference, block reason..." style="width:100%;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:10px;font-family:var(--font);outline:none;resize:none;margin-top:4px;"></textarea>
-        </div>`:''}
-      </div>`;
+      const m   = stMeta[t.status] || stMeta.pend;
+      const pct = t.wt ? Math.round(t.rel/t.wt*100) : 0;
+      const relPctOfBar  = t.wt ? (t.rel/t.wt*100)  : 0;
+      const heldPctOfBar = t.wt ? (t.held/t.wt*100) : 0;
+
+      const gatesHtml = (t.gates||[]).map(g=>{
+        const rej = g.state==='rejected';
+        return '<div class="gate '+(rej?'gate-rejected':'gate-pending')+'">' +
+          '<div class="gate-top">' +
+            '<span class="gate-code">'+g.code+'</span>' +
+            '<span class="gate-name">'+g.name+'</span>' +
+            '<span class="gate-w">'+g.w+' units</span>' +
+            '<span class="gate-state '+(rej?'gs-rejected':'gs-pending')+'">'+(rej?'Rejected':'Weight withheld')+'</span>' +
+          '</div>' +
+          '<div class="ev">' +
+            '<span class="ev-ic">\ud83d\udcf7</span>' +
+            '<span class="ev-m">'+g.ev.lat+' '+g.ev.lng+'</span>' +
+            '<span class="ev-m">'+g.ev.time+'</span>' +
+            '<span class="ev-m">sha256 '+g.ev.hash+'</span>' +
+            '<span class="ev-src">'+g.ev.dev+' capture</span>' +
+            '<span class="ev-ok">\u2713 bound</span>' +
+          '</div>' +
+          '<div class="gate-msg">' +
+            (rej
+              ? '\u2716 '+g.reason+'. Weight returns to zero until re-affirmed with fresh evidence.'
+              : 'Affirmed by '+g.by+' '+g.since+' ago with bound evidence. Weight is withheld from the progress figure until an authorised QC user signs off.') +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      return '<div class="dd-task'+(t.status==='blocked'?' blocked':'')+'">' +
+        '<div class="dd-task-top">' +
+          '<div class="dd-task-icon" style="background:'+t.bg+';">'+t.icon+'</div>' +
+          '<div class="dd-task-name">'+t.name+'<div style="font-size:9px;color:var(--grey-mid);font-weight:400;">'+t.wt+' weight units \u00b7 '+t.engineer+'</div></div>' +
+          '<div class="dd-task-tag '+m.cls+'">'+m.lbl+'</div>' +
+        '</div>' +
+        '<div class="dd-bar-row">' +
+          '<div class="dd-bar-wrap2">' +
+            '<div class="dd-bar-rel" style="width:'+relPctOfBar+'%;background:'+(t.status==='blocked'?'#FCA5A5':m.col)+';"></div>' +
+            (heldPctOfBar>0 ? '<div class="dd-bar-held" style="width:'+heldPctOfBar+'%;"></div>' : '') +
+          '</div>' +
+          '<div class="dd-pct" style="color:'+m.col+';">'+pct+'%</div>' +
+        '</div>' +
+        (t.held>0 ? '<div style="font-size:9.5px;color:#854F0B;margin-top:3px;">Hatched segment is affirmed weight not yet released</div>' : '') +
+        (t.status==='blocked' ? '<div style="font-size:10px;color:var(--red);margin-top:5px;">Blocked \u2014 plastering must reach 80% before tiling can begin.</div>' : '') +
+        gatesHtml +
+        ((t.status!=='done' && t.status!=='blocked') ?
+        '<div class="eng-input">' +
+          '<div style="font-size:9px;font-weight:700;color:var(--grey-mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Record observation</div>' +
+          '<div class="eng-row">' +
+            '<select class="eng-select" id="s-'+t.id+'" style="flex:1;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px;font-family:var(--font);outline:none;background:white;cursor:pointer;">' +
+              '<option value="open">Not started</option>' +
+              '<option value="progress" selected>In progress</option>' +
+              '<option value="affirm">Affirm complete \u2014 requires photo</option>' +
+              '<option value="blocked">Blocked</option>' +
+            '</select>' +
+            '<button class="eng-save" style="padding:6px 14px;background:var(--navy);color:white;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);" onclick="saveEngUpdate(\'' + t.id + '\',\'' + t.name.replace(/'/g,"") + '\')">Save</button>' +
+          '</div>' +
+          '<div style="font-size:9.5px;color:var(--grey-mid);margin-top:4px;padding:5px 8px;background:#f9f9f7;border-radius:5px;line-height:1.45;">Affirming completion opens the camera. Gallery selection is refused. Location, time and device are bound to the photograph at capture.</div>' +
+          '<textarea class="eng-note" rows="2" placeholder="Observation, obstruction or reference..." style="width:100%;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:10px;font-family:var(--font);outline:none;resize:none;margin-top:4px;"></textarea>' +
+        '</div>' : '') +
+      '</div>';
     }).join('');
+
   } else if(view==='pm'){
     body.innerHTML = `<div style="background:var(--teal-light);border-radius:7px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--teal);">
       <strong>PM view:</strong> Full task detail with planned vs actual dates and cost accountability.</div>`+
@@ -1924,13 +2054,15 @@ window.setDdView = setDdView;
 
 function saveEngUpdate(id, name){
   const sel = document.getElementById('s-'+id);
-  if(sel){
-    const statusMap = {not_started:'Not started',in_progress:'In progress',completed:'Completed',blocked:'Blocked'};
-    const statusLabel = statusMap[sel.value] || sel.value;
-    const computedPct = sel.value==='completed'?100:sel.value==='in_progress'?50:0;
-    alert('Status saved: '+name+'\nNew status: '+statusLabel+'\n\nIn the live system this would:\n• Compute task % from status x weight_pct\n• Recompute unit completion % (weighted average)\n• Recalculate EVM — EV, CPI, SPI\n• Update buyer portal instantly\n• Fire AI alert if behind plan\n• Update RERA quarterly progress\n\nProgress % is never entered manually — it is always derived from status.');
+  const v = sel ? sel.value : 'progress';
+  if(v === 'affirm'){
+    alert('Affirmative response recorded for: ' + name + '\n\nIn the live system this would:\n- Open the in-app camera; gallery selection is refused\n- Bind location, trusted time and device to the image\n- Compute a digest over image and metadata jointly\n- Queue the record if offline, with an idempotent identifier\n\nIf the sub-task is quality-gated, weight is withheld until an authorised QC user signs off. Progress does not move until weight is released.');
+  } else {
+    alert('Status recorded for: ' + name + '\n\nProgress is computed from released weight. No percentage is entered at any point.');
   }
 }
+window.saveEngUpdate = saveEngUpdate;
+
 window.saveEngUpdate = saveEngUpdate;
 
 // ── INIT RENDERS ─────────────────────────────────────────
