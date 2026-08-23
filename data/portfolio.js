@@ -620,6 +620,85 @@ window.PIQ = {
 
     },
 
+    ruralroad: {
+      id: 'ruralroad',
+      name: 'Kanigiri\u2013Podili Road',
+      type: 'Rural Road \u2014 PMGSY',
+      location: 'Prakasam, Andhra Pradesh',
+      status: 'on-track',
+      status_label: 'On Track',
+
+      // ── Works-contract framing (v1.3 delivery model) ──
+      delivery_model: 'works_contract',
+      client: 'Panchayat Raj Engineering Dept, Prakasam',
+      executing_agency: 'Seven Hills Constructions',
+      sanction_ref: 'AS PR/PKM/PMGSY/2024/0417',
+      ts_ref: 'TS SE/PR/PKM/112/2024',
+      work_order_no: 'WO/PR-PKM/PMGSY/28/2024',
+      agreement_date: '18 Mar 2024',
+      start_date: 'Apr 2024',
+      end_date: 'Mar 2027',
+
+      overall_progress: 62,      // physical progress — quantity-based (Path B)
+      plan_progress: 68,
+      sanctioned_length_km: 8.40,
+      completed_length_km: 5.20,
+      contract_value_cr: 6.72,   // schedule-of-rates estimate, less tender percentage
+      ra_bills_paid_cr: 3.90,    // running-account billing certified and paid to date
+      retention_pct: 5,
+
+      // Card-consumed generic fields (dev fields left at zero — not applicable)
+      total_units: 0,
+      units_booked: 0,
+      revenue_booked_cr: 0,
+      open_issues: 4,
+      cx_issues: 1,
+      construction_issues: 3,
+      cpi: 0.98,
+      spi: 0.91,
+
+      alert: 'Reach 3 (ch. 4.200\u20135.600) held by electric-pole shifting \u2014 hindrance logged 12 days vs APSPDCL. Time-extension entitlement protected under agreement clause 4.3.',
+
+      cube: {
+        construction: { score: 62, rating: 0, trend: 'up'     },
+        corridor:     { score: 71, rating: 0, trend: 'stable' },  // Asset Corridor — alignment, ROW, obstruction
+        finance:      { score: 58, rating: 0, trend: 'stable' },
+        design:       { score: 88, rating: 0, trend: 'up'     },  // DPR, survey, SoR estimate, technical sanction
+        sales:        { score: 0,  rating: 0, trend: 'stable' },  // n/a — face relabelled Corridor for works contract
+        cx:           { score: 64, rating: 0, trend: 'stable' },  // client & authority correspondence (no buyers)
+        asset:        { score: 6,  rating: 0, trend: 'stable' },  // pre-handover; defect liability begins after taking-over
+      },
+
+      regulatory: [
+        { authority: 'Administrative sanction',  status: 'ok',       detail: 'Accorded \u2014 Rs.6.72 Cr, PMGSY budget head',   label: 'Active'  },
+        { authority: 'Technical sanction',       status: 'ok',       detail: 'Accorded by Superintending Engineer',           label: 'Active'  },
+        { authority: 'Utility shifting APSPDCL', status: 'critical', detail: '4 poles pending on Reach 3 \u2014 12 days',       label: '12d'     },
+        { authority: 'Land / ROW availability',  status: 'warning',  detail: 'Reach 3 corridor obstructed by poles',           label: 'Reach 3' },
+        { authority: 'Forest clearance',         status: 'ok',       detail: 'Not attracted \u2014 non-forest alignment',       label: 'N/A'     },
+        { authority: 'Labour / BOCW',            status: 'ok',       detail: 'Registered for construction workers',            label: 'Active'  },
+      ],
+
+      work_packages: [
+        { name: 'Earthwork & formation',      discipline: 'Civil',      floors: 'ch. 0.0-8.4', plan: 100, actual: 100, status: 'complete' },
+        { name: 'Granular sub-base (GSB)',    discipline: 'Pavement',   floors: 'ch. 0.0-8.4', plan: 100, actual: 92,  status: 'ok'       },
+        { name: 'WMM base course',            discipline: 'Pavement',   floors: 'ch. 0.0-5.6', plan: 80,  actual: 66,  status: 'warning'  },
+        { name: 'Bituminous \u2014 prime & BM', discipline: 'Pavement', floors: 'ch. 0.0-5.2', plan: 70,  actual: 62,  status: 'ok'       },
+        { name: 'Surface \u2014 bit. concrete', discipline: 'Pavement', floors: 'ch. 0.0-4.2', plan: 55,  actual: 50,  status: 'ok'       },
+        { name: 'Cross-drainage (culverts)',  discipline: 'Structures', floors: '6 nos',       plan: 100, actual: 83,  status: 'warning'  },
+        { name: 'Road furniture & signage',   discipline: 'Ancillary',  floors: 'full length', plan: 30,  actual: 12,  status: 'warning'  },
+      ],
+
+      cashflow: [
+        { month: 'Nov', inflow: 0.0, outflow: 0.4 },
+        { month: 'Dec', inflow: 0.9, outflow: 0.6 },
+        { month: 'Jan', inflow: 0.0, outflow: 0.5 },
+        { month: 'Feb', inflow: 1.1, outflow: 0.7 },
+        { month: 'Mar', inflow: 0.0, outflow: 0.6 },
+        { month: 'Apr', inflow: 1.0, outflow: 0.5 },
+      ],
+
+    },
+
   }, // end projects
 
 }; // end window.PIQ
