@@ -1518,13 +1518,11 @@ function openDrilldown(towerName, floor, unit, salesType, constrPct, isDelayed){
   document.getElementById('dd-title').textContent = towerName+' — Floor '+floor+' Unit '+unit;
   document.getElementById('dd-sub').textContent = (buyer?buyer.name+' · ':'')+pid.charAt(0).toUpperCase()+pid.slice(1)+' Heights · '+(salesType==='B'?'Booked':salesType==='R'?'Reserved':salesType==='H'?'Hot lead':'Available');
 
-  // Ring — compute from task statuses x weightage (not from constrPct)
-  const taskWeights = {t1:20,t2:15,t3:8,t4:18,t5:12,t6:15,t7:8,t8:4};
-  const computedUnitPct = Math.round(unitTasks.reduce((sum,t)=>{
-    const w = taskWeights[t.id]||10;
-    const contrib = t.status==='done'?w:t.status==='prog'?w*0.35:0;
-    return sum+contrib;
-  },0));
+  // Ring — single source of truth: released weight from applyUnitState()
+  applyUnitState(pct);
+  const totWr  = unitTasks.reduce((s,t)=>s+t.wt,0);
+  const relWr  = unitTasks.reduce((s,t)=>s+t.rel,0);
+  const computedUnitPct = Math.round(relWr/totWr*100);
   const circumference = 2*Math.PI*24;
   const offset = circumference*(1-computedUnitPct/100);
   document.getElementById('dd-ring-fill').setAttribute('stroke-dashoffset', offset.toFixed(1));
@@ -1849,47 +1847,99 @@ document.getElementById('hse-summary').innerHTML = [
 
 // ── UNIT DRILL-DOWN ───────────────────────────────────────
 const unitTasks=[
-  {id:'t1',name:'Foundation & Structure',icon:'\ud83e\uddf1',bg:'#E1F5EE',status:'done',wt:23,rel:23,held:0,
+  {id:'t1',name:'Foundation & Structure',icon:'\ud83e\uddf1',bg:'#E1F5EE',status:'done',wt:23,
    planStart:'Jan 2024',planEnd:'Jun 2024',actStart:'Jan 2024',actEnd:'Jun 2024',budget:127000,actual:125000,engineer:'Ravi Kumar',
-   label:'The base and concrete frame of your flat',gates:[]},
+   label:'The base and concrete frame of your flat'},
 
-  {id:'t2',name:'MEP rough-in',icon:'\ud83d\udd27',bg:'#E6F1FB',status:'done',wt:8,rel:8,held:0,
+  {id:'t2',name:'MEP rough-in',icon:'\ud83d\udd27',bg:'#E6F1FB',status:'done',wt:8,
    planStart:'Aug 2024',planEnd:'Nov 2024',actStart:'Sep 2024',actEnd:'Dec 2024',budget:68000,actual:70000,engineer:'Arun MEP',
-   label:'Electrical conduits, plumbing, and AC ducts inside walls',gates:[]},
+   label:'Electrical conduits, plumbing, and AC ducts inside walls'},
 
-  {id:'t3',name:'Waterproofing',icon:'\ud83c\udf0a',bg:'#E1F5EE',status:'held',wt:3,rel:2.1,held:0.9,
+  {id:'t3',name:'Waterproofing',icon:'\ud83c\udf0a',bg:'#E1F5EE',status:'held',wt:3,
    planStart:'Dec 2024',planEnd:'Jan 2025',actStart:'Dec 2024',actEnd:'Jan 2025',budget:18000,actual:17500,engineer:'Ravi Kumar',
    label:'Waterproofing applied to bathrooms and wet areas',
    gates:[{code:'WTRPF-01',name:'Bathroom and toilet waterproofing \u2014 ponding test',w:0.9,state:'pending',
      ev:{lat:'17.4412\u00b0N',lng:'78.3891\u00b0E',time:'09:14, 18 Aug 2026',hash:'a3f9\u20262b1c',dev:'in-app'},
      by:'Ravi Kumar',since:'3 days'}]},
 
-  {id:'t4',name:'Plastering',icon:'\ud83e\udea3',bg:'#BFDBFE',status:'prog',wt:7,rel:2.45,held:0.35,
+  {id:'t4',name:'Plastering',icon:'\ud83e\udea3',bg:'#BFDBFE',status:'prog',wt:7,
    planStart:'Feb 2026',planEnd:'Apr 2026',actStart:'Mar 2026',actEnd:null,budget:55000,actual:19000,engineer:'Suresh Finish',
    label:'Smooth plaster on all walls and ceiling',
    gates:[{code:'PLSTR-05',name:'QC inspection \u2014 first coat',w:0.35,state:'pending',
      ev:{lat:'17.4412\u00b0N',lng:'78.3891\u00b0E',time:'16:48, 20 Aug 2026',hash:'7d21\u20268e4a',dev:'in-app'},
      by:'Suresh Finish',since:'1 day'}]},
 
-  {id:'t5',name:'Electrical fit-out',icon:'\u26a1',bg:'#BFDBFE',status:'prog',wt:6,rel:1.2,held:0,
+  {id:'t5',name:'Electrical fit-out',icon:'\u26a1',bg:'#BFDBFE',status:'prog',wt:6,
    planStart:'Mar 2026',planEnd:'May 2026',actStart:'Apr 2026',actEnd:null,budget:48000,actual:9600,engineer:'PowerTech',
    label:'Switches, sockets, lighting, and distribution board',
    gates:[{code:'ELEC_F-06',name:'Earth continuity test',w:0.6,state:'rejected',
      ev:{lat:'17.4413\u00b0N',lng:'78.3890\u00b0E',time:'11:02, 19 Aug 2026',hash:'c410\u20265f77',dev:'in-app'},
      by:'PowerTech',since:'2 days',reason:'Reading outside permitted range \u2014 returned for rework'}]},
 
-  {id:'t6',name:'Tiling & flooring',icon:'\u25a6',bg:'#F3F4F6',status:'blocked',wt:10,rel:0,held:0,
+  {id:'t6',name:'Tiling & flooring',icon:'\u25a6',bg:'#F3F4F6',status:'blocked',wt:10,
    planStart:'Apr 2026',planEnd:'Jun 2026',actStart:null,actEnd:null,budget:92000,actual:0,engineer:'TileMax',
-   label:'Floor and wall tiles in all rooms',gates:[]},
+   label:'Floor and wall tiles in all rooms'},
 
-  {id:'t7',name:'Painting',icon:'\ud83c\udfa8',bg:'#F3F4F6',status:'pend',wt:7,rel:0,held:0,
+  {id:'t7',name:'Painting',icon:'\ud83c\udfa8',bg:'#F3F4F6',status:'pend',wt:7,
    planStart:'Jun 2026',planEnd:'Aug 2026',actStart:null,actEnd:null,budget:41000,actual:0,engineer:'ColorCoat',
-   label:'Primer and two coats of emulsion',gates:[]},
+   label:'Primer and two coats of emulsion'},
 
-  {id:'t8',name:'Final fixtures',icon:'\ud83d\udeaa',bg:'#F3F4F6',status:'pend',wt:6,rel:0,held:0,
+  {id:'t8',name:'Final fixtures',icon:'\ud83d\udeaa',bg:'#F3F4F6',status:'pend',wt:6,
    planStart:'Sep 2026',planEnd:'Oct 2026',actStart:null,actEnd:null,budget:38000,actual:0,engineer:'FinishPro',
-   label:'Doors, windows, sanitary ware and kitchen',gates:[]},
+   label:'Doors, windows, sanitary ware and kitchen'},
 ];
+// ── Derive per-unit task state from the unit's completion percentage ──
+// Weights are the task master and never change. What varies per unit is how
+// much weight has been released. Work completes in sequence, so released
+// weight is allocated as a waterfall down the task list.
+function applyUnitState(unitPct){
+  const totW = unitTasks.reduce((s,t)=>s+t.wt,0);
+  let budget = totW * (unitPct/100);
+
+  unitTasks.forEach(t=>{
+    const take = Math.max(0, Math.min(t.wt, budget));
+    budget -= take;
+    t.rel  = Math.round(take*100)/100;
+    t.held = 0;
+    t.gates = [];
+
+    if(t.rel >= t.wt)      t.status = 'done';
+    else if(t.rel > 0)     t.status = 'prog';
+    else                   t.status = (t.id==='t6' ? 'blocked' : 'pend');
+  });
+
+  // Quality gates apply only where the work has actually been reached.
+  // A gate withholds weight that would otherwise have been released.
+  const g = {
+    t3:{code:'WTRPF-01',name:'Bathroom and toilet waterproofing \u2014 ponding test',
+        ev:{lat:'17.4412\u00b0N',lng:'78.3891\u00b0E',time:'09:14, 18 Aug 2026',hash:'a3f9\u20262b1c',dev:'in-app'},
+        by:'Ravi Kumar',since:'3 days'},
+    t4:{code:'PLSTR-05',name:'QC inspection \u2014 first coat',
+        ev:{lat:'17.4412\u00b0N',lng:'78.3891\u00b0E',time:'16:48, 20 Aug 2026',hash:'7d21\u20268e4a',dev:'in-app'},
+        by:'Suresh Finish',since:'1 day'},
+    t5:{code:'ELEC_F-06',name:'Earth continuity test',state:'rejected',
+        ev:{lat:'17.4413\u00b0N',lng:'78.3890\u00b0E',time:'11:02, 19 Aug 2026',hash:'c410\u20265f77',dev:'in-app'},
+        by:'PowerTech',since:'2 days',reason:'Reading outside permitted range \u2014 returned for rework'}
+  };
+
+  unitTasks.forEach(t=>{
+    const spec = g[t.id];
+    if(!spec || t.rel <= 0) return;
+    const w = Math.round(Math.min(t.wt*0.30, t.rel)*100)/100;
+    if(w <= 0) return;
+    if(spec.state === 'rejected'){
+      t.gates = [Object.assign({}, spec, {w:w})];
+    } else {
+      t.rel  = Math.round((t.rel - w)*100)/100;
+      t.held = w;
+      t.gates = [Object.assign({}, spec, {w:w, state:'pending'})];
+      if(t.rel < t.wt && t.status === 'done') t.status = 'held';
+      if(t.rel <= 0) t.status = 'held';
+    }
+  });
+}
+window.applyUnitState = applyUnitState;
+
 
 const buyerMilestones=[
   {status:'done',  title:'Booking confirmed',    desc:'Agreement signed. Welcome to Skyline Heights.',               date:'Apr 2024'},
@@ -1912,11 +1962,11 @@ function setDdView(view, el){
 
   if(view==='eng'){
     const totW  = unitTasks.reduce((s,t)=>s+t.wt,0);
-    const relW  = unitTasks.reduce((s,t)=>s+t.rel,0);
-    const heldW = unitTasks.reduce((s,t)=>s+t.held,0);
-    const pctNow  = Math.round(relW/totW*1000)/10;
-    const pctIf   = Math.round((relW+heldW)/totW*1000)/10;
-    const queued  = 2;
+    const relW  = Math.round(unitTasks.reduce((s,t)=>s+t.rel,0)*100)/100;
+    const heldW = Math.round(unitTasks.reduce((s,t)=>s+t.held,0)*100)/100;
+    const pctNow  = Math.round(relW/totW*100);
+    const pctIf   = Math.round((relW+heldW)/totW*100);
+    const queued  = heldW>0 ? 2 : 0;
 
     const stMeta = {
       done:   {cls:'dt-done', lbl:'Complete',  col:'#22C55E'},
