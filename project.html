@@ -153,7 +153,7 @@
 <!-- Unit heatmap per tower -->
 <div class="card">
   <div class="card-title" id="hm-title">Tower & unit map <span class="card-sub" id="hm-sub"></span></div>
-  <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+  <div id="hm-legend" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
     <span style="font-size:9px;display:flex;align-items:center;gap:3px;"><span style="width:10px;height:10px;border-radius:2px;background:#1D9E75;display:inline-block;"></span>Booked</span>
     <span style="font-size:9px;display:flex;align-items:center;gap:3px;"><span style="width:10px;height:10px;border-radius:2px;background:#E1F5EE;border:1px solid #5DCAA5;display:inline-block;"></span>Available</span>
     <span style="font-size:9px;display:flex;align-items:center;gap:3px;"><span style="width:10px;height:10px;border-radius:2px;background:#EF9F27;display:inline-block;"></span>Reserved</span>
@@ -161,7 +161,7 @@
     <span style="font-size:9px;display:flex;align-items:center;gap:3px;"><span style="width:10px;height:10px;border-radius:2px;background:#FFB3B3;border:1px solid #E24B4A;display:inline-block;"></span>Delayed</span>
   </div>
   <div id="tower-grids" style="display:flex;gap:16px;overflow-x:auto;"></div>
-  <div style="font-size:9px;color:var(--grey-mid);margin-top:5px;">Each cell = 1 unit · Red floor numbers = delayed</div>
+  <div id="hm-foot" style="font-size:9px;color:var(--grey-mid);margin-top:5px;">Each cell = 1 unit · Red floor numbers = delayed</div>
 </div>
 </div>
 
@@ -495,6 +495,10 @@ if(isWorks){
   if(pipeCard)pipeCard.style.display='none';
   const salesTab=document.getElementById('tab-sales');
   if(salesTab)salesTab.style.display='none';
+  const hmLegend=document.getElementById('hm-legend');
+  if(hmLegend)hmLegend.style.display='none';
+  const hmFoot=document.getElementById('hm-foot');
+  if(hmFoot)hmFoot.style.display='none';
 }
 
 function setTab(el){document.querySelectorAll('.dim-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
