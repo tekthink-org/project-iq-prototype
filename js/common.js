@@ -151,6 +151,7 @@ function renderProjectSidebar(activePage, projectId) {
       <span class="sb-dot" style="background:#EF9F27;"></span>P&L summary
     </div>
 
+    ${(p && p.delivery_model==='works_contract') ? '' : `
     <div class="sb-section">Leasing & Sales</div>
     <div class="sb-item ${activePage==='sales'?'active':''}" onclick="goTo('sales','${id}')">
       <span class="sb-dot" style="background:#E24B4A;"></span>Sales pipeline
@@ -160,7 +161,7 @@ function renderProjectSidebar(activePage, projectId) {
     </div>
     <div class="sb-item ${activePage==='sales'?'active':''}" onclick="goTo('sales','${id}')">
       <span class="sb-dot" style="background:#E24B4A;"></span>Revenue forecast
-    </div>
+    </div>`}
 
     <div class="sb-section">Stakeholder & CX</div>
     <div class="sb-item ${activePage==='cx'?'active':''}" onclick="goTo('cx','${id}')">
