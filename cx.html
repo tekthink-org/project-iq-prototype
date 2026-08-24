@@ -100,7 +100,7 @@
 
 <!-- ROW 1: CX Journey Board -->
 <div class="card mb-14">
-  <div class="card-title">CX journey board <span class="card-sub">Buyer lifecycle — all active buyers</span></div>
+  <div class="card-title" id="jb-title">CX journey board <span class="card-sub" id="jb-sub">Buyer lifecycle — all active buyers</span></div>
   <div class="journey-cols" id="journey-board"></div>
 </div>
 
@@ -109,7 +109,7 @@
 
   <!-- Escalation tracker -->
   <div class="card">
-    <div class="card-title">Escalation tracker <span class="card-sub" id="esc-count"></span></div>
+    <div class="card-title" id="esc-title">Escalation tracker <span class="card-sub" id="esc-count"></span></div>
     <div class="esc-hdr">
       <span>ID</span><span>Issue</span><span>Category</span><span>SLA status</span><span>Raised</span><span>Severity</span>
     </div>
@@ -119,7 +119,7 @@
 
   <!-- Payment tracker -->
   <div class="card">
-    <div class="card-title">Payment demand tracker <span class="card-sub">Current cycle</span></div>
+    <div class="card-title" id="pay-title">Payment demand tracker <span class="card-sub" id="pay-sub">Current cycle</span></div>
     <div class="pay-track-hdr">
       <span>Unit</span><span>Buyer</span><span>Demand</span><span>Amount</span><span>Due date</span><span>Status</span>
     </div>
@@ -133,7 +133,7 @@
 
   <!-- Buyer NPS ratings -->
   <div class="card">
-    <div class="card-title">Buyer NPS ratings <span class="card-sub">Cube dimension scores</span></div>
+    <div class="card-title" id="nps-title">Buyer NPS ratings <span class="card-sub" id="nps-sub">Cube dimension scores</span></div>
     <div id="nps-ratings"></div>
     <div style="margin-top:10px;padding:8px 10px;background:var(--grey-light);border-radius:7px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -160,7 +160,7 @@
       <div class="iq-txt" id="iq-cx"></div>
     </div>
     <div class="card">
-      <div class="card-title">Sales → CX handoff <span class="card-sub">Recent bookings</span></div>
+      <div class="card-title" id="handoff-title">Sales → CX handoff <span class="card-sub" id="handoff-sub">Recent bookings</span></div>
       <div id="handoff-list"></div>
     </div>
   </div>
@@ -168,7 +168,7 @@
 
 <!-- ROW 4: Buyer portal quick access -->
 <div class="card">
-  <div class="card-title">Buyer portal access <span class="card-sub">Click any buyer to open their portal view</span></div>
+  <div class="card-title" id="portal-title">Buyer portal access <span class="card-sub" id="portal-sub">Click any buyer to open their portal view</span></div>
   <div id="buyer-portal-list"></div>
 </div>
 
@@ -1216,6 +1216,7 @@ function renderProjectSidebar(activePage, projectId) {
       <span class="sb-dot" style="background:#EF9F27;"></span>P&L summary
     </div>
 
+    ${(p && p.delivery_model==='works_contract') ? '' : `
     <div class="sb-section">Leasing & Sales</div>
     <div class="sb-item ${activePage==='sales'?'active':''}" onclick="goTo('sales','${id}')">
       <span class="sb-dot" style="background:#E24B4A;"></span>Sales pipeline
@@ -1225,7 +1226,7 @@ function renderProjectSidebar(activePage, projectId) {
     </div>
     <div class="sb-item ${activePage==='sales'?'active':''}" onclick="goTo('sales','${id}')">
       <span class="sb-dot" style="background:#E24B4A;"></span>Revenue forecast
-    </div>
+    </div>`}
 
     <div class="sb-section">Stakeholder & CX</div>
     <div class="sb-item ${activePage==='cx'?'active':''}" onclick="goTo('cx','${id}')">
@@ -1433,11 +1434,16 @@ const b = window.PIQ.builder;
 
 // ── Sidebar & Topbar ─────────────────────────────────────
 document.getElementById('sidebar-container').innerHTML = renderProjectSidebar('cx', pid);
+const isWorks = p.delivery_model === 'works_contract';
 document.getElementById('page-title').textContent = p.name + ' — Stakeholder & CX';
-document.getElementById('page-sub').textContent = p.type + ' · ' + p.location + ' · ' + (p.escalations||[]).filter(e=>e.status==='open').length + ' open escalations';
+document.getElementById('page-sub').textContent = isWorks
+  ? p.type + ' · ' + p.location + ' · Client: ' + (p.client||'Panchayat Raj Dept') + ' · 1 open hindrance'
+  : p.type + ' · ' + p.location + ' · ' + (p.escalations||[]).filter(e=>e.status==='open').length + ' open escalations';
 document.getElementById('topbar-right').innerHTML =
-  '<span class="status-pill pill-red">' + (p.escalations||[]).filter(e=>e.status==='open').length + ' escalations</span>' +
-  '<span class="status-pill pill-amber">' + (p.cx_issues||7) + ' CX issues</span>' +
+  (isWorks
+    ? '<span class="status-pill pill-amber">1 hindrance</span><span class="status-pill pill-blue">Works contract</span>'
+    : '<span class="status-pill pill-red">' + (p.escalations||[]).filter(e=>e.status==='open').length + ' escalations</span>' +
+      '<span class="status-pill pill-amber">' + (p.cx_issues||7) + ' CX issues</span>') +
   '<button class="iq-topbar-btn" onclick="openIQ()">&#10022; Ask Project IQ</button>' +
   '<div class="avatar">' + b.md_initials + '</div>';
 
@@ -1446,17 +1452,45 @@ if(p.alert){ document.getElementById('alert-bar-container').innerHTML = '<div cl
 // ── KPI STRIP ─────────────────────────────────────────────
 const openEsc = (p.escalations||[]).filter(e=>e.status==='open').length;
 const critEsc = (p.escalations||[]).filter(e=>e.status==='open'&&e.severity==='critical').length;
-document.getElementById('kpi-grid').innerHTML = [
+document.getElementById('kpi-grid').innerHTML = (isWorks ? [
+  {label:'Open hindrances', value:1, sub:'Reach 3 — APSPDCL pole shifting', delta:'Time-extension', dclass:'delta-amber'},
+  {label:'RFIs pending',    value:2, sub:'Awaiting EE / SE reply'},
+  {label:'Stakeholders',    value:6, sub:'Dept, agencies & local body'},
+  {label:'Approvals pending',value:1, sub:'Utility shifting — APSPDCL'},
+  {label:'Avg authority reply',value:'6 days', sub:'Correspondence turnaround'},
+  {label:'Public grievances',value:'0', sub:'No PGRS complaints logged'},
+] : [
   {label:'Open escalations', value:openEsc, sub:critEsc+' critical · SLA breach risk', delta:openEsc>3?'Action needed':'Manageable', dclass:openEsc>3?'delta-red':'delta-green'},
   {label:'NPS score',        value:p.nps_score||72, sub:'Target: 80 · Industry avg: 68'},
   {label:'Buyers active',    value:(p.buyers||[]).length, sub:'Across '+p.units_booked+' booked units'},
   {label:'Demands overdue',  value:2, sub:'Rs.20.4 L outstanding', delta:'Overdue', dclass:'delta-red'},
   {label:'Avg response time',value:'18 hrs', sub:'SLA: 24 hrs · On track'},
   {label:'Possession on track',value:'167', sub:'23 at risk · Dec 2026 target'},
-].map(k=>'<div class="kpi"><div class="kpi-label">'+k.label+'</div><div class="kpi-value" style="font-size:'+(String(k.value).length>5?'16px':'22px')+'">'+k.value+'</div><div class="kpi-sub">'+(k.delta?'<span class="kpi-delta '+(k.dclass||'')+'">'+k.delta+'</span> ':'')+k.sub+'</div></div>').join('');
+]).map(k=>'<div class="kpi"><div class="kpi-label">'+k.label+'</div><div class="kpi-value" style="font-size:'+(String(k.value).length>5?'16px':'22px')+'">'+k.value+'</div><div class="kpi-sub">'+(k.delta?'<span class="kpi-delta '+(k.dclass||'')+'">'+k.delta+'</span> ':'')+k.sub+'</div></div>').join('');
 
 // ── CX JOURNEY BOARD ─────────────────────────────────────
-const journeyStages = [
+const journeyStages = isWorks ? [
+  { name:'Sanction',     color:'#1B3A6B', buyers:[
+    {unit:'AS accorded', buyer:'Rs.6.72 Cr · PMGSY', date:'Feb 2024', tags:[{t:'Complete',c:'#E1F5EE',tc:'#065F46'}]},
+    {unit:'Tech sanction',buyer:'SE, PR Prakasam',   date:'Mar 2024', tags:[{t:'Complete',c:'#E1F5EE',tc:'#065F46'}]},
+  ]},
+  { name:'Work order',   color:'#0C447C', buyers:[
+    {unit:'WO/PR-PKM/28', buyer:'Agreement signed',  date:'Mar 2024', tags:[{t:'Complete',c:'#E1F5EE',tc:'#065F46'}]},
+    {unit:'Mobilisation', buyer:'Advance released',   date:'Apr 2024', tags:[]},
+  ]},
+  { name:'Execution',    color:'#085041', buyers:[
+    {unit:'Reach 1-2',   buyer:'BM/BC in progress',  date:'Ongoing', tags:[]},
+    {unit:'Reach 3',     buyer:'APSPDCL hindrance',  date:'Apr 2026', tags:[{t:'Hindrance',c:'#FEE2E2',tc:'#991B1B'}]},
+    {unit:'Utility shift',buyer:'APSPDCL follow-up',  date:'Open',    tags:[{t:'RFI pending',c:'#FAEEDA',tc:'#633806'}]},
+  ]},
+  { name:'Measurement / RA',color:'#633806', buyers:[
+    {unit:'RA-3',        buyer:'Certified Rs.1.10 Cr',date:'Apr 2026', tags:[{t:'Payment due',c:'#E6F1FB',tc:'#0C447C'}]},
+    {unit:'RA-4',        buyer:'Under check-measure', date:'In prep',  tags:[]},
+  ]},
+  { name:'Completion',   color:'#065F46', buyers:[
+    {unit:'Taking-over',  buyer:'On R1-R2 completion', date:'Plan',   tags:[{t:'Pending',c:'#F3F4F6',tc:'#6B7280'}]},
+  ]},
+] : [
   { name:'Booked',       color:'#1B3A6B', buyers:[
     {unit:'Flat 9B', buyer:'Mrs. Lakshmi Rao', date:'Apr 2024', tags:[{t:'Payment overdue',c:'#FEE2E2',tc:'#991B1B'}]},
     {unit:'Flat 12A',buyer:'Mr. Venkat Reddy', date:'Mar 2024', tags:[{t:'No escalation',c:'#E1F5EE',tc:'#065F46'}]},
@@ -1500,7 +1534,13 @@ document.getElementById('journey-board').innerHTML = journeyStages.map(stage =>
 ).join('');
 
 // ── ESCALATION TRACKER ────────────────────────────────────
-const escalationDefaults = [
+const escalationDefaults = isWorks ? [
+  {id:'HIN-03', buyer:'APSPDCL',            unit:'R3',  category:'Pole shifting — corridor blocked', severity:'critical',sla_hrs:120,raised:'12 Apr',status:'open',  elapsed_hrs:288},
+  {id:'RFI-14', buyer:'EE, PR Prakasam',    unit:'R3',  category:'Revised alignment approval',       severity:'high',    sla_hrs:168,raised:'18 Apr',status:'open',  elapsed_hrs:96},
+  {id:'RFI-13', buyer:'SE, PR Prakasam',    unit:'BC',  category:'Bitumen grade clarification',      severity:'medium',  sla_hrs:168,raised:'15 Apr',status:'open',  elapsed_hrs:120},
+  {id:'EOT-02', buyer:'PR Dept',            unit:'—',   category:'Time-extension claim (12 days)',   severity:'high',    sla_hrs:240,raised:'20 Apr',status:'inprog',elapsed_hrs:96},
+  {id:'HIN-02', buyer:'Forest/Revenue',     unit:'R1',  category:'Tree-cutting permission',          severity:'low',     sla_hrs:240,raised:'02 Mar',status:'closed',elapsed_hrs:180},
+] : [
   {id:'ESC-031',buyer:'Mrs. Lakshmi Rao',unit:'9B',   category:'Possession Delay',  severity:'high',    sla_hrs:48, raised:'28 Apr',status:'open',  elapsed_hrs:44},
   {id:'ESC-030',buyer:'Mr. Venkat Reddy',unit:'12A',  category:'No Progress Update', severity:'medium',  sla_hrs:24, raised:'27 Apr',status:'open',  elapsed_hrs:18},
   {id:'ESC-029',buyer:'TechCorp Ltd',    unit:'L2',   category:'Quality Issue',      severity:'critical',sla_hrs:12, raised:'26 Apr',status:'open',  elapsed_hrs:52},
@@ -1536,7 +1576,13 @@ document.getElementById('esc-alert').innerHTML = critOpen.length
   : '<span style="color:var(--teal);">No critical escalations breaching SLA.</span>';
 
 // ── PAYMENT TRACKER ───────────────────────────────────────
-const payments = [
+const payments = isWorks ? [
+  {unit:'L-118', buyer:'To APSPDCL',       demand:'Pole shifting — expedite',  amount:'Reply due', due:'Sent 12 Apr', status:'overdue'},
+  {unit:'L-121', buyer:'To EE, PR',        demand:'Hindrance intimation (EOT)',amount:'Ack recd',  due:'20 Apr',      status:'upcoming'},
+  {unit:'L-122', buyer:'From SE, PR',      demand:'Bitumen grade — clarified', amount:'Replied',   due:'22 Apr',      status:'paid'},
+  {unit:'L-124', buyer:'To PR Dept',       demand:'RA-3 forwarding letter',    amount:'Ack recd',  due:'24 Apr',      status:'paid'},
+  {unit:'L-125', buyer:'To Sarpanch',      demand:'Local coordination — R4',   amount:'Reply due', due:'Sent 26 Apr', status:'upcoming'},
+] : [
   {unit:'Flat 9B', buyer:'Mrs. Lakshmi Rao',demand:'D5 — Plastering', amount:'Rs.10.2L',due:'28 Feb 2026',status:'overdue'},
   {unit:'Flat 7A', buyer:'Mrs. Priya Nair',  demand:'D4 — MEP',        amount:'Rs.8.5L', due:'15 Apr 2026',status:'overdue'},
   {unit:'Flat 3B', buyer:'Mr. Raju Sharma',  demand:'D3 — Slab',       amount:'Rs.12L',  due:'10 May 2026',status:'upcoming'},
@@ -1564,13 +1610,19 @@ document.getElementById('pay-summary').innerHTML = [
 ].map(s=>'<div style="background:var(--grey-light);border-radius:6px;padding:7px 10px;text-align:center;"><div style="font-size:16px;font-weight:700;color:' + s.col + ';">' + s.val + '</div><div style="font-size:9px;color:var(--grey-mid);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">' + s.lbl + '</div></div>').join('');
 
 // ── BUYER NPS RATINGS ─────────────────────────────────────
-const buyers = p.buyers || [
+const buyers = isWorks ? [
+  {name:'Executive Engineer', unit:'PR Prakasam',  initials:'EE', score:4.2, trend:'up',   color:'#1D9E75'},
+  {name:'Superintending Engr',unit:'PR Circle',    initials:'SE', score:4.0, trend:'same', color:'#1D9E75'},
+  {name:'APSPDCL nodal',      unit:'Utility shift', initials:'AP', score:2.6, trend:'down', color:'#E24B4A'},
+  {name:'Sarpanch / Gram P.', unit:'Local body',   initials:'SP', score:3.9, trend:'up',   color:'#EF9F27'},
+  {name:'AE / Site inspector',unit:'Check-measure',initials:'AE', score:4.4, trend:'up',   color:'#1D9E75'},
+] : (p.buyers || [
   {name:'Mrs. Lakshmi Rao', unit:'9B',   initials:'LR', score:3.2, trend:'down', color:'#E24B4A'},
   {name:'Mr. Venkat Reddy', unit:'12A',  initials:'VR', score:4.1, trend:'up',   color:'#1D9E75'},
   {name:'Dr. Anand Kumar',  unit:'B-12', initials:'AK', score:4.5, trend:'up',   color:'#1D9E75'},
   {name:'Mrs. Priya Nair',  unit:'7A',   initials:'PN', score:3.8, trend:'same', color:'#EF9F27'},
   {name:'TechCorp Ltd',     unit:'L2',   initials:'TC', score:2.9, trend:'down', color:'#E24B4A'},
-];
+]);
 const avgNPS = Math.round(buyers.reduce((s,b)=>s+b.score,0)/buyers.length*10)/10;
 document.getElementById('nps-ratings').innerHTML = buyers.map(buyer => {
   const stars = [1,2,3,4,5].map(s => s<=Math.round(buyer.score)?'⭐':'☆').join('');
@@ -1590,7 +1642,13 @@ document.getElementById('nps-bar').style.width = (avgNPS/5*100) + '%';
 document.getElementById('nps-bar').style.background = avgNPS>=4?'var(--teal-mid)':avgNPS>=3?'var(--amber-mid)':'var(--red-mid)';
 
 // ── COMMUNICATION LOG ─────────────────────────────────────
-const comms = [
+const comms = isWorks ? [
+  {icon:'📧',channel:'Letter', who:'Seven Hills → APSPDCL',msg:'Reminder L-118: expedite pole shifting on Reach 3 — 12-day hindrance, works stalled.',time:'Today 9:14 AM',chColor:'#791F1F',chBg:'#FCEBEB'},
+  {icon:'📋',channel:'Site mtg',who:'EE, PR ↔ Seven Hills',msg:'Weekly review: RA-3 forwarded for payment. Revised R3 alignment under EE consideration.',time:'Yesterday 3:42 PM',chColor:'#1B3A6B',chBg:'#E6EDF7'},
+  {icon:'📧',channel:'Letter', who:'SE, PR → Seven Hills',msg:'Reply to RFI-13: VG-30 bitumen confirmed for BC. Proceed on approved grade.',time:'26 Apr 11:20 AM',chColor:'#065F46',chBg:'#E1F5EE'},
+  {icon:'📞',channel:'Call',   who:'Seven Hills → Sarpanch',msg:'Coordination for Reach 4 land strip and local labour. Positive.',time:'25 Apr 2:10 PM',chColor:'#1B3A6B',chBg:'#E6EDF7'},
+  {icon:'📋',channel:'MB entry',who:'AE check-measurement — R1',msg:'Joint measurement of BC ch. 0.0-2.1 recorded. Core samples drawn.',time:'24 Apr 10:05 AM',chColor:'#7F77DD',chBg:'#EEEDFE'},
+] : [
   {icon:'💬',channel:'WhatsApp',who:'Mrs. Lakshmi Rao → Priya (CX)',msg:'When will plastering be completed? Possession seems delayed.',time:'Today 9:14 AM',chColor:'#25D366',chBg:'#E1F5EE'},
   {icon:'📞',channel:'Call',   who:'Priya (CX) → Mr. Venkat Reddy',msg:'Called re: progress update request. Resolved — floor 12 update shared.',time:'Yesterday 3:42 PM',chColor:'#1B3A6B',chBg:'#E6EDF7'},
   {icon:'📧',channel:'Email',  who:'TechCorp Ltd → MD Office',msg:'Quality concern — NCR-029. Formal letter sent. Response pending.',time:'26 Apr 11:20 AM',chColor:'#791F1F',chBg:'#FCEBEB'},
@@ -1615,11 +1673,31 @@ const iqCxInsights = {
   oaks:    'Prestige Oaks buyer sentiment is the strongest across the portfolio. 6 buyers due for possession walk-through in May — schedule now. No overdue escalations. Recommend proactive NPS survey to capture the positive momentum.',
   tektower:'TekTower OC timeline is Sep 2026. All 8 tenants need formal possession date confirmation letters by May 15. Floor L3 snag list has 12 open items — expedite before tenant walk-through.',
   greenvalley:'Green Valley has 134 pre-registrations with no formal CX engagement yet. Recommend sending a welcome kit and project update to all pre-registrants this week. HMDA approval communication plan should be ready.',
+  ruralroad:'The APSPDCL utility-shifting hindrance on Reach 3 is 12 days old — send a second reminder and copy the EE, since the delay is client-side and supports the time-extension claim. RFI-14 (revised R3 alignment) is with the EE — follow up in the weekly review. Keep every hindrance and instruction in writing in the measurement book; the contemporaneous record is the basis of the EOT and any price-escalation claim.',
 };
 document.getElementById('iq-cx').textContent = iqCxInsights[pid] || iqCxInsights.skyline;
 
+// ── Works-contract card retitles ──
+if(isWorks){
+  const set=(id,txt)=>{const el=document.getElementById(id); if(el) el.firstChild ? el.firstChild.textContent=txt : el.textContent=txt;};
+  const setSub=(id,txt)=>{const el=document.getElementById(id); if(el) el.textContent=txt;};
+  set('jb-title','Authority engagement '); setSub('jb-sub','Sanction to completion');
+  set('esc-title','Hindrance & RFI register ');
+  set('pay-title','Authority correspondence '); setSub('pay-sub','Letters & replies');
+  set('nps-title','Stakeholder register '); setSub('nps-sub','Engagement — key contacts');
+  set('handoff-title','Time-extension & claims '); setSub('handoff-sub','Hindrance-linked');
+  set('portal-title','Stakeholder directory '); setSub('portal-sub','Department, agencies & local body');
+  const pnpsLbl=document.getElementById('portfolio-nps'); // relabel the "Portfolio NPS" caption
+  if(pnpsLbl && pnpsLbl.previousElementSibling) pnpsLbl.previousElementSibling.textContent='Engagement index';
+}
+
 // ── BOOKING → CX HANDOFF ──────────────────────────────────
-const handoffs = [
+const handoffs = isWorks ? [
+  {icon:'⏳',unit:'EOT-02',  buyer:'Time extension — 12 days', stage:'Claim lodged',          stageCol:'var(--amber)',   stageBg:'var(--amber-light)'},
+  {icon:'📈',unit:'ESC-63',  buyer:'Bitumen price escalation', stage:'Under review',          stageCol:'var(--amber)',   stageBg:'var(--amber-light)'},
+  {icon:'🤝',unit:'HIN-03',  buyer:'APSPDCL pole shifting',    stage:'Hindrance active',      stageCol:'var(--red)',     stageBg:'var(--red-light)'},
+  {icon:'✓', unit:'HIN-02',  buyer:'Tree-cutting permission',  stage:'Resolved',              stageCol:'var(--grey-mid)','stageBg':'var(--grey-light)'},
+] : [
   {icon:'🤝',unit:'Flat 9B', buyer:'Mrs. Lakshmi Rao',stage:'Active — CX ongoing',    stageCol:'var(--teal)',    stageBg:'var(--teal-light)'},
   {icon:'🤝',unit:'Flat 12A',buyer:'Mr. Venkat Reddy', stage:'Active — CX ongoing',    stageCol:'var(--teal)',    stageBg:'var(--teal-light)'},
   {icon:'⏳',unit:'Flat 15B',buyer:'Mr. Kiran Sharma', stage:'Handoff pending PM sign', stageCol:'var(--amber)',   stageBg:'var(--amber-light)'},
@@ -1635,7 +1713,13 @@ document.getElementById('handoff-list').innerHTML = handoffs.map(h =>
 ).join('');
 
 // ── BUYER PORTAL ACCESS ───────────────────────────────────
-const portalBuyers = [
+const portalBuyers = isWorks ? [
+  {name:'Executive Engineer',  unit:'PR Dept, Prakasam',  type:'Client / EE', progress:100, nps:4.2, status:'Primary client', statusCol:'var(--teal)'},
+  {name:'Superintending Engr', unit:'PR Circle',          type:'Sanctioning', progress:100, nps:4.0, status:'TS authority',   statusCol:'var(--teal)'},
+  {name:'APSPDCL',             unit:'Utility agency',     type:'Coordination',progress:40,  nps:2.6, status:'Pole shifting',  statusCol:'var(--red)'},
+  {name:'Gram Panchayat',      unit:'Local body',         type:'Local',       progress:80,  nps:3.9, status:'Land / labour',  statusCol:'var(--amber-mid)'},
+  {name:'AE — Check measure',  unit:'Field verification', type:'QC',          progress:90,  nps:4.4, status:'Measurement',    statusCol:'var(--teal)'},
+] : [
   {name:'Mrs. Lakshmi Rao', unit:'Flat 9B Tower B',  type:'3BHK', progress:59, nps:3.2, status:'Possession at risk', statusCol:'var(--red)'},
   {name:'Mr. Venkat Reddy', unit:'Flat 12A Tower A', type:'3BHK', progress:72, nps:4.1, status:'On track',           statusCol:'var(--teal)'},
   {name:'Dr. Anand Kumar',  unit:'Villa B-12',        type:'Villa',progress:65, nps:4.5, status:'On track',           statusCol:'var(--teal)'},
