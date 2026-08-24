@@ -269,7 +269,7 @@
 
   <!-- Heatmap card -->
   <div class="card">
-    <div class="card-title" style="margin-bottom:8px;">
+    <div class="card-title" id="hm-card-title" style="margin-bottom:8px;">
       Tower & unit map
       <div style="display:flex;align-items:center;gap:8px;">
         <!-- Content toggle: Flats / Common Areas -->
@@ -295,7 +295,7 @@
       <div class="tower-tabs" id="tower-tabs"></div>
       <!-- Heatmap -->
       <div id="heatmap-wrap" style="overflow-x:auto;"></div>
-      <div style="font-size:9px;color:var(--grey-mid);margin-top:5px;">Click any unit for drill-down · Red floor numbers = delayed</div>
+      <div id="hm-footer" style="font-size:9px;color:var(--grey-mid);margin-top:5px;">Click any unit for drill-down · Red floor numbers = delayed</div>
     </div>
 
     <!-- COMMON AREAS VIEW -->
@@ -527,6 +527,7 @@ function renderProjectSidebar(activePage, projectId) {
       <span class="sb-dot" style="background:#EF9F27;"></span>P&L summary
     </div>
 
+    ${(p && p.delivery_model==='works_contract') ? '' : `
     <div class="sb-section">Leasing & Sales</div>
     <div class="sb-item ${activePage==='sales'?'active':''}" onclick="goTo('sales','${id}')">
       <span class="sb-dot" style="background:#E24B4A;"></span>Sales pipeline
@@ -536,7 +537,7 @@ function renderProjectSidebar(activePage, projectId) {
     </div>
     <div class="sb-item ${activePage==='sales'?'active':''}" onclick="goTo('sales','${id}')">
       <span class="sb-dot" style="background:#E24B4A;"></span>Revenue forecast
-    </div>
+    </div>`}
 
     <div class="sb-section">Stakeholder & CX</div>
     <div class="sb-item ${activePage==='cx'?'active':''}" onclick="goTo('cx','${id}')">
@@ -751,6 +752,7 @@ function setupTooltips(){
 // ── State ─────────────────────────────────────────────────
 const pid = getCurrentProject();
 const p = window.PIQ.projects[pid] || window.PIQ.projects.skyline;
+const isWorks = p.delivery_model === 'works_contract';
 const b = window.PIQ.builder;
 let currentTower = 0;
 let currentView = 'sales';     // 'sales' or 'construction'
@@ -776,14 +778,22 @@ if(p.alert){
 const wps = p.work_packages||[];
 const ncrs = p.ncrs||[];
 const openNcrs = ncrs.filter(n=>n.status==='open').length;
-document.getElementById('kpi-grid').innerHTML = [
+const kpiSet = isWorks ? [
+  {label:'Physical progress', value:p.overall_progress+'%', sub:'Plan: '+p.plan_progress+'%', delta:p.overall_progress<p.plan_progress?'Behind':'Ahead', dclass:p.overall_progress<p.plan_progress?'delta-amber':'delta-green'},
+  {label:'Work packages', value:wps.length, sub:wps.filter(w=>w.actual<w.plan).length+' behind · 1 blocked'},
+  {label:'Open NCRs', value:openNcrs, sub:'None outstanding'},
+  {label:'RA billed', value:'Rs.'+p.ra_bills_paid_cr+' Cr', sub:'of Rs.'+p.contract_value_cr+' Cr · 3rd RA bill'},
+  {label:'Chainage done', value:p.completed_length_km+' km', sub:'of '+p.sanctioned_length_km+' km sanctioned'},
+  {label:'Reaches', value:'1 / 4', sub:'R1 near complete · R3 held', delta:'R3 hindrance', dclass:'delta-amber'},
+] : [
   {label:'Physical progress', value:p.overall_progress+'%', sub:'Plan: '+p.plan_progress+'%', delta:p.overall_progress<p.plan_progress?'Behind':'Ahead', dclass:p.overall_progress<p.plan_progress?'delta-amber':'delta-green'},
   {label:'Work packages', value:wps.length, sub:wps.filter(w=>w.status==='critical').length+' critical · '+wps.filter(w=>w.actual<w.plan).length+' behind'},
   {label:'Open NCRs', value:openNcrs, sub:ncrs.filter(n=>n.severity==='critical'&&n.status==='open').length+' critical'},
   {label:'QA — ITP', value:(p.parameters&&p.parameters.qa)?p.parameters.qa.value:'N/A', sub:'Method statements & inspections'},
   {label:'Labour today', value:'340', sub:'Plan: 370 · -8% vs plan', delta:'Shortfall', dclass:'delta-amber'},
   {label:'SPI', value:(p.parameters&&p.parameters.schedule)?p.parameters.schedule.value:'N/A', sub:'Schedule performance index'},
-].map(k=>'<div class="kpi"><div class="kpi-label">'+k.label+'</div><div class="kpi-value" style="font-size:'+(String(k.value).length>5?'16px':'22px')+'">'+k.value+'</div><div class="kpi-sub">'+(k.delta?'<span class="kpi-delta '+(k.dclass||'')+'">'+k.delta+'</span> ':'')+k.sub+'</div></div>').join('');
+];
+document.getElementById('kpi-grid').innerHTML = kpiSet.map(k=>'<div class="kpi"><div class="kpi-label">'+k.label+'</div><div class="kpi-value" style="font-size:'+(String(k.value).length>5?'16px':'22px')+'">'+k.value+'</div><div class="kpi-sub">'+(k.delta?'<span class="kpi-delta '+(k.dclass||'')+'">'+k.delta+'</span> ':'')+k.sub+'</div></div>').join('');
 
 // ── TOWER DATA ────────────────────────────────────────────
 const towers = p.towers || [];
@@ -1100,6 +1110,7 @@ const iqInsights={
   tektower:'TekTower One ahead of programme. OC checklist only 20% complete — initiate fire NOC pre-inspection and lift commissioning this week.',
   greenvalley:'HMDA boundary issue blocks RERA registration — legal correction is critical path. Water supply network not yet started.',
 };
+iqInsights.ruralroad = 'Reach 3 WMM held 12 days by APSPDCL pole shifting (ch. 4.480). Bituminous layers on R3/R4 are the critical path. Reach 1 BC 96% but 6 weight units withheld pending core-thickness test — chase sign-off to release the 3rd RA bill in full.';
 document.getElementById('iq-construction').textContent = iqInsights[pid]||iqInsights.skyline;
 
 // ── WORK PACKAGES ─────────────────────────────────────────
@@ -1498,11 +1509,271 @@ window.saveEngUpdate = saveEngUpdate;
 
 window.saveEngUpdate = saveEngUpdate;
 
+// ═══════════════════════════════════════════════════════════
+// ROAD / WORKS-CONTRACT CHAINAGE VIEW  (Path B — quantity based)
+// Activated when p.delivery_model === 'works_contract'.
+// All building/tower logic above is left untouched.
+// ═══════════════════════════════════════════════════════════
+
+// Reach layers use a shared weight template (the task master); what varies
+// per reach is the MEASURED quantity against the SANCTIONED quantity.
+// Path B progress = Σ( min(measured/sanctioned,1) × weight ) / Σ weight.
+function mkLayers(spec){
+  // spec: [name, icon, unit, sanctioned, measured, wt, gate?]
+  return spec.map(s=>({name:s[0],icon:s[1],unit:s[2],sanctioned:s[3],measured:s[4],wt:s[5],gate:s[6]||null,note:s[7]||null}));
+}
+
+const roadReaches = [
+  { id:'R1', name:'Reach 1', from:0.000, to:2.100, status:'ok',
+    layers: mkLayers([
+      ['Earthwork & formation','\u26cf','m\u00b3',7350,7350,20],
+      ['Granular sub-base (GSB)','\u25a4','m\u00b3',2520,2520,18],
+      ['WMM base course','\u25a6','m\u00b3',1890,1890,16],
+      ['Bituminous macadam (BM)','\u25ac','m\u00b2',7875,7875,18],
+      ['Bituminous concrete (BC)','\u2593','m\u00b2',7875,6694,20,
+        {code:'BC-CORE-01',name:'Core thickness \u2014 50mm min',w:6,state:'pending',
+         ev:{lat:'15.4321\u00b0N',lng:'79.5102\u00b0E',time:'10:22, 20 Aug 2026',hash:'b7c2\u20264a19',dev:'in-app'},
+         by:'M. Prasad (AE)',since:'2 days'}],
+      ['Shoulders & side drains','\u2534','m',4200,3780,8],
+    ]) },
+
+  { id:'R2', name:'Reach 2', from:2.100, to:4.200, status:'ok',
+    layers: mkLayers([
+      ['Earthwork & formation','\u26cf','m\u00b3',7350,7350,20],
+      ['Granular sub-base (GSB)','\u25a4','m\u00b3',2520,2520,18],
+      ['WMM base course','\u25a6','m\u00b3',1890,1890,16],
+      ['Bituminous macadam (BM)','\u25ac','m\u00b2',7875,6300,18],
+      ['Bituminous concrete (BC)','\u2593','m\u00b2',7875,2363,20],
+      ['Shoulders & side drains','\u2534','m',4200,2520,8],
+    ]) },
+
+  { id:'R3', name:'Reach 3', from:4.200, to:5.600, status:'held',
+    layers: mkLayers([
+      ['Earthwork & formation','\u26cf','m\u00b3',4900,4900,20],
+      ['Granular sub-base (GSB)','\u25a4','m\u00b3',1680,1680,18],
+      ['WMM base course','\u25a6','m\u00b3',1260,252,16,null,
+        'Blocked \u2014 electric-pole shifting (APSPDCL) pending 12 days. WMM cannot proceed past ch. 4.480. Hindrance logged; time-extension entitlement protected.'],
+      ['Bituminous macadam (BM)','\u25ac','m\u00b2',5250,0,18],
+      ['Bituminous concrete (BC)','\u2593','m\u00b2',5250,0,20],
+      ['Shoulders & side drains','\u2534','m',2800,840,8],
+    ]) },
+
+  { id:'R4', name:'Reach 4', from:5.600, to:8.400, status:'ok',
+    layers: mkLayers([
+      ['Earthwork & formation','\u26cf','m\u00b3',9800,9800,20],
+      ['Granular sub-base (GSB)','\u25a4','m\u00b3',3360,2016,18],
+      ['WMM base course','\u25a6','m\u00b3',2520,252,16],
+      ['Bituminous macadam (BM)','\u25ac','m\u00b2',10500,0,18],
+      ['Bituminous concrete (BC)','\u2593','m\u00b2',10500,0,20],
+      ['Shoulders & side drains','\u2534','m',5600,1680,8],
+    ]) },
+];
+
+const culverts = [
+  { ch:0.850, type:'Pipe culvert (1\u00d71.0m)', status:'done'     },
+  { ch:2.400, type:'Slab culvert (3.0m)',    status:'done'     },
+  { ch:4.900, type:'Box culvert (2\u00d72m)',    status:'progress' },
+  { ch:6.700, type:'Pipe culvert (2\u00d71.0m)', status:'pend'     },
+];
+
+const ROAD_FROM = 0.000, ROAD_TO = 8.400;
+
+// ── Path B computation for a reach ──
+function computeReach(reach){
+  let totW=0, relW=0, heldW=0;
+  reach.layers.forEach(l=>{
+    totW += l.wt;
+    const frac = l.sanctioned>0 ? Math.min(l.measured/l.sanctioned,1) : 0;
+    let earned = l.wt*frac, held = 0;
+    if(l.gate && l.gate.state==='pending'){
+      held = Math.min(l.gate.w, earned);
+      earned -= held;
+    }
+    l._frac = frac; l._earned = Math.round(earned*100)/100; l._held = Math.round(held*100)/100;
+    relW += earned; heldW += held;
+  });
+  relW=Math.round(relW*10)/10; heldW=Math.round(heldW*10)/10;
+  return { totW, relW, heldW, pct:Math.round(relW/totW*100), pctIf:Math.round((relW+heldW)/totW*100) };
+}
+
+function reachColor(pct, status){
+  if(status==='held') return '#EF9F27';
+  if(pct>=90) return '#1D9E75';
+  if(pct>=60) return '#5DCAA5';
+  if(pct>=30) return '#FBBF24';
+  return '#F97316';
+}
+
+// ── Render the chainage strip into the heatmap card ──
+function renderChainage(){
+  // Re-label + hide the development chrome on this card
+  const ct=document.getElementById('content-toggle'); if(ct) ct.style.display='none';
+  const vt=document.getElementById('view-toggle');    if(vt) vt.style.display='none';
+  const clbl=document.getElementById('context-label');if(clbl) clbl.style.display='none';
+  const leg=document.getElementById('hm-legend');     if(leg) leg.style.display='none';
+  const tt=document.getElementById('tower-tabs');     if(tt) tt.style.display='none';
+  const foot=document.getElementById('hm-footer');    if(foot) foot.textContent='Click any reach for the quantity-based (Path B) drill-down \u00b7 \u25b2 culverts at their chainage';
+  const title=document.getElementById('hm-card-title');
+  if(title) title.firstChild.textContent='Corridor & chainage \u2014 ch. 0.000 to 8.400 ';
+
+  const totalLen = ROAD_TO - ROAD_FROM;
+
+  // Reach segments (flex-grow by length)
+  const segs = roadReaches.map((r,i)=>{
+    const c = computeReach(r);
+    const col = reachColor(c.pct, r.status);
+    const len = r.to - r.from;
+    const heldTag = c.heldW>0 ? '<div style="font-size:8.5px;color:#854F0B;margin-top:2px;">'+c.heldW+' units held</div>' : '';
+    const flag = r.status==='held' ? '<span style="font-size:9px;color:#854F0B;">\u26a0 hindrance</span>' : '';
+    return '<div onclick="openReachDrilldown('+i+')" style="flex:'+len+' 1 0;min-width:0;cursor:pointer;background:'+col+';border-radius:6px;padding:8px 9px;color:white;position:relative;transition:transform .1s;" '+
+      'onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'none\'">'+
+      '<div style="font-size:11px;font-weight:700;">'+r.name+' '+flag+'</div>'+
+      '<div style="font-size:9px;opacity:.9;font-family:var(--font-mono);">ch. '+r.from.toFixed(3)+'\u2013'+r.to.toFixed(3)+'</div>'+
+      '<div style="font-size:18px;font-weight:700;margin-top:4px;">'+c.pct+'%</div>'+
+      heldTag+
+    '</div>';
+  }).join('');
+
+  // Culvert markers on an axis (positioned by chainage)
+  const cvIcon={done:'#1D9E75',progress:'#EF9F27',pend:'#C9C7C0'};
+  const marks = culverts.map(cv=>{
+    const left = ((cv.ch-ROAD_FROM)/totalLen*100).toFixed(2);
+    return '<div data-tip="ch. '+cv.ch.toFixed(3)+' \u2014 '+cv.type+' ('+cv.status+')" style="position:absolute;left:'+left+'%;top:0;transform:translateX(-50%);text-align:center;">'+
+      '<div style="color:'+cvIcon[cv.status]+';font-size:13px;line-height:1;">\u25b2</div>'+
+      '<div style="font-size:8px;color:var(--grey-mid);font-family:var(--font-mono);margin-top:1px;">'+cv.ch.toFixed(1)+'</div>'+
+    '</div>';
+  }).join('');
+
+  const axis =
+    '<div style="position:relative;height:34px;margin-top:14px;border-top:1px dashed var(--border);padding-top:2px;">'+
+      marks+
+      '<div style="position:absolute;left:0;bottom:0;font-size:8px;color:var(--grey-mid);font-family:var(--font-mono);">0.000</div>'+
+      '<div style="position:absolute;right:0;bottom:0;font-size:8px;color:var(--grey-mid);font-family:var(--font-mono);">8.400 km</div>'+
+    '</div>';
+
+  const legend =
+    '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:9px;color:var(--grey-mid);">'+
+      '<span><span style="color:#1D9E75;">\u25a0</span> \u226590%</span>'+
+      '<span><span style="color:#5DCAA5;">\u25a0</span> \u226560%</span>'+
+      '<span><span style="color:#FBBF24;">\u25a0</span> \u226530%</span>'+
+      '<span><span style="color:#F97316;">\u25a0</span> early</span>'+
+      '<span><span style="color:#EF9F27;">\u25a0</span> hindrance held</span>'+
+      '<span style="margin-left:auto;"><span style="color:#1D9E75;">\u25b2</span> culvert</span>'+
+    '</div>';
+
+  document.getElementById('heatmap-wrap').innerHTML =
+    legend + '<div style="display:flex;gap:8px;align-items:stretch;">'+segs+'</div>' + axis;
+  setupTooltips();
+}
+window.renderChainage = renderChainage;
+
+// ── Reach drill-down (Path B) ──
+let currentReachIdx = 0;
+function openReachDrilldown(i){
+  currentReachIdx = i;
+  const r = roadReaches[i];
+  const c = computeReach(r);
+
+  document.getElementById('dd-title').textContent = r.name+' \u2014 ch. '+r.from.toFixed(3)+' to '+r.to.toFixed(3);
+  document.getElementById('dd-sub').textContent = p.name+' \u00b7 Works contract \u00b7 quantity-based measurement (Path B)';
+
+  const circumference = 2*Math.PI*24;
+  document.getElementById('dd-ring-fill').setAttribute('stroke-dashoffset', (circumference*(1-c.pct/100)).toFixed(1));
+  document.getElementById('dd-ring-pct').textContent = c.pct+'%';
+  document.getElementById('dd-ring-title').textContent = 'Reach progress \u2014 Path B (quantity)';
+  document.getElementById('dd-ring-meta').innerHTML = 'Measured \u00f7 sanctioned, weighted across '+r.layers.length+' layers'+
+    (c.heldW>0 ? ' \u00b7 <span style="color:#FCD34D;">'+c.heldW+' units withheld pending QC</span>' : '');
+
+  // Reach view has no PM/Buyer split — hide the tab row
+  const tabs=document.getElementById('dd-tabs'); if(tabs) tabs.style.display='none';
+
+  renderReachDrilldown();
+  document.getElementById('dd-overlay').classList.add('open');
+}
+window.openReachDrilldown = openReachDrilldown;
+
+function renderReachDrilldown(){
+  const r = roadReaches[currentReachIdx];
+  const c = computeReach(r);
+  const body = document.getElementById('dd-body');
+
+  const rows = r.layers.map(l=>{
+    const fracPct = Math.round(l._frac*100);
+    const earnedBar = l.wt ? (l._earned/l.wt*100) : 0;
+    const heldBar   = l.wt ? (l._held/l.wt*100)   : 0;
+    const done = fracPct>=100 && !l.gate;
+    const col = l.note ? '#FCA5A5' : done ? '#22C55E' : fracPct>0 ? '#60A5FA' : '#E5E7EB';
+    const tag = l.note ? 'Blocked' : (l._held>0 ? 'Weight held' : done ? 'Complete' : fracPct>0 ? 'In progress' : 'Not started');
+    const tagCol = l.note ? '#FCA5A5' : (l._held>0 ? '#EF9F27' : done ? '#22C55E' : fracPct>0 ? '#60A5FA' : '#9CA3AF');
+
+    const gateHtml = (l.gate && l.gate.state==='pending') ?
+      '<div class="gate gate-pending">'+
+        '<div class="gate-top">'+
+          '<span class="gate-code">'+l.gate.code+'</span>'+
+          '<span class="gate-name">'+l.gate.name+'</span>'+
+          '<span class="gate-w">'+l.gate.w+' units</span>'+
+          '<span class="gate-state gs-pending">Weight withheld</span>'+
+        '</div>'+
+        '<div class="ev">'+
+          '<span class="ev-ic">\ud83d\udcf7</span>'+
+          '<span class="ev-m">'+l.gate.ev.lat+' '+l.gate.ev.lng+'</span>'+
+          '<span class="ev-m">'+l.gate.ev.time+'</span>'+
+          '<span class="ev-m">sha256 '+l.gate.ev.hash+'</span>'+
+          '<span class="ev-src">'+l.gate.ev.dev+' capture</span>'+
+          '<span class="ev-ok">\u2713 bound</span>'+
+        '</div>'+
+        '<div class="gate-msg">Quantity measured and recorded in the measurement book by '+l.gate.by+' '+l.gate.since+' ago. Weight is withheld from the running figure until an authorised QC user signs off the test.</div>'+
+      '</div>' : '';
+
+    const noteHtml = l.note ? '<div style="font-size:10px;color:var(--red);margin-top:5px;">'+l.note+'</div>' : '';
+
+    return '<div class="dd-task'+(l.note?' blocked':'')+'">'+
+      '<div class="dd-task-top">'+
+        '<div class="dd-task-icon" style="background:#EEF2F7;">'+l.icon+'</div>'+
+        '<div class="dd-task-name">'+l.name+'<div style="font-size:9px;color:var(--grey-mid);font-weight:400;">'+l.wt+' weight units \u00b7 measured in '+l.unit+'</div></div>'+
+        '<div class="dd-task-tag" style="background:'+tagCol+'22;color:'+tagCol+';">'+tag+'</div>'+
+      '</div>'+
+      '<div style="font-size:10px;color:var(--grey);margin:3px 0 5px;font-family:var(--font-mono);">'+
+        l.measured.toLocaleString()+' / '+l.sanctioned.toLocaleString()+' '+l.unit+' measured \u00b7 '+fracPct+'% of sanctioned</div>'+
+      '<div class="dd-bar-row">'+
+        '<div class="dd-bar-wrap2">'+
+          '<div class="dd-bar-rel" style="width:'+earnedBar+'%;background:'+col+';"></div>'+
+          (heldBar>0 ? '<div class="dd-bar-held" style="width:'+heldBar+'%;"></div>' : '')+
+        '</div>'+
+        '<div class="dd-pct" style="color:'+col+';">'+Math.round(earnedBar)+'%</div>'+
+      '</div>'+
+      (l._held>0 ? '<div style="font-size:9.5px;color:#854F0B;margin-top:3px;">Hatched segment is measured quantity not yet released \u2014 pending QC sign-off</div>' : '')+
+      gateHtml + noteHtml +
+    '</div>';
+  }).join('');
+
+  body.innerHTML =
+    '<div class="eng-baseline"><span>\u25c9</span><span>Measured against <b>Baseline v2</b> \u00b7 SoR estimate, agreement WO/PR-PKM/PMGSY/28/2024</span></div>'+
+    (c.heldW>0 ? '<div class="eng-queue"><span>\u23f3</span><span><b>Quantity withheld</b> \u2014 measured and recorded, released to the running figure on QC sign-off</span></div>' : '')+
+    '<div class="eng-calc">'+
+      '<div class="eng-calc-top">'+
+        '<div><div class="eng-calc-big">'+c.pct+'%</div><div class="eng-calc-lbl">Reach progress \u2014 Path B</div></div>'+
+        '<div class="eng-calc-eq">'+c.relW+' of '+c.totW+' weight units released</div>'+
+      '</div>'+
+      (c.heldW>0 ? '<div class="eng-calc-held">\u25b2 '+c.heldW+' units measured but withheld pending QC sign-off \u2014 progress would read '+c.pctIf+'% once released</div>' : '')+
+    '</div>'+
+    '<div style="background:var(--navy-light);border-radius:7px;padding:7px 10px;margin-bottom:10px;font-size:10.5px;color:var(--navy);line-height:1.5;">'+
+      '<strong>Path B (quantity):</strong> each layer\u2019s progress is measured quantity \u00f7 sanctioned quantity, weighted by the task master. No percentage is entered by hand \u2014 the figure is computed from booked measurement.'+
+    '</div>'+
+    rows;
+}
+window.renderReachDrilldown = renderReachDrilldown;
+
+
 // ── INIT RENDERS ─────────────────────────────────────────
-renderLegend();
-renderTowerTabs();
-renderHeatmap();
-renderAmenities();
+if(isWorks){
+  renderChainage();
+} else {
+  renderLegend();
+  renderTowerTabs();
+  renderHeatmap();
+  renderAmenities();
+}
 setupTooltips();
 
 
