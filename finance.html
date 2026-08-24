@@ -127,7 +127,7 @@
 
   <!-- AR Tracker -->
   <div class="card">
-    <div class="card-title">Accounts receivable <span class="card-sub">Buyer payment demands outstanding</span></div>
+    <div class="card-title" id="ar-card-title">Accounts receivable <span class="card-sub" id="ar-card-sub">Buyer payment demands outstanding</span></div>
     <div id="ar-list"></div>
     <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="ar-summary"></div>
   </div>
@@ -138,7 +138,7 @@
 
   <!-- 3-way match -->
   <div class="card">
-    <div class="card-title">3-way match <span class="card-sub">PO · GRN · Invoice</span></div>
+    <div class="card-title" id="match-card-title">3-way match <span class="card-sub" id="match-card-sub">PO · GRN · Invoice</span></div>
     <div class="match-hdr"><span>Vendor</span><span>Description</span><span>PO</span><span>GRN</span><span>Invoice</span><span>Status</span></div>
     <div id="three-way-match"></div>
     <div style="margin-top:8px;font-size:10px;color:var(--grey-mid);">
@@ -156,9 +156,9 @@
   <!-- RERA escrow + IQ -->
   <div style="display:flex;flex-direction:column;gap:10px;">
     <div class="card">
-      <div class="card-title">RERA escrow compliance <span class="card-sub">70% rule — all projects</span></div>
+      <div class="card-title" id="escrow-card-title">RERA escrow compliance <span class="card-sub" id="escrow-card-sub">70% rule — all projects</span></div>
       <div id="escrow-list"></div>
-      <div style="margin-top:6px;font-size:9px;color:var(--grey-mid);">RERA requires 70% of collections to be held in designated escrow. Utilisation only on project expenditure with CA certification.</div>
+      <div id="escrow-note" style="margin-top:6px;font-size:9px;color:var(--grey-mid);">RERA requires 70% of collections to be held in designated escrow. Utilisation only on project expenditure with CA certification.</div>
     </div>
     <div class="iq-box">
       <div class="iq-title">✦ Project IQ — Finance intelligence</div>
@@ -1211,6 +1211,7 @@ function renderProjectSidebar(activePage, projectId) {
       <span class="sb-dot" style="background:#EF9F27;"></span>P&L summary
     </div>
 
+    ${(p && p.delivery_model==='works_contract') ? '' : `
     <div class="sb-section">Leasing & Sales</div>
     <div class="sb-item ${activePage==='sales'?'active':''}" onclick="goTo('sales','${id}')">
       <span class="sb-dot" style="background:#E24B4A;"></span>Sales pipeline
@@ -1220,7 +1221,7 @@ function renderProjectSidebar(activePage, projectId) {
     </div>
     <div class="sb-item ${activePage==='sales'?'active':''}" onclick="goTo('sales','${id}')">
       <span class="sb-dot" style="background:#E24B4A;"></span>Revenue forecast
-    </div>
+    </div>`}
 
     <div class="sb-section">Stakeholder & CX</div>
     <div class="sb-item ${activePage==='cx'?'active':''}" onclick="goTo('cx','${id}')">
@@ -1428,29 +1429,41 @@ const b = window.PIQ.builder;
 
 // ── Sidebar & Topbar ─────────────────────────────────────
 document.getElementById('sidebar-container').innerHTML = renderProjectSidebar('finance', pid);
+const isWorks = p.delivery_model === 'works_contract';
 document.getElementById('page-title').textContent = p.name + ' — Finance';
-document.getElementById('page-sub').textContent = p.type + ' · ' + p.location + ' · Budget: Rs.' + (p.budget_cr||130) + ' Cr · EAC: Rs.' + (p.eac_cr||142) + ' Cr';
+document.getElementById('page-sub').textContent = isWorks
+  ? p.type + ' · ' + p.location + ' · Contract: Rs.' + p.contract_value_cr + ' Cr · RA billed: Rs.' + p.ra_bills_paid_cr + ' Cr'
+  : p.type + ' · ' + p.location + ' · Budget: Rs.' + (p.budget_cr||130) + ' Cr · EAC: Rs.' + (p.eac_cr||142) + ' Cr';
 document.getElementById('topbar-right').innerHTML =
-  '<span class="status-pill pill-red">Rs.' + (p.pending_payables_cr||6) + 'Cr overdue</span>' +
+  (isWorks
+    ? '<span class="status-pill pill-blue">Works contract</span>'
+    : '<span class="status-pill pill-red">Rs.' + (p.pending_payables_cr||6) + 'Cr overdue</span>') +
   '<button class="iq-topbar-btn" onclick="openIQ()">&#10022; Ask Project IQ</button>' +
   '<div class="avatar">' + b.md_initials + '</div>';
 
 if(p.alert){ document.getElementById('alert-bar-container').innerHTML = '<div class="alert-bar"><div class="alert-row"><span class="alert-tag at-critical">Alert</span><span>' + p.alert + '</span></div></div>'; }
 
 // ── KPI STRIP ─────────────────────────────────────────────
-const bac = p.budget_cr || 130;
-const eac = p.eac_cr || 142;
+const bac = p.budget_cr || (isWorks ? p.contract_value_cr : 130);
+const eac = p.eac_cr || (isWorks ? 6.85 : 142);
 const cpi = p.cpi || 0.91;
 const spi = p.spi || 0.89;
 const overrun = (eac - bac).toFixed(1);
-document.getElementById('kpi-grid').innerHTML = [
+document.getElementById('kpi-grid').innerHTML = (isWorks ? [
+  {label:'Contract value',      value:'Rs.'+bac+' Cr',   sub:'SoR estimate, less tender %'},
+  {label:'EAC (forecast)',      value:'Rs.'+eac+' Cr',   sub:'Rs.'+overrun+' Cr vs contract', delta:eac>bac?'Watch':'On budget', dclass:eac>bac?'delta-amber':'delta-green'},
+  {label:'CPI',                 value:cpi,               sub:'Cost performance index · Target >1.0', delta:cpi>=1?'Healthy':'Watch', dclass:cpi>=1?'delta-green':'delta-amber'},
+  {label:'SPI',                 value:spi,               sub:'Schedule performance · Target >1.0',   delta:spi>=1?'Healthy':'Behind', dclass:spi>=1?'delta-green':'delta-red'},
+  {label:'RA billed',           value:'Rs.'+p.ra_bills_paid_cr+' Cr',         sub:'3rd RA bill certified'},
+  {label:'Retention held',      value:'Rs.0.20 Cr',      sub:'5% · released on completion + DLP'},
+] : [
   {label:'Budget (BAC)',        value:'Rs.'+bac+' Cr',   sub:'Approved project budget'},
   {label:'EAC (forecast)',      value:'Rs.'+eac+' Cr',   sub:'Rs.'+overrun+' Cr overrun projected', delta:'Overrun risk', dclass:'delta-red'},
   {label:'CPI',                 value:cpi,               sub:'Cost performance index · Target >1.0', delta:cpi>=1?'Healthy':'Watch', dclass:cpi>=1?'delta-green':'delta-amber'},
   {label:'SPI',                 value:spi,               sub:'Schedule performance · Target >1.0',   delta:spi>=1?'Healthy':'Behind', dclass:spi>=1?'delta-green':'delta-red'},
   {label:'Pending payables',    value:'Rs.'+(p.pending_payables_cr||6)+' Cr', sub:'Rs.'+(p.pending_payables_cr||6-3.5).toFixed(1)+' Cr overdue >30 days', delta:'Action needed', dclass:'delta-red'},
   {label:'Collection rate',     value:(p.collection_efficiency||84)+'%',      sub:'Of demand raised · Target 90%'},
-].map(k=>'<div class="kpi"><div class="kpi-label">'+k.label+'</div><div class="kpi-value" style="font-size:'+(String(k.value).length>7?'16px':'22px')+'">'+k.value+'</div><div class="kpi-sub">'+(k.delta?'<span class="kpi-delta '+(k.dclass||'')+'">'+k.delta+'</span> ':'')+k.sub+'</div></div>').join('');
+]).map(k=>'<div class="kpi"><div class="kpi-label">'+k.label+'</div><div class="kpi-value" style="font-size:'+(String(k.value).length>7?'16px':'22px')+'">'+k.value+'</div><div class="kpi-sub">'+(k.delta?'<span class="kpi-delta '+(k.dclass||'')+'">'+k.delta+'</span> ':'')+k.sub+'</div></div>').join('');
 
 // ── EVM SCORECARD ─────────────────────────────────────────
 const ev  = Math.round(bac * (p.overall_progress||54.5) / 100 * 10) / 10;
@@ -1520,7 +1533,12 @@ document.getElementById('cashflow-summary').innerHTML = [
 ].map(s=>'<div style="background:var(--grey-light);border-radius:6px;padding:8px 10px;text-align:center;"><div style="font-size:16px;font-weight:700;color:'+s.col+';">'+s.val+'</div><div style="font-size:9px;color:var(--grey-mid);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">'+s.lbl+'</div></div>').join('');
 
 // ── AP AGING ─────────────────────────────────────────────
-const agingBuckets = [
+const agingBuckets = isWorks ? [
+  {label:'Current (0-30d)', amount:0.42, pct:55, color:'#1D9E75'},
+  {label:'31-60 days',      amount:0.20, pct:26, color:'#EF9F27'},
+  {label:'61-90 days',      amount:0.10, pct:13, color:'#E24B4A'},
+  {label:'>90 days',        amount:0.05, pct:6,  color:'#791F1F'},
+] : [
   {label:'Current (0-30d)', amount:2.8, pct:47, color:'#1D9E75'},
   {label:'31-60 days',      amount:1.4, pct:23, color:'#EF9F27'},
   {label:'61-90 days',      amount:1.2, pct:20, color:'#E24B4A'},
@@ -1534,7 +1552,13 @@ document.getElementById('aging-legend').innerHTML = agingBuckets.map(b =>
   '<div class="aging-leg"><div class="aging-sq" style="background:' + b.color + ';"></div>' + b.label + ' — Rs.' + b.amount + 'Cr</div>'
 ).join('');
 
-const apBills = [
+const apBills = isWorks ? [
+  {vendor:'Sri Venkateswara Metals', inv:'INV-4021', desc:'GSB & WMM aggregate — R1-R2', amt:'Rs.24L', age:'22d', aclass:'age-ok'},
+  {vendor:'AP Bitumen & HMP',        inv:'INV-4033', desc:'Bituminous mix — R1 BM/BC',   amt:'Rs.38L', age:'15d', aclass:'age-ok'},
+  {vendor:'Krishna Earthmovers',     inv:'INV-3998', desc:'Earthwork & formation hire',  amt:'Rs.16L', age:'48d', aclass:'age-warn'},
+  {vendor:'Podili RCC Works',        inv:'INV-4009', desc:'Box culvert ch. 4.900',       amt:'Rs.12L', age:'67d', aclass:'age-crit'},
+  {vendor:'Prakasam Diesel & Fuel',  inv:'INV-4040', desc:'Plant & machinery fuel',      amt:'Rs.6L',  age:'12d', aclass:'age-ok'},
+] : [
   {vendor:'Sai Constructions',    inv:'INV-2891', desc:'RCC Tower B Floors 1-6', amt:'Rs.82L',  age:'45d',  aclass:'age-warn'},
   {vendor:'BK Plastering',        inv:'INV-2904', desc:'Plastering Tower A',      amt:'Rs.28L',  age:'18d',  aclass:'age-ok'},
   {vendor:'PowerTech MEP',        inv:'INV-2918', desc:'Electrical fit-out L1-8', amt:'Rs.44L',  age:'92d',  aclass:'age-crit'},
@@ -1550,10 +1574,18 @@ document.getElementById('ap-list').innerHTML = apBills.map(b =>
   '<div class="ap-age ' + b.aclass + '">' + b.age + '</div>' +
   '</div>'
 ).join('');
-document.getElementById('ap-alert').innerHTML = '<strong>2 invoices >60 days:</strong> PowerTech MEP (92d) and MarbleWorks (67d) — total Rs.62L. 3-way match pending. Finance Controller sign-off needed today.';
+document.getElementById('ap-alert').innerHTML = isWorks
+  ? '<strong>1 invoice >60 days:</strong> Podili RCC Works (67d) — Rs.12L for the box culvert. Check-measurement pending; certify and clear with the next RA bill.'
+  : '<strong>2 invoices >60 days:</strong> PowerTech MEP (92d) and MarbleWorks (67d) — total Rs.62L. 3-way match pending. Finance Controller sign-off needed today.';
 
 // ── AR TRACKER ────────────────────────────────────────────
-const arItems = [
+const arItems = isWorks ? [
+  {buyer:'RA-1', unit:'ch. 0.0-2.1',  demand:'Earthwork + GSB — certified & paid', amt:'Rs.1.20 Cr', days:'Paid Sep', cls:'current'},
+  {buyer:'RA-2', unit:'ch. 0.0-4.2',  demand:'GSB + BM — certified & paid',        amt:'Rs.1.60 Cr', days:'Paid Jan', cls:'current'},
+  {buyer:'RA-3', unit:'ch. 0.0-5.2',  demand:'BM + BC R1 — certified',             amt:'Rs.1.10 Cr', days:'Due 30d',  cls:'overdue'},
+  {buyer:'RA-4', unit:'draft',        demand:'BC R1 + culvert — check-measurement',amt:'Rs.0.60 Cr', days:'In prep',  cls:'current'},
+  {buyer:'Escalation', unit:'Cl. 63', demand:'Bitumen price index claim',          amt:'Rs.0.18 Cr', days:'Under review', cls:'current'},
+] : [
   {buyer:'Mrs. Lakshmi Rao', unit:'9B',   demand:'D5 — Plastering',  amt:'Rs.10.2L', days:'65d overdue', cls:'overdue'},
   {buyer:'Mrs. Priya Nair',  unit:'7A',   demand:'D4 — MEP',         amt:'Rs.8.5L',  days:'19d overdue', cls:'overdue'},
   {buyer:'Mr. Raju Sharma',  unit:'3B',   demand:'D3 — Slab',        amt:'Rs.12L',   days:'Due May 10',  cls:'current'},
@@ -1569,13 +1601,22 @@ document.getElementById('ar-list').innerHTML = arItems.map(a =>
   '</div>'
 ).join('');
 const totalOverdue = 10.2 + 8.5;
-document.getElementById('ar-summary').innerHTML = [
+document.getElementById('ar-summary').innerHTML = (isWorks ? [
+  {val:'Rs.1.10 Cr', lbl:'Certified, unpaid', col:'var(--red)'},
+  {val:'Rs.0.20 Cr', lbl:'Retention held',    col:'var(--amber-mid)'},
+] : [
   {val:'Rs.'+totalOverdue.toFixed(1)+'L', lbl:'Total overdue', col:'var(--red)'},
   {val:'Rs.30L',                           lbl:'Due this month', col:'var(--amber-mid)'},
-].map(s=>'<div style="background:var(--grey-light);border-radius:6px;padding:8px;text-align:center;"><div style="font-size:16px;font-weight:700;color:'+s.col+';">'+s.val+'</div><div style="font-size:9px;color:var(--grey-mid);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">'+s.lbl+'</div></div>').join('');
+]).map(s=>'<div style="background:var(--grey-light);border-radius:6px;padding:8px;text-align:center;"><div style="font-size:16px;font-weight:700;color:'+s.col+';">'+s.val+'</div><div style="font-size:9px;color:var(--grey-mid);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">'+s.lbl+'</div></div>').join('');
 
 // ── 3-WAY MATCH ───────────────────────────────────────────
-const matches = [
+const matches = isWorks ? [
+  {vendor:'Earthwork R1-R2',  desc:'MB \u2192 check \u2192 RA', po:'Rs.68L', grn:'Rs.68L',   inv:'Rs.68L', status:'ms-ok',  label:'Matched'},
+  {vendor:'GSB R1-R2',        desc:'MB \u2192 check \u2192 RA', po:'Rs.52L', grn:'Rs.52L',   inv:'Rs.52L', status:'ms-ok',  label:'Matched'},
+  {vendor:'BC R1',            desc:'MB \u2192 check \u2192 RA', po:'Rs.47L', grn:'Rs.47L',   inv:'held',   status:'ms-fail',label:'QC withheld'},
+  {vendor:'WMM R3',           desc:'MB \u2192 check \u2192 RA', po:'Rs.14L', grn:'Rs.3L',    inv:'\u2014', status:'ms-warn',label:'Hindrance'},
+  {vendor:'Box culvert ch4.9',desc:'MB \u2192 check \u2192 RA', po:'Rs.12L', grn:'pending',  inv:'\u2014', status:'ms-warn',label:'Check pending'},
+] : [
   {vendor:'Sai Constructions',desc:'RCC Works',     po:'Rs.82L', grn:'Rs.82L',  inv:'Rs.82L',  status:'ms-ok',  label:'Matched'},
   {vendor:'BK Plastering',    desc:'Plastering',    po:'Rs.28L', grn:'Rs.26L',  inv:'Rs.28L',  status:'ms-warn',label:'GRN short'},
   {vendor:'PowerTech MEP',    desc:'Electrical',    po:'Rs.44L', grn:'Rs.44L',  inv:'Rs.47L',  status:'ms-fail',label:'Invoice high'},
@@ -1594,7 +1635,14 @@ document.getElementById('three-way-match').innerHTML = matches.map(m =>
 ).join('');
 
 // ── COST PLAN VS ACTUAL ───────────────────────────────────
-const costData = [
+const costData = isWorks ? [
+  {disc:'Earthwork & formation', budget:95,  actual:92,  color:'#1B3A6B'},
+  {disc:'Granular sub-base',     budget:105, actual:98,  color:'#EF9F27'},
+  {disc:'WMM base',              budget:90,  actual:42,  color:'#D85A30'},
+  {disc:'Bituminous (BM+BC)',    budget:240, actual:118, color:'#7F77DD'},
+  {disc:'Cross-drainage',        budget:85,  actual:68,  color:'#378ADD'},
+  {disc:'Shoulders & drains',    budget:57,  actual:32,  color:'#1D9E75'},
+] : [
   {disc:'Civil & Structure', budget:52, actual:49, color:'#1B3A6B'},
   {disc:'MEP',               budget:18, actual:20, color:'#EF9F27'},
   {disc:'Finishing',         budget:24, actual:14, color:'#D85A30'},
@@ -1624,19 +1672,39 @@ const escrow = [
   {project:'TekTower One',     collected:48.0,  escrow:33.6, required_pct:70, col:'#1D9E75'},
   {project:'Green Valley',     collected:0,     escrow:0,    required_pct:70, col:'#888'},
 ];
-document.getElementById('escrow-list').innerHTML = escrow.map(e => {
-  const requiredAmt = e.collected * 0.7;
-  const actualPct = e.collected > 0 ? Math.round((e.escrow / e.collected) * 100) : 0;
-  const compliant = actualPct >= 70 || e.collected === 0;
-  const fillCol = compliant ? '#1D9E75' : '#E24B4A';
-  return '<div class="escrow-row">' +
-    '<div class="escrow-project">' + e.project.split(' ')[0] + '</div>' +
-    '<div class="escrow-bar-wrap"><div class="escrow-fill" style="width:' + Math.min(100,actualPct) + '%;background:' + fillCol + ';"></div></div>' +
-    '<div class="escrow-pct" style="color:' + fillCol + ';">' + actualPct + '%</div>' +
-    '<div class="escrow-req">Req: 70%</div>' +
-    '<div class="escrow-status" style="background:' + (compliant?'var(--teal-light)':'var(--red-light)') + ';color:' + (compliant?'var(--teal)':'var(--red)') + ';">' + (e.collected===0?'Pre-launch':compliant?'Compliant':'Breach') + '</div>' +
-    '</div>';
-}).join('');
+if(isWorks){
+  document.getElementById('escrow-card-title').firstChild.textContent = 'Retention & recoveries ';
+  document.getElementById('escrow-card-sub').textContent = 'Works-contract deductions';
+  document.getElementById('escrow-note').textContent = 'Retention is released after the defect liability period. Mobilisation advance is recovered pro-rata against running-account bills.';
+  const recov = [
+    {lbl:'Retention held',        val:'Rs.0.20 Cr', note:'5% of Rs.3.90 Cr certified', pct:60, col:'#EF9F27'},
+    {lbl:'Mobilisation advance',  val:'Rs.0.40 Cr', note:'recovered of Rs.0.67 Cr (60%)', pct:60, col:'#1D9E75'},
+    {lbl:'Performance guarantee', val:'Rs.0.34 Cr', note:'5% BG · valid to Mar 2028', pct:100, col:'#1B3A6B'},
+    {lbl:'Security deposit',      val:'Rs.0.34 Cr', note:'held against SD', pct:100, col:'#378ADD'},
+  ];
+  document.getElementById('escrow-list').innerHTML = recov.map(r =>
+    '<div class="escrow-row">' +
+      '<div class="escrow-project" style="width:130px;">' + r.lbl + '</div>' +
+      '<div class="escrow-bar-wrap"><div class="escrow-fill" style="width:' + r.pct + '%;background:' + r.col + ';"></div></div>' +
+      '<div class="escrow-pct" style="width:70px;color:' + r.col + ';">' + r.val + '</div>' +
+      '<div class="escrow-req" style="width:auto;flex:1;text-align:left;padding-left:8px;">' + r.note + '</div>' +
+    '</div>'
+  ).join('');
+} else {
+  document.getElementById('escrow-list').innerHTML = escrow.map(e => {
+    const requiredAmt = e.collected * 0.7;
+    const actualPct = e.collected > 0 ? Math.round((e.escrow / e.collected) * 100) : 0;
+    const compliant = actualPct >= 70 || e.collected === 0;
+    const fillCol = compliant ? '#1D9E75' : '#E24B4A';
+    return '<div class="escrow-row">' +
+      '<div class="escrow-project">' + e.project.split(' ')[0] + '</div>' +
+      '<div class="escrow-bar-wrap"><div class="escrow-fill" style="width:' + Math.min(100,actualPct) + '%;background:' + fillCol + ';"></div></div>' +
+      '<div class="escrow-pct" style="color:' + fillCol + ';">' + actualPct + '%</div>' +
+      '<div class="escrow-req">Req: 70%</div>' +
+      '<div class="escrow-status" style="background:' + (compliant?'var(--teal-light)':'var(--red-light)') + ';color:' + (compliant?'var(--teal)':'var(--red)') + ';">' + (e.collected===0?'Pre-launch':compliant?'Compliant':'Breach') + '</div>' +
+      '</div>';
+  }).join('');
+}
 
 // ── IQ FINANCE INSIGHT ────────────────────────────────────
 const iqFinance = {
@@ -1644,8 +1712,15 @@ const iqFinance = {
   oaks:       'Prestige Oaks CPI is healthy at 1.04. All escrow balances are compliant. Q3 cash flow is positive. Watch the structure milestone payment due from 12 buyers in May — Rs.38L expected inflow.',
   tektower:   'TekTower finance is the strongest performer. CPI 1.08. OC related costs (Rs.8L approx) not yet budgeted — add to cost plan now. Final tenant payments due on possession — Rs.22L from TechCorp upon OC.',
   greenvalley:'Green Valley has zero collections. Pre-launch expenditure (Rs.4.2L) is being funded from builder equity. HMDA approval costs and RERA registration fee (Rs.2.8L) to be budgeted. First collections begin on RERA registration + bookings.',
+  ruralroad:  'CPI 0.98 — near target. 3rd RA bill Rs.1.10 Cr certified; payment due from the department in 30 days. Retention Rs.0.20 Cr held (5%); mobilisation advance 60% recovered. Reach 3 APSPDCL hindrance supports a time-extension and a bitumen price-escalation claim under clause 63 — keep the measurement book contemporaneous. Box culvert RCC (Rs.12L) check-measurement pending; clear before the next RA bill.',
 };
 document.getElementById('iq-finance').textContent = iqFinance[pid] || iqFinance.skyline;
+if(isWorks){
+  document.getElementById('ar-card-title').firstChild.textContent = 'RA bill receivables ';
+  document.getElementById('ar-card-sub').textContent = 'From department \u2014 certified & outstanding';
+  document.getElementById('match-card-title').firstChild.textContent = 'Measurement \u2192 RA bill ';
+  document.getElementById('match-card-sub').textContent = 'MB \u00b7 Check \u00b7 RA bill';
+}
 
 // ── EXPOSE GLOBALS ────────────────────────────────────────
 window.openIQ = openIQ;
