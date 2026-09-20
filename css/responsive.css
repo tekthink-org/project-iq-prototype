@@ -63,3 +63,25 @@
   /* shrink the rotating health cube so it fits a phone card */
   .solar-sm { transform: scale(0.78); transform-origin: center; }
 }
+
+/* ============================================================
+   BUYER PORTAL (portal.html) — mobile fixes
+   portal.html is self-contained (own inline styles). These
+   rules only match its unique classes, so they don't affect
+   the builder pages.
+   ============================================================ */
+@media (max-width: 600px) {
+  /* tab bar: 7 tabs -> horizontal-scroll strip instead of overflowing the page */
+  .portal-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding: 0 8px;
+    scrollbar-width: none;          /* Firefox: hide scrollbar */
+  }
+  .portal-tabs::-webkit-scrollbar { display: none; }   /* WebKit: hide scrollbar */
+  .ptab { flex: 0 0 auto; padding: 12px 13px; }        /* don't shrink; keep tappable */
+
+  /* kill any residual sideways page scroll on phones */
+  html, body { overflow-x: hidden; }
+}
